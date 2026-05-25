@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Ghost Keys{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-title-block">
+    <h1 class="page-title glitch-text" data-text="GHOST KEY VAULT">GHOST KEY VAULT</h1>
+    <p class="page-subtitle">API credentials and grid configuration</p>
+  </div>
+</div>
+
+<div class="settings-layout">
+
+  <!-- API Keys section -->
+  <div class="settings-section">
+    <div class="section-header">
+      <span class="section-icon neon-green">🔑</span>
+      <span class="section-title">API KEYS — INTELLIGENCE SOURCES</span>
+    </div>
+    <form action="{{ url_for('settings.save_api_keys') }}" method="POST">
+      <div class="api-keys-grid">
+        {% set api_groups = {
+          'Network & Infrastructure': ['shodan', 'censys', 'censys_id', 'censys_secret', 'zoomeye', 'binaryedge', 'securitytrails', 'spyse'],
+          'Threat Intelligence': ['virustotal', 'abuseipdb', 'greynoise', 'alienvault', 'urlscan'],
+          'Email & Identity': ['hunter', 'hibp', 'fullcontact', 'clearbit'],
+          'People Search': ['pipl', 'spokeo', 'whitepages', 'intelius'],
+          'Geolocation': ['ipinfo'],
+          'Social Media': ['github', 'twitter_bearer', 'instagram', 'tiktok_client_key', 'tiktok_client_secret', 'linkedin_rapidapi', 'youtube'],
+          'Domain & WHOIS': ['whoisxml', 'google_cse', 'google_cse_id', 'bing'],
+          'Notifications': ['telegram', 'slack_token']
+        } %}
+        {% for group, key_names in api_groups.items() %}
+        <div class="key-group">
+          <div class="key-group-title">{{ group }}</div>
+          {% for key_name in key_names %}
+          <div class="key-row">
+            <div class="key-row-header">
+              <span class="key-name">{{ key_name }}</span>
+              <span class="key-status {% if config.api_keys.get(key_name) %}key-set{% else %}key-missing{% endif %}">
+                {% if config.api_keys.get(key_name) %}● SET{% else %}○ NOT SET{% endif %}
+              </span>
+              {% if config.api_keys.get(key_name) %}
+              <button type="button" class="btn-test btn-sm" onclick="testAPI('{{ key_name }}', this)">TEST</button>
+              {% endif %}
+            </div>
+            <div class="key-input-row">
+              <input type="hidden" name="api_name" value="{{ key_name }}">
+              <input type="password" name="api_key"
+                     class="input-field key-input"
+                     placeholder="{% if config.api_keys.get(key_name) %}***REDACTED***{% else %}Enter API key...{% endif %}"
+                     autocomplete="new-password">
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+      <button type="submit" class="btn btn-primary btn-glow" style="margin-top:1.5rem;">
+        🔑 UPLOAD GHOST KEYS TO VAULT
+      </button>
+    </form>
+  </div>
+
+  <!-- Scraper settings -->
+  <div class="settings-section">
+    <div class="section-header">
+      <span class="section-icon neon-cyan">🕷</span>
+      <span class="section-title">SCRAPER CONFIGURATION</span>
+    </div>
+    <form action="{{ url_for('settings.save_scraper_settings') }}" method="POST">
+      <div class="settings-grid">
+        <div class="form-group">
+          <label class="form-label">REQUEST DELAY (seconds)</label>
+          <input type="number" name="delay" step="0.5" min="0" max="30"
+                 value="{{ config.scraper.download_delay }}" class="input-field">
+        </div>
+        <div class="form-group">
+          <label class="form-label">CONCURRENT REQUESTS</label>
+          <input type="number" name="concurrent" min="1" max="100"
+                 value="{{ config.scraper.concurrent_requests }}" class="input-field">
+        </div>
+        <div class="toggle-row">
+          <label class="toggle-label">
+            <input type="checkbox" name="respect_robots" class="toggle-check"
+                   {% if config.scraper.respect_robots_txt %}checked{% endif %}>
+            <span class="toggle-switch"></span>
+            <span class="toggle-text">RESPECT ROBOTS.TXT</span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <label class="toggle-label">
+            <input type="checkbox" name="tor_enabled" class="toggle-check"
+                   {% if config.scraper.tor_enabled %}checked{% endif %}>
+            <span class="toggle-switch"></span>
+            <span class="toggle-text">TOR PROXY (port 9050)</span>
+          </label>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-secondary" style="margin-top:1rem;">SAVE CONFIG</button>
+    </form>
+  </div>
+
+  <!-- All available APIs reference -->
+  <div class="settings-section">
+    <div class="section-header">
+      <span class="section-icon neon-purple">◉</span>
+      <span class="section-title">AVAILABLE INTELLIGENCE SOURCES</span>
+    </div>
+    <div class="api-ref-grid">
+      {% for api in apis %}
+      <div class="api-ref-card {% if api.is_configured %}api-configured{% else %}api-not-configured{% endif %}">
+        <div class="api-ref-header">
+          <span class="api-ref-name">{{ api.name }}</span>
+          <span class="api-tier tier-{{ api.tier }}">{{ api.tier }}</span>
+          <span class="api-ref-status {% if api.is_configured %}text-green{% else %}text-dim{% endif %}">
+            {{ '● ONLINE' if api.is_configured else '○ OFFLINE' }}
+          </span>
+        </div>
+        <p class="api-ref-desc">{{ api.description }}</p>
+        <div class="api-ref-meta">
+          <span class="api-categories">{{ api.categories|join(', ') }}</span>
+          {% if api.sign_up_url %}
+          <a href="{{ api.sign_up_url }}" target="_blank" class="api-signup-link">GET KEY ↗</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function testAPI(apiName, btn) {
+  btn.textContent = '...';
+  btn.disabled = true;
+  fetch(`/settings/api/test/${apiName}`)
+    .then(r => r.json())
+    .then(data => {
+      btn.textContent = data.status === 'ok' ? '✓ OK' : '✗ FAIL';
+      btn.style.color = data.status === 'ok' ? '#00ff41' : '#ff2d55';
+      showToast(
+        data.status === 'ok'
+          ? `${apiName} signal confirmed — ${data.result_count} results`
+          : `${apiName} signal lost — ${data.message}`,
+        data.status === 'ok' ? 'success' : 'error'
+      );
+    })
+    .catch(() => { btn.textContent = '✗ ERR'; })
+    .finally(() => { setTimeout(() => { btn.textContent = 'TEST'; btn.disabled = false; }, 2000); });
+}
+</script>
+{% endblock %}

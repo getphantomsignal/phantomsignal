@@ -1,0 +1,77 @@
+## NightOwl .gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+.env
+.env.local
+.env.production
+
+# NightOwl runtime
+nightowl.db
+nightowl.db-shm
+nightowl.db-wal
+exports/
+*.enc
+/data/
+
+# API keys — NEVER commit these
+config/nightowl.yaml
+~/.nightowl/
+
+# Scrapy
+.scrapy/
+scrapy.cfg
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Claude Code local settings
+.claude/
+
+# Docker
+.docker/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Playwright
+playwright-report/
+test-results/
+
+# Certificates
+*.pem
+*.key
+*.crt
+
+# Temp
+*.tmp
+*.bak
+tmp/
+temp/

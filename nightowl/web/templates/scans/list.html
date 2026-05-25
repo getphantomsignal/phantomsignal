@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Ghost Runs{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-title-block">
+    <h1 class="page-title glitch-text" data-text="GHOST RUNS">GHOST RUNS</h1>
+    <p class="page-subtitle">All recon missions in the grid</p>
+  </div>
+  <div class="header-actions">
+    <a href="{{ url_for('scans.new_scan') }}" class="btn btn-primary btn-glow">◈ NEW MISSION</a>
+  </div>
+</div>
+
+<div class="card">
+  {% if scans %}
+  <table class="data-table full-table">
+    <thead>
+      <tr>
+        <th>TARGET</th><th>NAME</th><th>TYPE</th><th>STATUS</th>
+        <th>SHADOW SCORE</th><th>THREAT</th><th>RESULTS</th><th>STARTED</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for scan in scans %}
+      <tr class="table-row">
+        <td class="target-cell">
+          <span class="target-icon">◈</span>
+          <a href="{{ url_for('scans.scan_results', scan_id=scan.id) }}" class="target-link">
+            {{ scan.target[:45] }}
+          </a>
+        </td>
+        <td class="text-dim">{{ scan.name[:30] if scan.name else '—' }}</td>
+        <td><span class="badge badge-type">{{ scan.scan_type }}</span></td>
+        <td>
+          <span class="status-badge status-{{ scan.status }}">
+            {% if scan.status == 'running' %}<span class="blink">▶</span> {% endif %}
+            {{ scan.status.upper() }}
+          </span>
+        </td>
+        <td>
+          {% if scan.shadow_score is not none %}
+          <div class="score-cell">
+            <div class="score-bar-mini">
+              <div class="score-fill" style="width: {{ scan.shadow_score }}%"></div>
+            </div>
+            <span class="score-num">{{ "%.0f"|format(scan.shadow_score) }}</span>
+          </div>
+          {% else %}<span class="text-dim">—</span>{% endif %}
+        </td>
+        <td>
+          <span class="threat-badge threat-{{ scan.threat_level or 'unknown' }}">
+            {{ (scan.threat_level or '?').upper()[:4] }}
+          </span>
+        </td>
+        <td class="neon-cyan">{{ scan.result_count }}</td>
+        <td class="text-dim text-sm">{{ scan.started_at[:16] if scan.started_at else scan.created_at[:16] }}</td>
+        <td>
+          <div class="action-group">
+            <a href="{{ url_for('scans.scan_results', scan_id=scan.id) }}" class="action-link">VIEW</a>
+            <a href="{{ url_for('export.export_options', scan_id=scan.id) }}" class="action-link">EXPORT</a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state large">
+    <div class="empty-owl">🦉</div>
+    <h3>No ghost runs in the grid</h3>
+    <p>The night is quiet. Launch a mission to break the silence.</p>
+    <a href="{{ url_for('scans.new_scan') }}" class="btn btn-primary btn-glow">LAUNCH FIRST MISSION</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

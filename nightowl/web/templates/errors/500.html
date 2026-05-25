@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}500 — Grid Malfunction{% endblock %}
+{% block content %}
+<div style="text-align:center;padding:6rem 2rem;">
+  <div style="font-size:6rem;color:var(--neon-pink);text-shadow:0 0 20px var(--neon-pink);margin-bottom:1rem;">500</div>
+  <h1 class="glitch-text" data-text="SYSTEM FAILURE">SYSTEM FAILURE</h1>
+  <p style="color:var(--text-dim);margin:1rem 0 2rem;">A critical error destabilized the grid. The phantom engineers have been notified.</p>
+  <a href="{{ url_for('dashboard.index') }}" class="btn btn-primary">← RETURN TO GRID</a>
+</div>
+{% endblock %}

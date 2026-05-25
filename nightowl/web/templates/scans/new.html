@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+{% block title %}New Mission{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-title-block">
+    <h1 class="page-title glitch-text" data-text="LAUNCH GHOST RUN">LAUNCH GHOST RUN</h1>
+    <p class="page-subtitle">Configure your recon parameters, Operative</p>
+  </div>
+</div>
+
+<form action="{{ url_for('scans.launch_scan') }}" method="POST" id="scan-form" class="scan-form">
+  <div class="form-layout">
+
+    <!-- Left column: main config -->
+    <div class="form-main">
+
+      <!-- Target input -->
+      <div class="form-section">
+        <div class="section-header">
+          <span class="section-icon neon-green">◈</span>
+          <span class="section-title">MARK ACQUISITION</span>
+        </div>
+        <div class="target-input-wrap">
+          <div class="target-label">TARGET IDENTIFIER</div>
+          <input type="text" name="target" id="target-input"
+                 class="target-input"
+                 placeholder="ENTER TARGET // IP · DOMAIN · URL · EMAIL · USERNAME"
+                 required autocomplete="off" spellcheck="false">
+          <div id="target-type-badge" class="target-type-badge"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">MISSION NAME</label>
+            <input type="text" name="name" class="input-field"
+                   placeholder="Auto-generated if blank">
+          </div>
+          <div class="form-group">
+            <label class="form-label">TAGS</label>
+            <input type="text" name="tags" class="input-field"
+                   placeholder="client, bug-bounty, research...">
+          </div>
+        </div>
+      </div>
+
+      <!-- Scan profile selector -->
+      <div class="form-section">
+        <div class="section-header">
+          <span class="section-icon neon-cyan">◉</span>
+          <span class="section-title">MISSION PROFILE</span>
+        </div>
+        <div class="profile-grid">
+          <label class="profile-card">
+            <input type="radio" name="profile" value="quick" class="profile-radio">
+            <div class="profile-content">
+              <div class="profile-icon">⚡</div>
+              <div class="profile-name">QUICK PROBE</div>
+              <div class="profile-desc">Fast surface scan. DNS, top ports, tech stack.</div>
+              <div class="profile-time">~30s</div>
+            </div>
+          </label>
+          <label class="profile-card selected">
+            <input type="radio" name="profile" value="standard" checked class="profile-radio">
+            <div class="profile-content">
+              <div class="profile-icon">◈</div>
+              <div class="profile-name">STANDARD RECON</div>
+              <div class="profile-desc">Balanced depth. All modules, moderate crawl.</div>
+              <div class="profile-time">~2-5min</div>
+            </div>
+          </label>
+          <label class="profile-card">
+            <input type="radio" name="profile" value="deep" class="profile-radio">
+            <div class="profile-content">
+              <div class="profile-icon">⬡</div>
+              <div class="profile-name">DEEP DIVE</div>
+              <div class="profile-desc">Thorough crawl, full port scan, all intel APIs.</div>
+              <div class="profile-time">~10-30min</div>
+            </div>
+          </label>
+          <label class="profile-card ghost-card">
+            <input type="radio" name="profile" value="ghost" class="profile-radio">
+            <div class="profile-content">
+              <div class="profile-icon">👻</div>
+              <div class="profile-name">GHOST MODE</div>
+              <div class="profile-desc">Low-and-slow, identity rotation, minimal footprint.</div>
+              <div class="profile-time">Variable</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Module selection -->
+      <div class="form-section">
+        <div class="section-header">
+          <span class="section-icon neon-purple">◫</span>
+          <span class="section-title">RECON MODULES</span>
+          <button type="button" class="section-toggle" onclick="toggleAll()">TOGGLE ALL</button>
+        </div>
+        <div class="module-grid">
+          <label class="module-toggle active">
+            <input type="checkbox" name="modules" value="dns_recon" checked class="module-check">
+            <div class="module-card">
+              <div class="module-icon">🌐</div>
+              <div class="module-name">DNS RECON</div>
+              <div class="module-desc">Records, subdomains, zone transfer, SPF/DMARC</div>
+            </div>
+          </label>
+          <label class="module-toggle active">
+            <input type="checkbox" name="modules" value="port_scan" checked class="module-check">
+            <div class="module-card">
+              <div class="module-icon">🔌</div>
+              <div class="module-name">PORT SCANNER</div>
+              <div class="module-desc">Async TCP scan with banner grabbing</div>
+            </div>
+          </label>
+          <label class="module-toggle active">
+            <input type="checkbox" name="modules" value="tech_detect" checked class="module-check">
+            <div class="module-card">
+              <div class="module-icon">🔬</div>
+              <div class="module-name">TECH DETECTOR</div>
+              <div class="module-desc">Framework, CMS, CDN, WAF, security headers</div>
+            </div>
+          </label>
+          <label class="module-toggle active">
+            <input type="checkbox" name="modules" value="api_hunt" checked class="module-check">
+            <div class="module-card">
+              <div class="module-icon">🎯</div>
+              <div class="module-name">API HUNTER</div>
+              <div class="module-desc">Endpoints, GraphQL, swagger, admin panels</div>
+            </div>
+          </label>
+          <label class="module-toggle active">
+            <input type="checkbox" name="modules" value="web_crawl" checked class="module-check">
+            <div class="module-card">
+              <div class="module-icon">🕷</div>
+              <div class="module-name">WEB CRAWLER</div>
+              <div class="module-desc">Links, forms, emails, JS, comments</div>
+            </div>
+          </label>
+          <label class="module-toggle active">
+            <input type="checkbox" name="modules" value="intel" checked class="module-check">
+            <div class="module-card">
+              <div class="module-icon">📡</div>
+              <div class="module-name">INTEL APIS</div>
+              <div class="module-desc">Shodan, VirusTotal, AbuseIPDB & more</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Scan type -->
+      <div class="form-section">
+        <div class="section-header">
+          <span class="section-icon neon-orange">⚙</span>
+          <span class="section-title">SCAN TYPE</span>
+        </div>
+        <div class="select-group">
+          <select name="scan_type" class="input-field select-field">
+            <option value="web_recon">WEB RECON — Domain / URL</option>
+            <option value="ip_recon">IP RECON — Single IP address</option>
+            <option value="domain_recon">DOMAIN RECON — Full domain analysis</option>
+            <option value="people_intel">PEOPLE INTEL — Identity search</option>
+            <option value="full_spectrum">FULL SPECTRUM — All modules</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right column: advanced options -->
+    <div class="form-sidebar">
+
+      <!-- Advanced options -->
+      <div class="form-section">
+        <div class="section-header">
+          <span class="section-icon neon-green">⚙</span>
+          <span class="section-title">ADVANCED CONFIG</span>
+        </div>
+        <div class="advanced-options">
+          <div class="form-group">
+            <label class="form-label">CRAWL DEPTH</label>
+            <div class="range-wrap">
+              <input type="range" name="depth" min="1" max="5" value="2"
+                     class="range-input" oninput="document.getElementById('depth-val').textContent=this.value">
+              <span id="depth-val" class="range-val">2</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">PORT PROFILE</label>
+            <select name="port_profile" class="input-field select-field">
+              <option value="common">Common (67 ports)</option>
+              <option value="top1000">Top 1000</option>
+              <option value="full">Full range (65535)</option>
+            </select>
+          </div>
+          <div class="toggle-row">
+            <label class="toggle-label">
+              <input type="checkbox" name="respect_robots" class="toggle-check" checked>
+              <span class="toggle-switch"></span>
+              <span class="toggle-text">RESPECT ROBOTS.TXT</span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <label class="toggle-label">
+              <input type="checkbox" name="ghost_mode" class="toggle-check">
+              <span class="toggle-switch"></span>
+              <span class="toggle-text">GHOST MODE (low & slow)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active APIs for this scan -->
+      <div class="form-section">
+        <div class="section-header">
+          <span class="section-icon neon-cyan">◉</span>
+          <span class="section-title">API ARSENAL</span>
+        </div>
+        <div class="api-list-compact">
+          {% for api in api_status %}
+          <div class="api-row {% if api.is_configured %}configured{% else %}unconfigured{% endif %}">
+            <span class="api-status-dot"></span>
+            <span class="api-row-name">{{ api.name }}</span>
+            <span class="api-tier tier-{{ api.tier }}">{{ api.tier }}</span>
+            {% if not api.is_configured %}
+              <a href="{{ url_for('settings.settings_page') }}" class="api-setup-link">SETUP</a>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Disclaimer -->
+      <div class="disclaimer-box">
+        <div class="disclaimer-icon">⚠</div>
+        <p>Only scan targets you have <strong>explicit authorization</strong> to test. You assume all legal responsibility.</p>
+      </div>
+
+      <!-- Launch button -->
+      <button type="submit" class="btn btn-launch btn-glow" id="launch-btn">
+        <span class="launch-icon">◈</span>
+        <span class="launch-text">INITIATE GHOST RUN</span>
+        <span class="launch-loading" style="display:none">DEPLOYING...</span>
+      </button>
+
+    </div>
+  </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const targetInput = document.getElementById('target-input');
+const badge = document.getElementById('target-type-badge');
+
+targetInput.addEventListener('input', function() {
+  const val = this.value.trim();
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(val)) {
+    badge.textContent = '● IP ADDRESS';
+    badge.className = 'target-type-badge type-ip';
+  } else if (/@/.test(val)) {
+    badge.textContent = '● EMAIL ADDRESS';
+    badge.className = 'target-type-badge type-email';
+  } else if (/^https?:\/\//.test(val)) {
+    badge.textContent = '● URL';
+    badge.className = 'target-type-badge type-url';
+  } else if (/^[\w\-]+\.[\w\-]+/.test(val)) {
+    badge.textContent = '● DOMAIN';
+    badge.className = 'target-type-badge type-domain';
+  } else if (val.length > 2) {
+    badge.textContent = '● USERNAME / KEYWORD';
+    badge.className = 'target-type-badge type-user';
+  } else {
+    badge.textContent = '';
+    badge.className = 'target-type-badge';
+  }
+});
+
+// Profile card selection
+document.querySelectorAll('.profile-radio').forEach(radio => {
+  radio.addEventListener('change', function() {
+    document.querySelectorAll('.profile-card').forEach(c => c.classList.remove('selected'));
+    this.closest('.profile-card').classList.add('selected');
+  });
+});
+
+// Module toggle styling
+document.querySelectorAll('.module-check').forEach(cb => {
+  cb.addEventListener('change', function() {
+    const label = this.closest('.module-toggle');
+    label.classList.toggle('active', this.checked);
+  });
+});
+
+function toggleAll() {
+  const checkboxes = document.querySelectorAll('.module-check');
+  const allChecked = [...checkboxes].every(c => c.checked);
+  checkboxes.forEach(c => {
+    c.checked = !allChecked;
+    c.closest('.module-toggle').classList.toggle('active', !allChecked);
+  });
+}
+
+document.getElementById('scan-form').addEventListener('submit', function() {
+  const btn = document.getElementById('launch-btn');
+  btn.querySelector('.launch-text').style.display = 'none';
+  btn.querySelector('.launch-loading').style.display = 'inline';
+  btn.disabled = true;
+  btn.classList.add('loading');
+});
+</script>
+{% endblock %}

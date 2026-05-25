@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Export — {{ scan.target }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-title-block">
+    <h1 class="page-title glitch-text" data-text="INTEL PACKET EXPORT">INTEL PACKET EXPORT</h1>
+    <p class="page-subtitle">Compile and export intelligence for: <strong>{{ scan.target }}</strong></p>
+  </div>
+  <a href="{{ url_for('scans.scan_results', scan_id=scan.id) }}" class="btn btn-ghost">← BACK</a>
+</div>
+
+<div class="export-grid">
+  <div class="form-section">
+    <form action="{{ url_for('export.generate_export', scan_id=scan.id) }}" method="POST" id="export-form">
+      <div class="section-header">
+        <span class="section-icon neon-green">◫</span>
+        <span class="section-title">SELECT FORMAT</span>
+      </div>
+      <div class="format-grid">
+        {% for fmt, icon, desc in [
+          ('json', '📄', 'Raw JSON — machine readable'),
+          ('csv', '📊', 'Spreadsheet compatible'),
+          ('html', '🌐', 'Self-contained report'),
+          ('pdf', '📕', 'Styled PDF dossier'),
+          ('xml', '💾', 'XML structured data'),
+          ('xlsx', '📈', 'Excel workbook'),
+          ('stix', '🛡', 'STIX 2.1 threat bundle'),
+          ('markdown', '📝', 'Markdown document'),
+        ] %}
+        <label class="format-card {% if fmt == 'json' %}selected{% endif %}">
+          <input type="radio" name="format" value="{{ fmt }}" class="format-radio" {% if fmt == 'json' %}checked{% endif %}>
+          <div class="format-icon">{{ icon }}</div>
+          <div class="format-name">{{ fmt.upper() }}</div>
+          <div class="format-desc">{{ desc }}</div>
+        </label>
+        {% endfor %}
+      </div>
+
+      <div class="form-section" style="background:transparent;border:none;padding:1rem 0;">
+        <div class="section-header">
+          <span class="section-icon neon-cyan">🔐</span>
+          <span class="section-title">SECURITY OPTIONS</span>
+        </div>
+        <div class="toggle-row">
+          <label class="toggle-label">
+            <input type="checkbox" name="compress" class="toggle-check" id="compress-toggle">
+            <span class="toggle-switch"></span>
+            <span class="toggle-text">COMPRESS (ZIP)</span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <label class="toggle-label">
+            <input type="checkbox" name="encrypt" class="toggle-check" id="encrypt-toggle">
+            <span class="toggle-switch"></span>
+            <span class="toggle-text">ENCRYPT (AES-256-GCM)</span>
+          </label>
+        </div>
+        <div id="password-field" style="display:none;margin-top:0.75rem;">
+          <label class="form-label">ENCRYPTION PASSWORD</label>
+          <input type="password" name="password" class="input-field"
+                 placeholder="Enter passphrase..." autocomplete="new-password">
+          <p style="font-size:0.7rem;color:var(--text-dim);margin-top:0.3rem;">
+            ⚠ Store this passphrase securely — it cannot be recovered.
+          </p>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-glow btn-full">
+        ↓ COMPILE INTEL PACKET
+      </button>
+    </form>
+  </div>
+
+  <div class="form-section">
+    <div class="section-header">
+      <span class="section-icon neon-purple">◈</span>
+      <span class="section-title">SCAN SUMMARY</span>
+    </div>
+    <table class="data-table" style="font-size:0.82rem;">
+      <tr><td class="text-dim" style="width:40%">Target</td><td>{{ scan.target }}</td></tr>
+      <tr><td class="text-dim">Results</td><td class="neon-cyan">{{ scan.result_count }}</td></tr>
+      <tr><td class="text-dim">Shadow Score</td><td>{{ "%.0f"|format(scan.shadow_score or 0) }}/100</td></tr>
+      <tr><td class="text-dim">Threat Level</td><td><span class="threat-badge threat-{{ scan.threat_level or 'unknown' }}">{{ (scan.threat_level or 'unknown').upper() }}</span></td></tr>
+      <tr><td class="text-dim">Duration</td><td>{{ "%.1f"|format(scan.duration_seconds or 0) }}s</td></tr>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.format-radio').forEach(r => {
+  r.addEventListener('change', function() {
+    document.querySelectorAll('.format-card').forEach(c => c.classList.remove('selected'));
+    this.closest('.format-card').classList.add('selected');
+  });
+});
+
+document.getElementById('encrypt-toggle').addEventListener('change', function() {
+  document.getElementById('password-field').style.display = this.checked ? 'block' : 'none';
+});
+</script>
+{% endblock %}

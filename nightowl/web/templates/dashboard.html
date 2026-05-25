@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-title-block">
+    <h1 class="page-title glitch-text" data-text="SHADOW GRID">SHADOW GRID</h1>
+    <p class="page-subtitle">Operative command center — all systems nominal</p>
+  </div>
+  <div class="header-actions">
+    <a href="{{ url_for('scans.new_scan') }}" class="btn btn-primary btn-glow">
+      <span class="btn-icon">◈</span> LAUNCH GHOST RUN
+    </a>
+  </div>
+</div>
+
+<!-- Stats row -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon neon-green">◫</div>
+    <div class="stat-value neon-green">{{ stats.total_scans }}</div>
+    <div class="stat-label">TOTAL MISSIONS</div>
+    <div class="stat-bar"><div class="stat-bar-fill green" style="width: 100%"></div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon neon-cyan pulse-anim">◉</div>
+    <div class="stat-value neon-cyan">{{ stats.active_scans }}</div>
+    <div class="stat-label">ACTIVE GHOSTS</div>
+    <div class="stat-bar"><div class="stat-bar-fill cyan" style="width: {{ [stats.active_scans * 20, 100]|min }}%"></div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon neon-purple">⬡</div>
+    <div class="stat-value neon-purple">{{ stats.total_results }}</div>
+    <div class="stat-label">SIGNALS CAPTURED</div>
+    <div class="stat-bar"><div class="stat-bar-fill purple" style="width: 75%"></div></div>
+  </div>
+  <div class="stat-card {% if stats.critical_threats > 0 %}threat-card{% endif %}">
+    <div class="stat-icon neon-red">⚠</div>
+    <div class="stat-value neon-red">{{ stats.critical_threats }}</div>
+    <div class="stat-label">CRITICAL THREATS</div>
+    <div class="stat-bar"><div class="stat-bar-fill red" style="width: {{ [stats.critical_threats * 15, 100]|min }}%"></div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon neon-orange">⚙</div>
+    <div class="stat-value neon-orange">{{ configured_apis }}</div>
+    <div class="stat-label">APIS ONLINE</div>
+    <div class="stat-bar"><div class="stat-bar-fill orange" style="width: {{ [configured_apis * 5, 100]|min }}%"></div></div>
+  </div>
+</div>
+
+<!-- Main content columns -->
+<div class="dashboard-columns">
+
+  <!-- Recent missions -->
+  <div class="dash-panel">
+    <div class="panel-header">
+      <span class="panel-title">◫ RECENT GHOST RUNS</span>
+      <a href="{{ url_for('scans.list_scans') }}" class="panel-link">VIEW ALL →</a>
+    </div>
+    <div class="panel-body">
+      {% if recent_scans %}
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>TARGET</th><th>TYPE</th><th>STATUS</th><th>SHADOW SCORE</th><th>THREAT</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for scan in recent_scans %}
+            <tr class="table-row threat-{{ scan.threat_level or 'unknown' }}">
+              <td class="target-cell">
+                <span class="target-icon">◈</span>
+                <span class="target-name">{{ scan.target[:40] }}</span>
+              </td>
+              <td><span class="badge badge-type">{{ scan.scan_type }}</span></td>
+              <td>
+                <span class="status-badge status-{{ scan.status }}">
+                  {% if scan.status == 'running' %}<span class="blink">▶</span> {% endif %}
+                  {{ scan.status.upper() }}
+                </span>
+              </td>
+              <td>
+                {% if scan.shadow_score is not none %}
+                  <div class="score-bar-mini">
+                    <div class="score-fill" style="width: {{ scan.shadow_score }}%"></div>
+                  </div>
+                  <span class="score-num">{{ "%.0f"|format(scan.shadow_score) }}</span>
+                {% else %}
+                  <span class="text-dim">—</span>
+                {% endif %}
+              </td>
+              <td>
+                <span class="threat-badge threat-{{ scan.threat_level or 'unknown' }}">
+                  {{ (scan.threat_level or 'unknown').upper() }}
+                </span>
+              </td>
+              <td>
+                <a href="{{ url_for('scans.scan_results', scan_id=scan.id) }}" class="action-link">VIEW →</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="empty-state">
+          <div class="empty-owl">🦉</div>
+          <p>No ghost runs in the grid yet.</p>
+          <a href="{{ url_for('scans.new_scan') }}" class="btn btn-sm btn-primary">LAUNCH FIRST MISSION</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Right column -->
+  <div class="dash-sidebar">
+
+    <!-- Live terminal feed -->
+    <div class="dash-panel terminal-panel">
+      <div class="panel-header">
+        <span class="panel-title">◉ LIVE FEED</span>
+        <span class="terminal-blink">█</span>
+      </div>
+      <div id="live-terminal" class="terminal-output">
+        <div class="term-line term-system">
+          <span class="term-prompt">[NIGHTOWL]</span>
+          <span class="term-msg">Signal established. Grid online.</span>
+        </div>
+        <div class="term-line term-system">
+          <span class="term-prompt">[SYSTEM]</span>
+          <span class="term-msg">Awaiting operative commands...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- API status panel -->
+    <div class="dash-panel">
+      <div class="panel-header">
+        <span class="panel-title">⚙ API GRID STATUS</span>
+        <a href="{{ url_for('settings.settings_page') }}" class="panel-link">CONFIGURE →</a>
+      </div>
+      <div class="panel-body">
+        <div class="api-grid">
+          {% for api in api_status[:16] %}
+          <div class="api-chip {% if api.is_configured %}api-online{% else %}api-offline{% endif %}">
+            <span class="api-dot"></span>
+            <span class="api-name">{{ api.name }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        {% if api_status|length > 16 %}
+          <p class="text-dim" style="font-size:0.75rem; margin-top:0.5rem;">
+            +{{ api_status|length - 16 }} more APIs available
+          </p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Quick launch panel -->
+    <div class="dash-panel">
+      <div class="panel-header">
+        <span class="panel-title">◈ QUICK PROBE</span>
+      </div>
+      <div class="panel-body">
+        <form action="{{ url_for('scans.launch_scan') }}" method="POST" class="quick-form">
+          <input type="hidden" name="profile" value="quick">
+          <input type="hidden" name="modules" value="dns_recon">
+          <input type="hidden" name="modules" value="port_scan">
+          <input type="hidden" name="modules" value="tech_detect">
+          <div class="input-group">
+            <input type="text" name="target" placeholder="TARGET // IP · DOMAIN · URL"
+                   class="input-field input-dark" required autocomplete="off">
+            <button type="submit" class="btn btn-sm btn-accent">PROBE</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-refresh active scan status
+document.addEventListener("DOMContentLoaded", () => {
+  {% if stats.active_scans > 0 %}
+    setTimeout(() => location.reload(), 10000);
+  {% endif %}
+});
+</script>
+{% endblock %}
