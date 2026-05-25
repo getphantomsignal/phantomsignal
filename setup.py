@@ -16,9 +16,8 @@ setup(
     description="NightOwl :: Open-Source OSINT Intelligence Framework",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    author="NightOwl Community",
-    author_email="ops@nightowl-osint.io",
-    url="https://github.com/nightowl-osint/nightowl",
+    author="packetsn1ffer",
+    url="https://github.com/the-clipper/nightowl",
     packages=find_packages(),
     include_package_data=True,
     python_requires=">=3.10",
@@ -46,9 +45,7 @@ setup(
     ],
     keywords="osint intelligence reconnaissance security pentest",
     project_urls={
-        "Documentation": "https://nightowl-osint.readthedocs.io",
-        "Bug Reports": "https://github.com/nightowl-osint/nightowl/issues",
-        "Source": "https://github.com/nightowl-osint/nightowl",
-        "Community": "https://discord.gg/nightowl-osint",
+        "Bug Reports": "https://github.com/the-clipper/nightowl/issues",
+        "Source": "https://github.com/the-clipper/nightowl",
     },
 )

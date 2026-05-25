@@ -123,7 +123,7 @@ class BaseIntelAPI(abc.ABC):
 
     def _default_headers(self) -> Dict[str, str]:
         return {
-            "User-Agent": "NightOwl-OSINT/1.0 (+https://github.com/nightowl-osint/nightowl)",
+            "User-Agent": "NightOwl-OSINT/1.0 (+https://github.com/the-clipper/nightowl)",
             "Accept": "application/json",
         }
 

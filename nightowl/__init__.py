@@ -19,7 +19,7 @@ __credits__ = [
     "Claude (Anthropic) — AI architecture, implementation, full-stack development",
 ]
 __license__ = "MIT"
-__url__ = "https://github.com/nightowl-osint/nightowl"
+__url__ = "https://github.com/the-clipper/nightowl"
 
 BANNER = r"""
  ███╗   ██╗██╗ ██████╗ ██╗  ██╗████████╗ ██████╗ ██╗    ██╗██╗

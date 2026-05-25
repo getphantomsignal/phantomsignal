@@ -22,13 +22,19 @@ env/
 nightowl.db
 nightowl.db-shm
 nightowl.db-wal
+*.db
+*.sqlite
+*.sqlite3
 exports/
 *.enc
 /data/
+instance/
 
 # API keys — NEVER commit these
 config/nightowl.yaml
-~/.nightowl/
+config/*.yaml
+config/*.json
+config/*.toml
 
 # Scrapy
 .scrapy/
@@ -75,3 +81,8 @@ test-results/
 *.bak
 tmp/
 temp/
+
+# NightOwl scan data / exports
+scans/
+reports/
+screenshots/
