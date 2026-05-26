@@ -25,7 +25,7 @@
 
 ### CLI — Ghost Run in action
 
-![CLI scan demo](docs/assets/screenshot_cli.svg)
+![CLI scan demo](docs/assets/demo.gif)
 
 ### Web UI — Shadow Grid (Dashboard)
 
