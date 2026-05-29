@@ -35,7 +35,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 ## [1.1.0] — 2026-05-28
 
 ### Added
-- GitHub Pages project landing site at `https://the-clipper.github.io/nightowl/` (`docs/`)
+- GitHub Pages project landing site at `https://owlrecon.io` (`docs/`)
   - Hero section with install block and copy button
   - Features grid, capabilities breakdown, quickstart tabs, and intelligence grid
   - Asciinema demo embed and SVG web UI screenshots
