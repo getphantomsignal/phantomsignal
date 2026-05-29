@@ -17,6 +17,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/the-clipper/nightowl?style=flat-square&color=00ff41)](https://github.com/the-clipper/nightowl/stargazers)
 [![Open Issues](https://img.shields.io/github/issues/the-clipper/nightowl?style=flat-square&color=b026ff)](https://github.com/the-clipper/nightowl/issues)
 [![CI](https://img.shields.io/github/actions/workflow/status/the-clipper/nightowl/ci.yml?branch=main&style=flat-square&label=CI&color=00ff41)](https://github.com/the-clipper/nightowl/actions/workflows/ci.yml)
+[![Project Site](https://img.shields.io/badge/site-nightowl-00f3ff?style=flat-square&logo=github)](https://the-clipper.github.io/nightowl/)
 
 
 ---
