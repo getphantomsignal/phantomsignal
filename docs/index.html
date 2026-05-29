@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="NightOwl — Open-source OSINT intelligence framework for security researchers, penetration testers, and digital investigators.">
+  <meta property="og:title" content="NightOwl // PHANTOM SIGNAL">
+  <meta property="og:description" content="Open-source OSINT intelligence framework. See everything. Leave no trace.">
+  <meta property="og:image" content="assets/owl-ascii-transparent.png">
+  <title>NightOwl // PHANTOM SIGNAL — Open-Source OSINT Framework</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <canvas id="matrix-canvas"></canvas>
+  <div class="scanlines"></div>
+
+  <!-- NAV -->
+  <nav class="site-nav">
+    <a href="#" class="nav-brand">
+      <img src="assets/owl-ascii-transparent.png" class="nav-owl" alt="NightOwl">
+      <span>NIGHT<span class="accent">OWL</span></span>
+    </a>
+    <div class="nav-links">
+      <a href="#features" class="nav-link">FEATURES</a>
+      <a href="#quickstart" class="nav-link">INSTALL</a>
+      <a href="USAGE.html" class="nav-link">DOCS</a>
+      <a href="https://github.com/the-clipper/nightowl" target="_blank" class="nav-link nav-gh">
+        <svg class="gh-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        GITHUB
+      </a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-owl-wrap">
+        <img src="assets/owl-ascii-transparent.png" class="hero-owl" alt="NightOwl">
+      </div>
+      <div class="hero-text">
+        <div class="hero-eyebrow">// PHANTOM SIGNAL v1.0.0</div>
+        <h1 class="hero-title">NIGHT<span class="accent">OWL</span></h1>
+        <p class="hero-tagline">"See everything. Leave no trace."</p>
+        <p class="hero-sub">Open-source OSINT intelligence framework for security researchers,<br>penetration testers, and digital investigators.</p>
+        <div class="hero-actions">
+          <div class="install-block">
+            <span class="install-prompt">$</span>
+            <code class="install-cmd" id="install-cmd">git clone https://github.com/the-clipper/nightowl</code>
+            <button class="copy-btn" onclick="copyInstall()" title="Copy">
+              <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h-1v1H2V6h1V5H2z"/></svg>
+            </button>
+          </div>
+          <div class="hero-btns">
+            <a href="#quickstart" class="btn btn-primary">⚡ QUICK START</a>
+            <a href="https://github.com/the-clipper/nightowl" target="_blank" class="btn btn-outline">★ STAR ON GITHUB</a>
+          </div>
+        </div>
+        <div class="hero-badges">
+          <img src="https://img.shields.io/badge/python-3.10+-00ff41?style=flat-square&logo=python" alt="Python">
+          <img src="https://img.shields.io/badge/license-MIT-00f3ff?style=flat-square" alt="MIT License">
+          <img src="https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Docker-b026ff?style=flat-square" alt="Platform">
+          <img src="https://img.shields.io/github/stars/the-clipper/nightowl?style=flat-square&color=00ff41" alt="Stars">
+        </div>
+      </div>
+    </div>
+    <div class="hero-scroll">▼ SCROLL</div>
+  </section>
+
+  <!-- DEMO -->
+  <section class="section section-demo" id="demo">
+    <div class="section-inner">
+      <div class="section-label">◉ LIVE DEMO</div>
+      <h2 class="section-title">Ghost Run in Action</h2>
+      <p class="section-sub">Full-spectrum recon against example.com — DNS, ports, tech stack, APIs, and web crawl in one command.</p>
+      <div class="demo-wrap">
+        <div class="demo-bar">
+          <span class="demo-dot red"></span>
+          <span class="demo-dot yellow"></span>
+          <span class="demo-dot green"></span>
+          <span class="demo-title">nightowl — scan example.com</span>
+        </div>
+        <img src="assets/demo.gif" class="demo-gif" alt="NightOwl CLI demo">
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section" id="features">
+    <div class="section-inner">
+      <div class="section-label">◈ CAPABILITIES</div>
+      <h2 class="section-title">Everything in One Grid</h2>
+      <p class="section-sub">Six intelligence modules. One unified platform.</p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon" style="color:var(--green)">🕸️</div>
+          <h3 class="feature-title">Web Reconnaissance</h3>
+          <p class="feature-desc">Scrapy-powered deep crawler. Technology fingerprinting across 50+ stacks — CMS, frameworks, CDNs, WAFs. API endpoint discovery, security header analysis, email and link harvesting.</p>
+          <div class="feature-tags">
+            <span class="tag">Scrapy</span><span class="tag">Wappalyzer</span><span class="tag">API Hunter</span>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon" style="color:var(--cyan)">🌐</div>
+          <h3 class="feature-title">DNS Intelligence</h3>
+          <p class="feature-desc">Full DNS enumeration — A, MX, NS, TXT, SOA, CAA. Zone transfer attempts. Subdomain brute-force plus certificate transparency via crt.sh. SPF/DMARC spoofing analysis.</p>
+          <div class="feature-tags">
+            <span class="tag">crt.sh</span><span class="tag">Zone Transfer</span><span class="tag">SPF/DMARC</span>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon" style="color:var(--purple)">🔌</div>
+          <h3 class="feature-title">Port Scanner</h3>
+          <p class="feature-desc">Async TCP scanner up to 65,535 ports. Service banner grabbing and version detection. Risk-based port assessment — identifies admin panels, databases, and exposed dev services.</p>
+          <div class="feature-tags">
+            <span class="tag">Async</span><span class="tag">Banner Grab</span><span class="tag">65k Ports</span>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon" style="color:var(--pink)">📡</div>
+          <h3 class="feature-title">Intelligence APIs</h3>
+          <p class="feature-desc">30+ integrations: Shodan, VirusTotal, AbuseIPDB, GreyNoise, SecurityTrails, URLScan, AlienVault OTX, IPInfo, Hunter.io, HaveIBeenPwned, and more. Plugin architecture for custom sources.</p>
+          <div class="feature-tags">
+            <span class="tag">Shodan</span><span class="tag">VirusTotal</span><span class="tag">+28 more</span>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon" style="color:var(--green)">👤</div>
+          <h3 class="feature-title">Shadow Profiler</h3>
+          <p class="feature-desc">People intelligence aggregation from public records. Cross-correlates emails, phones, social accounts, breach data, and aliases. Outputs a Shadow Score — digital exposure quantified.</p>
+          <div class="feature-tags">
+            <span class="tag">HIBP</span><span class="tag">Pipl</span><span class="tag">Shadow Score</span>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon" style="color:var(--cyan)">📦</div>
+          <h3 class="feature-title">Export &amp; Encrypt</h3>
+          <p class="feature-desc">JSON, CSV, HTML, PDF, XLSX, STIX 2.1, XML, Markdown. All formats support ZIP compression and AES-256-GCM encryption. Share client-ready reports or feed results into your SIEM.</p>
+          <div class="feature-tags">
+            <span class="tag">AES-256-GCM</span><span class="tag">STIX 2.1</span><span class="tag">PDF</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GHOST MODE CALLOUT -->
+  <section class="section section-ghost">
+    <div class="section-inner ghost-inner">
+      <div class="ghost-text">
+        <div class="section-label">👻 GHOST MODE</div>
+        <h2 class="section-title">Low-and-Slow. Minimum Footprint.</h2>
+        <p class="section-sub">Identity rotation, request jitter, user-agent spoofing, and optional Tor routing keep your recon beneath the noise floor. Purpose-built for engagements where detection is not an option.</p>
+        <a href="#quickstart" class="btn btn-primary" style="margin-top:1.5rem;">DEPLOY GHOST MODE</a>
+      </div>
+      <div class="ghost-code">
+        <div class="demo-bar">
+          <span class="demo-dot red"></span><span class="demo-dot yellow"></span><span class="demo-dot green"></span>
+          <span class="demo-title">ghost mode + tor</span>
+        </div>
+        <pre class="code-block"><span class="c-dim"># Docker — Ghost Mode with Tor routing</span>
+<span class="c-green">docker-compose</span> --profile ghost up -d
+
+<span class="c-dim"># CLI — Ghost Mode scan</span>
+<span class="c-green">nightowl</span> scan target.com \
+  --profile ghost \
+  --modules dns,tech \
+  --format json
+
+<span class="c-dim"># Web UI — toggle Ghost Mode</span>
+<span class="c-cyan">Advanced Config</span> → Ghost Mode (low &amp; slow) ✓</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- SHADOW SCORE -->
+  <section class="section" id="shadow-score">
+    <div class="section-inner">
+      <div class="section-label">⬡ SHADOW SCORE</div>
+      <h2 class="section-title">Exposure. Quantified.</h2>
+      <p class="section-sub">Every scan produces a Shadow Score (0–100) — a weighted composite of open ports, vulnerability findings, missing security controls, and threat intelligence flags.</p>
+      <div class="score-grid">
+        <div class="score-band" style="--band-color:#00ff41">
+          <div class="score-range">0–25</div>
+          <div class="score-label">CLEAN</div>
+          <div class="score-desc">Minimal exposure. Good security posture.</div>
+        </div>
+        <div class="score-band" style="--band-color:#ffff00">
+          <div class="score-range">26–50</div>
+          <div class="score-label">ELEVATED</div>
+          <div class="score-desc">Some findings worth reviewing and tracking.</div>
+        </div>
+        <div class="score-band" style="--band-color:#ff6b35">
+          <div class="score-range">51–75</div>
+          <div class="score-label">HIGH</div>
+          <div class="score-desc">Significant issues. Remediation recommended.</div>
+        </div>
+        <div class="score-band" style="--band-color:#ff1744">
+          <div class="score-range">76–100</div>
+          <div class="score-label">CRITICAL</div>
+          <div class="score-desc">Urgent issues. Active risk. Act immediately.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREENSHOTS -->
+  <section class="section" id="screenshots">
+    <div class="section-inner">
+      <div class="section-label">◫ WEB INTERFACE</div>
+      <h2 class="section-title">Two Themes. One Grid.</h2>
+      <p class="section-sub">Dark mode cyberpunk aesthetic or clean Phantom Dawn light mode — toggle with a single click. Both themes cover every page and component.</p>
+      <div class="screenshots-grid">
+        <div class="screenshot-card">
+          <div class="screenshot-label">SHADOW GRID — Dashboard</div>
+          <img src="assets/screenshot_dashboard.svg" class="screenshot-img" alt="Dashboard">
+        </div>
+        <div class="screenshot-card">
+          <div class="screenshot-label">LAUNCH GHOST RUN — New Mission</div>
+          <img src="assets/screenshot_launch.svg" class="screenshot-img" alt="New Mission">
+        </div>
+        <div class="screenshot-card">
+          <div class="screenshot-label">CAPTURED SIGNALS — Scan Results</div>
+          <img src="assets/screenshot_results.svg" class="screenshot-img" alt="Scan Results">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUICK START -->
+  <section class="section" id="quickstart">
+    <div class="section-inner">
+      <div class="section-label">🚀 QUICK START</div>
+      <h2 class="section-title">Up in 60 Seconds</h2>
+
+      <div class="qs-tabs">
+        <button class="qs-tab active" onclick="showTab('docker')">Docker</button>
+        <button class="qs-tab" onclick="showTab('pip')">Python / pip</button>
+        <button class="qs-tab" onclick="showTab('cli')">CLI</button>
+      </div>
+
+      <div class="qs-panel active" id="tab-docker">
+        <div class="demo-bar">
+          <span class="demo-dot red"></span><span class="demo-dot yellow"></span><span class="demo-dot green"></span>
+          <span class="demo-title">Docker (recommended)</span>
+        </div>
+        <pre class="code-block"><span class="c-green">git</span> clone https://github.com/the-clipper/nightowl
+<span class="c-green">cd</span> nightowl
+<span class="c-green">docker-compose</span> up -d
+<span class="c-dim"># Open http://localhost:5000</span></pre>
+      </div>
+
+      <div class="qs-panel" id="tab-pip">
+        <div class="demo-bar">
+          <span class="demo-dot red"></span><span class="demo-dot yellow"></span><span class="demo-dot green"></span>
+          <span class="demo-title">Python 3.10+ required</span>
+        </div>
+        <pre class="code-block"><span class="c-green">git</span> clone https://github.com/the-clipper/nightowl
+<span class="c-green">cd</span> nightowl
+<span class="c-green">python</span> -m venv .venv
+<span class="c-green">source</span> .venv/bin/activate   <span class="c-dim"># Windows: .venv\Scripts\activate</span>
+<span class="c-green">pip</span> install -e .
+<span class="c-green">python</span> run.py
+<span class="c-dim"># Open http://127.0.0.1:5000</span></pre>
+      </div>
+
+      <div class="qs-panel" id="tab-cli">
+        <div class="demo-bar">
+          <span class="demo-dot red"></span><span class="demo-dot yellow"></span><span class="demo-dot green"></span>
+          <span class="demo-title">CLI scan examples</span>
+        </div>
+        <pre class="code-block"><span class="c-dim"># Quick probe</span>
+<span class="c-green">nightowl</span> scan example.com --profile quick
+
+<span class="c-dim"># Standard recon with HTML report</span>
+<span class="c-green">nightowl</span> scan example.com \
+  --profile standard \
+  --format html \
+  --output ./reports
+
+<span class="c-dim"># People intelligence</span>
+<span class="c-green">nightowl</span> profile \
+  --email target@example.com \
+  --first-name John --last-name Doe</pre>
+      </div>
+
+      <p class="qs-note">⚠ For authorized use only. See the <a href="https://github.com/the-clipper/nightowl#️-legal--ethics" target="_blank">Legal &amp; Ethics</a> section before running any scan.</p>
+    </div>
+  </section>
+
+  <!-- API INTEGRATIONS -->
+  <section class="section section-apis">
+    <div class="section-inner">
+      <div class="section-label">🔌 INTELLIGENCE GRID</div>
+      <h2 class="section-title">30+ API Integrations</h2>
+      <p class="section-sub">Configure your own keys in Ghost Keys — every API has a free tier to get started.</p>
+      <div class="api-chips">
+        <span class="api-chip green">Shodan</span>
+        <span class="api-chip cyan">VirusTotal</span>
+        <span class="api-chip purple">Censys</span>
+        <span class="api-chip green">AbuseIPDB</span>
+        <span class="api-chip cyan">GreyNoise</span>
+        <span class="api-chip purple">AlienVault OTX</span>
+        <span class="api-chip green">SecurityTrails</span>
+        <span class="api-chip cyan">URLScan.io</span>
+        <span class="api-chip purple">IPInfo</span>
+        <span class="api-chip green">Hunter.io</span>
+        <span class="api-chip cyan">HaveIBeenPwned</span>
+        <span class="api-chip purple">FullContact</span>
+        <span class="api-chip green">Clearbit</span>
+        <span class="api-chip cyan">ZoomEye</span>
+        <span class="api-chip purple">BinaryEdge</span>
+        <span class="api-chip green">WhoisXML</span>
+        <span class="api-chip cyan">Pipl</span>
+        <span class="api-chip purple">GitHub</span>
+        <span class="api-chip green">Twitter / X</span>
+        <span class="api-chip dim">+ 11 more via plugin API</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section section-cta">
+    <div class="section-inner cta-inner">
+      <img src="assets/owl-ascii-transparent.png" class="cta-owl" alt="">
+      <h2 class="section-title">Ready to run a Ghost Run?</h2>
+      <p class="section-sub">Open-source. MIT licensed. No telemetry. No phone-home. Your recon stays on your machine.</p>
+      <div class="hero-btns">
+        <a href="#quickstart" class="btn btn-primary">⚡ INSTALL NOW</a>
+        <a href="USAGE.html" class="btn btn-outline">📖 READ THE DOCS</a>
+        <a href="https://github.com/the-clipper/nightowl" target="_blank" class="btn btn-outline">★ GITHUB</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="footer-logo">NIGHT<span class="accent">OWL</span></span>
+        <span class="footer-sub">// OPEN SOURCE OSINT FRAMEWORK</span>
+      </div>
+      <div class="footer-disclaimer">FOR AUTHORIZED USE ONLY · KNOW YOUR TARGET'S LAWS</div>
+      <div class="footer-right">
+        <span class="footer-copy">© 2026 packetsn1ffer · MIT License</span>
+        <span>·</span>
+        <a href="https://github.com/the-clipper/nightowl" target="_blank" class="footer-link">GITHUB</a>
+        <span>·</span>
+        <a href="USAGE.html" class="footer-link">DOCS</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Matrix rain
+    (function(){
+      const canvas = document.getElementById('matrix-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()アイウエオカキクケコサシスセソ';
+      let cols, drops, fontSize = 13;
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        cols = Math.floor(canvas.width / fontSize);
+        drops = new Float32Array(cols).fill(0);
+        for (let i = 0; i < cols; i++) drops[i] = Math.random() * -canvas.height / fontSize;
+      }
+      function draw() {
+        ctx.fillStyle = 'rgba(10,10,15,0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < cols; i++) {
+          const char = CHARS[Math.floor(Math.random() * CHARS.length)];
+          const bright = Math.random() > 0.97;
+          ctx.fillStyle = bright ? 'rgba(255,255,255,0.9)' : 'rgba(0,255,65,0.3)';
+          ctx.font = `${fontSize}px monospace`;
+          ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+          drops[i] += 0.5;
+        }
+      }
+      resize();
+      window.addEventListener('resize', resize);
+      let last = 0;
+      function loop(t) {
+        if (t - last > 50) { draw(); last = t; }
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+    })();
+
+    // Copy install command
+    function copyInstall() {
+      navigator.clipboard.writeText(document.getElementById('install-cmd').textContent);
+      const btn = document.querySelector('.copy-btn');
+      btn.style.color = '#00ff41';
+      setTimeout(() => btn.style.color = '', 1500);
+    }
+
+    // Quick start tabs
+    function showTab(name) {
+      document.querySelectorAll('.qs-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.qs-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const el = document.querySelector(a.getAttribute('href'));
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  </script>
+</body>
+</html>
