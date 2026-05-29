@@ -2,6 +2,8 @@
 
 Thanks for wanting to improve NightOwl. Here's how to get from zero to a merged PR.
 
+Before you start: read the [Code of Conduct](CODE_OF_CONDUCT.md). It is short, direct, and non-negotiable. If you are contributing a security-relevant change or have found a vulnerability, read the [Security Policy](SECURITY.md) first.
+
 ---
 
 ## Dev Setup
@@ -69,7 +71,8 @@ Then add one import line to `nightowl/intel/orchestrator.py`.
 ## Reporting Bugs
 
 Use the [bug report template](https://github.com/the-clipper/nightowl/issues/new?template=bug_report.md).
-For security vulnerabilities, use [GitHub's private advisory system](https://github.com/the-clipper/nightowl/security/advisories/new) — not a public issue.
+
+For security vulnerabilities, **do not open a public issue.** Follow the process in [`SECURITY.md`](SECURITY.md) — private email first, coordinated disclosure before anything goes public.
 
 ---
 
