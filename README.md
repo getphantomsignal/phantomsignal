@@ -39,6 +39,15 @@
 
 ![Scan results](docs/assets/screenshot_results.svg)
 
+### Web UI — Theme Options
+
+NightOwl ships with two built-in UI themes, selectable via the **☀/🌙 toggle** in the top navigation bar. Your preference is saved automatically and persists across sessions.
+
+| Theme | Description |
+|-------|-------------|
+| **Dark** *(default)* | Cyberpunk aesthetic — deep charcoal background, neon green/cyan/purple accents, matrix rain canvas, glowing owl logo |
+| **Light** | "Phantom Dawn" — soft blue-grey background, muted accent palette, clean black ASCII logo, matrix rain disabled |
+
 > **Asciinema recording:** Watch the full interactive demo on asciinema.org, or play it locally:
 > ```bash
 > pip install asciinema
@@ -120,6 +129,7 @@ All formats support **ZIP compression** and **AES-256-GCM encryption**.
 - **Shadow Score** — composite risk/exposure scoring
 - **Scheduled Phantoms** — recurring automated ghost runs
 - **API health monitor** — dashboard showing configured APIs and rate limits
+- **Light/Dark theme** — toggle between cyberpunk Dark mode and "Phantom Dawn" Light mode via the ☀/🌙 button; preference persisted in localStorage
 - **Full REST API** — integrate NightOwl into your own toolchain
 - **CLI interface** — `nightowl scan`, `nightowl profile`, `nightowl export`
 - **Docker** — single-command deployment
