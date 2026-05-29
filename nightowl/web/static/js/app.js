@@ -178,9 +178,28 @@ function timeAgo(dateStr) {
   return `${Math.floor(h/24)}d ago`;
 }
 
+// ── Theme Management ─────────────────────────────────────────
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('nightowl-theme', theme);
+  const icon = document.getElementById('theme-icon');
+  if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀';
+}
+
 // ── Boot Sequence ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   initSocket();
+
+  // Apply saved theme and wire toggle
+  const savedTheme = localStorage.getItem('nightowl-theme') || 'dark';
+  applyTheme(savedTheme);
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      applyTheme(current === 'dark' ? 'light' : 'dark');
+    });
+  }
 
   // Auto-dismiss flashes after 6s
   document.querySelectorAll('.flash').forEach(el => {

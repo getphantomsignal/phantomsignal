@@ -1279,3 +1279,222 @@ a:hover { color: var(--neon-green); }
 .format-icon { font-size: 1.5rem; margin-bottom: 0.3rem; }
 .format-name { font-size: 0.75rem; font-weight: 600; color: var(--text-bright); }
 .format-desc { font-size: 0.65rem; color: var(--text-dim); }
+
+/* ── Owl ASCII Art Image ─────────────────────────────────────── */
+.owl-ascii-nav {
+  height: 36px;
+  width: auto;
+  display: block;
+}
+.owl-ascii-heading {
+  height: 72px;
+  width: auto;
+  display: block;
+  opacity: 0.92;
+}
+.owl-ascii-hero {
+  display: block;
+  max-width: 200px;
+  width: 100%;
+  height: auto;
+  margin: 0 0 1.5rem;
+}
+.owl-ascii-empty {
+  display: block;
+  max-width: 150px;
+  width: 100%;
+  height: auto;
+  margin: 0 auto 0.75rem;
+  opacity: 0.45;
+}
+/* Dark mode: glow to match SHADOW GRID neon green */
+.owl-ascii-nav,
+.owl-ascii-heading,
+.owl-ascii-hero,
+.owl-ascii-empty {
+  filter: drop-shadow(0 0 6px rgba(0,255,65,0.45)) drop-shadow(0 0 14px rgba(0,255,65,0.18));
+}
+/* Light mode: plain black */
+[data-theme="light"] .owl-ascii-nav,
+[data-theme="light"] .owl-ascii-heading,
+[data-theme="light"] .owl-ascii-hero,
+[data-theme="light"] .owl-ascii-empty {
+  filter: brightness(0);
+}
+
+/* ── Theme Toggle Button ─────────────────────────────────────── */
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--border-light);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.55rem;
+  border-radius: 2px;
+  transition: all 0.2s;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  border-color: var(--neon-yellow);
+  color: var(--neon-yellow);
+}
+
+/* ============================================================
+   L I G H T  T H E M E  //  PHANTOM DAWN
+   ============================================================ */
+
+[data-theme="light"] {
+  /* Accent palette — same personality, tuned for white */
+  --neon-green:    #16a34a;
+  --neon-cyan:     #0284c7;
+  --neon-purple:   #7c3aed;
+  --neon-pink:     #db2777;
+  --neon-orange:   #ea580c;
+  --neon-red:      #dc2626;
+  --neon-yellow:   #b45309;
+
+  /* Backgrounds */
+  --dark-bg:       #eef1f8;
+  --darker-bg:     #e3e8f0;
+  --card-bg:       #ffffff;
+  --card-bg-2:     #f6f8fc;
+  --border:        #d1d8e8;
+  --border-light:  #b8c4d8;
+
+  /* Text */
+  --text:          #374151;
+  --text-bright:   #111827;
+  --text-dim:      #6b7280;
+  --text-muted:    #9ca3af;
+
+  /* Glows — subtle on light backgrounds */
+  --glow-green:    0 0 6px rgba(22,163,74,0.25);
+  --glow-cyan:     0 0 6px rgba(2,132,199,0.25);
+  --glow-purple:   0 0 6px rgba(124,58,237,0.25);
+  --glow-red:      0 0 6px rgba(220,38,38,0.25);
+}
+
+/* Scrollbar */
+[data-theme="light"] ::-webkit-scrollbar-track { background: var(--border); }
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: var(--border-light); }
+
+/* Selection */
+[data-theme="light"] ::selection { background: rgba(22,163,74,0.18); color: var(--neon-green); }
+
+/* Matrix canvas — hidden in daylight */
+[data-theme="light"] #matrix-canvas { opacity: 0; }
+
+/* Scanlines — barely visible */
+[data-theme="light"] .scanlines {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.012) 2px,
+    rgba(0,0,0,0.012) 4px
+  );
+}
+
+/* Navigation */
+[data-theme="light"] .nav-bar {
+  background: rgba(255,255,255,0.97);
+  box-shadow: 0 1px 8px rgba(0,0,0,0.08);
+}
+[data-theme="light"] .nav-link:hover { background: rgba(2,132,199,0.06); }
+[data-theme="light"] .nav-link.active { background: rgba(22,163,74,0.06); }
+
+/* Panels & cards */
+[data-theme="light"] .panel-header { background: rgba(0,0,0,0.025); }
+
+/* Buttons */
+[data-theme="light"] .btn-primary  { background: rgba(22,163,74,0.08); }
+[data-theme="light"] .btn-primary:hover  { background: rgba(22,163,74,0.15); }
+[data-theme="light"] .btn-secondary { background: rgba(2,132,199,0.06); }
+[data-theme="light"] .btn-secondary:hover { background: rgba(2,132,199,0.12); }
+[data-theme="light"] .btn-danger  { background: rgba(220,38,38,0.06); }
+[data-theme="light"] .btn-danger:hover  { background: rgba(220,38,38,0.12); }
+[data-theme="light"] .btn-accent  { background: rgba(124,58,237,0.06); }
+[data-theme="light"] .btn-accent:hover  { background: rgba(124,58,237,0.12); }
+[data-theme="light"] .btn-launch  { background: rgba(22,163,74,0.06); }
+[data-theme="light"] .btn-launch:hover  {
+  background: rgba(22,163,74,0.12);
+  box-shadow: 0 0 20px rgba(22,163,74,0.18), inset 0 0 20px rgba(22,163,74,0.04);
+}
+[data-theme="light"] .btn-launch::before {
+  background: linear-gradient(90deg, transparent, rgba(22,163,74,0.06), transparent);
+}
+
+/* Forms */
+[data-theme="light"] .input-field  { background: #ffffff; }
+[data-theme="light"] .input-field:focus { background: #fafcff; box-shadow: 0 0 8px rgba(2,132,199,0.15); }
+[data-theme="light"] .select-field {
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%2316a34a'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+}
+[data-theme="light"] .select-field option { background: #ffffff; color: var(--text); }
+[data-theme="light"] .target-input {
+  background: rgba(22,163,74,0.04);
+  box-shadow: 0 0 10px rgba(22,163,74,0.08);
+}
+[data-theme="light"] .target-input:focus { box-shadow: 0 0 20px rgba(22,163,74,0.15); }
+[data-theme="light"] .toggle-check:checked ~ .toggle-switch { background: rgba(22,163,74,0.15); }
+[data-theme="light"] .section-toggle:hover { border-color: var(--neon-cyan); color: var(--neon-cyan); }
+
+/* Terminal */
+[data-theme="light"] .terminal-output { background: var(--darker-bg); }
+[data-theme="light"] .result-data     { background: var(--darker-bg); }
+
+/* Tables */
+[data-theme="light"] .table-row:hover td { background: rgba(22,163,74,0.025); }
+
+/* Status badges */
+[data-theme="light"] .status-running  { background: rgba(2,132,199,0.08); }
+[data-theme="light"] .status-complete { background: rgba(22,163,74,0.08); }
+[data-theme="light"] .status-failed   { background: rgba(220,38,38,0.08); }
+[data-theme="light"] .status-aborted  { background: rgba(234,88,12,0.08); }
+
+/* Threat badges */
+[data-theme="light"] .threat-suspicious { background: rgba(180,83,9,0.08); }
+[data-theme="light"] .threat-malicious  { background: rgba(234,88,12,0.08); }
+[data-theme="light"] .threat-critical   { background: rgba(220,38,38,0.1); }
+
+/* Result cards */
+[data-theme="light"] .result-header:hover { background: rgba(0,0,0,0.02); }
+[data-theme="light"] .result-tag { background: rgba(2,132,199,0.06); border-color: rgba(2,132,199,0.2); }
+
+/* Tabs */
+[data-theme="light"] .tab-btn.active { background: rgba(22,163,74,0.06); }
+
+/* Live section */
+[data-theme="light"] .live-section { box-shadow: 0 0 12px rgba(2,132,199,0.08); }
+[data-theme="light"] .live-header  { background: rgba(2,132,199,0.04); }
+
+/* Profile & module cards */
+[data-theme="light"] .profile-card.selected { background: rgba(22,163,74,0.05); }
+[data-theme="light"] .ghost-card.selected   { background: rgba(124,58,237,0.05); }
+[data-theme="light"] .module-toggle.active  { background: rgba(22,163,74,0.04); }
+
+/* API rows */
+[data-theme="light"] .api-online        { background: rgba(22,163,74,0.06); border-color: rgba(22,163,74,0.3); }
+[data-theme="light"] .api-source-row.enabled { background: rgba(22,163,74,0.03); }
+[data-theme="light"] .api-row.configured     { background: rgba(22,163,74,0.04); }
+[data-theme="light"] .api-configured         { border-color: rgba(22,163,74,0.25); }
+
+/* Misc */
+[data-theme="light"] .badge-type { background: rgba(2,132,199,0.08); border-color: rgba(2,132,199,0.2); }
+[data-theme="light"] .disclaimer-box { background: rgba(180,83,9,0.05); }
+[data-theme="light"] .format-card:hover,
+[data-theme="light"] .format-card.selected { background: rgba(22,163,74,0.04); }
+[data-theme="light"] .empty-owl { opacity: 0.2; }
+
+/* Footer */
+[data-theme="light"] .grid-footer { background: rgba(255,255,255,0.97); }
+
+/* Toasts */
+[data-theme="light"] .toast-success,
+[data-theme="light"] .toast-error,
+[data-theme="light"] .toast-warning,
+[data-theme="light"] .toast-info { background: rgba(255,255,255,0.97); }

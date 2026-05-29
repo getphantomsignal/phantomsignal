@@ -4,8 +4,13 @@
 {% block content %}
 <div class="page-header">
   <div class="page-title-block">
-    <h1 class="page-title glitch-text" data-text="SHADOW GRID">SHADOW GRID</h1>
-    <p class="page-subtitle">Operative command center — all systems nominal</p>
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <img src="{{ url_for('static', filename='img/owl-ascii-transparent.png') }}" class="owl-ascii-heading" alt="">
+      <div>
+        <h1 class="page-title glitch-text" data-text="SHADOW GRID">SHADOW GRID</h1>
+        <p class="page-subtitle">Operative command center — all systems nominal</p>
+      </div>
+    </div>
   </div>
   <div class="header-actions">
     <a href="{{ url_for('scans.new_scan') }}" class="btn btn-primary btn-glow">
@@ -103,7 +108,7 @@
         </table>
       {% else %}
         <div class="empty-state">
-          <div class="empty-owl">🦉</div>
+          <img src="{{ url_for('static', filename='img/owl-ascii-transparent.png') }}" class="owl-ascii-empty" alt="NightOwl">
           <p>No ghost runs in the grid yet.</p>
           <a href="{{ url_for('scans.new_scan') }}" class="btn btn-sm btn-primary">LAUNCH FIRST MISSION</a>
         </div>

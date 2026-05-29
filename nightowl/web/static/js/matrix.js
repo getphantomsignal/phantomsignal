@@ -55,11 +55,13 @@
   resize();
   window.addEventListener('resize', resize);
 
-  // Throttle to ~20fps for performance
+  // Throttle to ~20fps for performance; skip when light theme is active
   let lastTime = 0;
   function loop(timestamp) {
     if (timestamp - lastTime > 50) {
-      draw();
+      if (document.documentElement.getAttribute('data-theme') !== 'light') {
+        draw();
+      }
       lastTime = timestamp;
     }
     requestAnimationFrame(loop);
