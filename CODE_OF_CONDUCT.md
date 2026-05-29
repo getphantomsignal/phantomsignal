@@ -64,7 +64,7 @@ There is no appeal process for bans resulting from illegal use of the software.
 
 To report a violation, contact the maintainers privately:
 
-**Email:** `userid001002@gmail.com`  
+**Email:** `packetsn1ffer@proton.me`  
 **Subject line:** `[NightOwl CoC] <one-line summary>`
 
 Reports are treated as confidential. Include as much context as you can: links, timestamps, screenshots. You will receive acknowledgement within 72 hours.
