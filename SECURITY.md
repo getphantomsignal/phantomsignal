@@ -20,7 +20,7 @@ Only the latest release on the `main` branch receives security fixes. Older tags
 
 If you discover a security flaw in NightOwl — including vulnerabilities in the web interface, plugin API, authentication handling, export pipeline, or dependency chain — report it privately:
 
-**Email:** `packetsn1ffer@proton.me`  
+**Email:** `security@owlrecon.io`  
 **Subject line:** `[NightOwl SECURITY] <one-line description>`
 
 ### What to include
