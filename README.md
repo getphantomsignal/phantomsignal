@@ -274,6 +274,12 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ---
 
+## 📖 Documentation
+
+- **[Usage Guide](docs/USAGE.md)** — full walkthroughs, usage scenarios, CLI reference, and per-platform troubleshooting (Linux / macOS / Windows / Docker)
+
+---
+
 ## ⚠️ Legal & Ethics
 
 NightOwl is a dual-use tool. Operators are responsible for:
