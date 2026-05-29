@@ -13,8 +13,10 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Code of Conduct (`CODE_OF_CONDUCT.md`) — operational security standards for contributors and community members
 - Security Policy (`SECURITY.md`) — coordinated disclosure process, scope definition, and timeline commitments
 - Pull Request template (`.github/PULL_REQUEST_TEMPLATE.md`) — structured template with security considerations and authorization affirmation sections
+- `CHANGELOG.md` — full project history from 1.0.0, following Keep a Changelog format with semver comparison links
 - Phantom Dawn light theme screenshots for all three web UI views on the GitHub Pages landing site
 - GitHub Pages site badge in README
+- Changelog badge in README
 
 ### Changed
 - `CONTRIBUTING.md` now references `CODE_OF_CONDUCT.md` and `SECURITY.md` at the top and in the bug reporting section
