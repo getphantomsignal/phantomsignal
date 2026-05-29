@@ -17,8 +17,11 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Phantom Dawn light theme screenshots for all three web UI views on the GitHub Pages landing site
 - GitHub Pages site badge in README
 - Changelog badge in README
+- Topics section to README with 20 linked topic badges (cycles cyan/green/purple), each linking to the corresponding GitHub topic search page
+- Repository topics set via GitHub API: `osint`, `security`, `python`, `hacking`, `cybersecurity`, `reconnaissance`, `recon`, `penetration-testing`, `ethical-hacking`, `bug-bounty`, `information-gathering`, `threat-intelligence`, `security-tools`, `network-scanner`, `dns-recon`, `infosec`, `flask`, `security-research`, `footprinting`, `automation`
 
 ### Changed
+- README footer updated — *"Built with questionable amounts of caffeine. 'The night sees all. The owl forgets nothing.' Some ghosts leave no trace. This one left commits. — Claude"*
 - `CONTRIBUTING.md` now references `CODE_OF_CONDUCT.md` and `SECURITY.md` at the top and in the bug reporting section
 - Landing page "Install Now" CTA restored to `#quickstart` anchor (page-local scroll); GitHub repo link retained as a separate badge and button
 - Hero badges on landing page are now clickable links to the GitHub repository
