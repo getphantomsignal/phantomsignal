@@ -11,6 +11,13 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.2.1] — 2026-05-30
+
+### Fixed
+- PyPI project description updated with correct asciinema recording URL and PyPI badge
+
+---
+
 ## [1.2.0] — 2026-05-30
 
 ### Changed
@@ -87,7 +94,8 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
-[Unreleased]: https://github.com/owlscan/owlscan/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/owlscan/owlscan/compare/v1.2.1...HEAD
+[1.2.1]: https://github.com/owlscan/owlscan/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/owlscan/owlscan/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/owlscan/owlscan/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/owlscan/owlscan/releases/tag/v1.0.0
