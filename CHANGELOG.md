@@ -9,6 +9,27 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+---
+
+## [1.2.0] — 2026-05-30
+
+### Changed
+- **Project renamed from NightOwl to OwlScan** — all references updated across codebase, docs, config, and assets
+- Domain migrated from `owlrecon.io` → `owlscan.sh`; DNS configured with GitHub Pages A records
+- GitHub org renamed `nightowl-osint` → `owlscan`; repo renamed `nightowl` → `owlscan`
+- Python package renamed `nightowl` → `owlscan`; CLI entry point `nightowl` → `owlscan` (`owl` alias preserved)
+- Config directory `~/.nightowl/` → `~/.owlscan/`; config file `nightowl.yaml` → `owlscan.yaml`
+- Database default `nightowl.db` → `owlscan.db`
+- Environment variable prefix `NIGHTOWL_*` → `OWLSCAN_*`
+- ASCII banner art regenerated for OWLSCAN in `__init__.py`, README, and all demo assets
+- Owl PNG graphic updated — footer label changed from "NightOwl" to "OwlScan" in both dark and transparent variants
+- Demo GIF and asciinema cast regenerated with OWLSCAN banner and `owlscan` CLI command
+- SVG screenshots regenerated with updated OWLSCAN branding throughout
+- GitHub Pages landing site fully rebranded — nav, hero title, footer, and og tags
+- GitHub org profile README rebranded with new ASCII art, updated badges and links
+- GitHub repo About description and homepage URL updated to `owlscan.sh`
+- Contact email updated to `security@owlscan.sh` across all docs
+
 ### Added
 - Code of Conduct (`CODE_OF_CONDUCT.md`) — operational security standards for contributors and community members
 - Security Policy (`SECURITY.md`) — coordinated disclosure process, scope definition, and timeline commitments
@@ -17,15 +38,8 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Phantom Dawn light theme screenshots for all three web UI views on the GitHub Pages landing site
 - GitHub Pages site badge in README
 - Changelog badge in README
-- Topics section to README with 20 linked topic badges (cycles cyan/green/purple), each linking to the corresponding GitHub topic search page
-- Repository topics set via GitHub API: `osint`, `security`, `python`, `hacking`, `cybersecurity`, `reconnaissance`, `recon`, `penetration-testing`, `ethical-hacking`, `bug-bounty`, `information-gathering`, `threat-intelligence`, `security-tools`, `network-scanner`, `dns-recon`, `infosec`, `flask`, `security-research`, `footprinting`, `automation`
-- `// SIGNAL CATEGORIES` topics section on the GitHub Pages landing site — 20 neon CSS pills (cyan/green/purple, with hover glow) above the footer, each linking to the corresponding GitHub topic search page
-
-### Changed
-- README footer updated — *"Built with questionable amounts of caffeine. 'The night sees all. The owl forgets nothing.' Some ghosts leave no trace. This one left commits. — Claude"*
-- `CONTRIBUTING.md` now references `CODE_OF_CONDUCT.md` and `SECURITY.md` at the top and in the bug reporting section
-- Landing page "Install Now" CTA restored to `#quickstart` anchor (page-local scroll); GitHub repo link retained as a separate badge and button
-- Hero badges on landing page are now clickable links to the GitHub repository
+- Topics section to README with 20 linked topic badges, each linking to the corresponding GitHub topic search page
+- `// SIGNAL CATEGORIES` topics section on the GitHub Pages landing site
 
 ### Fixed
 - "Install Now" CTA was incorrectly pointing to the GitHub repo instead of the on-page quickstart section
@@ -73,6 +87,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
-[Unreleased]: https://github.com/owlscan/owlscan/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/owlscan/owlscan/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/owlscan/owlscan/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/owlscan/owlscan/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/owlscan/owlscan/releases/tag/v1.0.0
