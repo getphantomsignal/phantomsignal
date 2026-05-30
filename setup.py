@@ -11,21 +11,21 @@ with open("requirements.txt", "r") as f:
     ]
 
 setup(
-    name="nightowl-osint",
+    name="owlscan",
     version="1.1.0",
-    description="NightOwl :: Open-Source OSINT Intelligence Framework",
+    description="OwlScan :: Open-Source OSINT Intelligence Framework",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="packetsn1ffer",
-    url="https://github.com/the-clipper/nightowl",
+    url="https://github.com/owlscan/owlscan",
     packages=find_packages(),
     include_package_data=True,
     python_requires=">=3.10",
     install_requires=requirements,
     entry_points={
         "console_scripts": [
-            "nightowl=nightowl.cli:main",
-            "owl=nightowl.cli:main",
+            "owlscan=owlscan.cli:main",
+            "owl=owlscan.cli:main",
         ],
     },
     classifiers=[
@@ -45,7 +45,7 @@ setup(
     ],
     keywords="osint intelligence reconnaissance security pentest",
     project_urls={
-        "Bug Reports": "https://github.com/the-clipper/nightowl/issues",
-        "Source": "https://github.com/the-clipper/nightowl",
+        "Bug Reports": "https://github.com/owlscan/owlscan/issues",
+        "Source": "https://github.com/owlscan/owlscan",
     },
 )

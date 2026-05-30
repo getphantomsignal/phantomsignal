@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to NightOwl // PHANTOM SIGNAL are documented here.
+All notable changes to OwlScan // PHANTOM SIGNAL are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).  
 Versioning follows [Semantic Versioning](https://semver.org/).
@@ -35,7 +35,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 ## [1.1.0] — 2026-05-28
 
 ### Added
-- GitHub Pages project landing site at `https://owlrecon.io` (`docs/`)
+- GitHub Pages project landing site at `https://owlscan.sh` (`docs/`)
   - Hero section with install block and copy button
   - Features grid, capabilities breakdown, quickstart tabs, and intelligence grid
   - Asciinema demo embed and SVG web UI screenshots
@@ -56,8 +56,8 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 ## [1.0.0] — 2026-05-25
 
 ### Added
-- Initial release of NightOwl — open-source OSINT intelligence framework
-- CLI interface (`nightowl`) with ghost run profiles: Quick Probe, Standard Recon, Deep Dive, Ghost Mode
+- Initial release of OwlScan — open-source OSINT intelligence framework
+- CLI interface (`owlscan`) with ghost run profiles: Quick Probe, Standard Recon, Deep Dive, Ghost Mode
 - Web interface (Flask + SocketIO) with Shadow Grid dashboard, live feed, scan launch, and results views
 - Plugin/module API system with `@register_api` decorator for auto-registration
 - Intelligence modules: DNS Recon, Port Scanner, Tech Detector, Web Crawler, API Hunter, People Intel, Intel APIs (Shodan, VirusTotal, AbuseIPDB, HaveIBeenPwned, Censys)
@@ -69,10 +69,10 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - README demo section: animated CLI demo (GIF + asciinema cast), SVG web UI screenshots
 
 ### Fixed
-- Repository URLs corrected to `nightowl-osint/nightowl` across all files and badge links
+- Repository URLs corrected to `owlscan/owlscan` across all files and badge links
 
 ---
 
-[Unreleased]: https://github.com/nightowl-osint/nightowl/compare/v1.1.0...HEAD
-[1.1.0]: https://github.com/nightowl-osint/nightowl/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/nightowl-osint/nightowl/releases/tag/v1.0.0
+[Unreleased]: https://github.com/owlscan/owlscan/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/owlscan/owlscan/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/owlscan/owlscan/releases/tag/v1.0.0

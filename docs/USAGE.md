@@ -1,4 +1,4 @@
-# NightOwl — User Guide
+# OwlScan — User Guide
 
 > **Legal reminder:** Only scan targets you own or have explicit written permission to test. Refer to the [Legal & Ethics](../README.md#️-legal--ethics) section in the README before proceeding.
 
@@ -34,8 +34,8 @@
 
 ```bash
 # Requires Python 3.10+
-git clone https://github.com/the-clipper/nightowl
-cd nightowl
+git clone https://github.com/owlscan/owlscan
+cd owlscan
 python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -e .
@@ -47,8 +47,8 @@ Open **http://127.0.0.1:5000** in your browser.
 ### Installation (Docker)
 
 ```bash
-git clone https://github.com/the-clipper/nightowl
-cd nightowl
+git clone https://github.com/owlscan/owlscan
+cd owlscan
 docker-compose up -d
 ```
 
@@ -134,7 +134,7 @@ You are redirected to the live results page where findings stream in as they're 
 - Modules: DNS Recon ✓, Port Scanner ✓, Tech Detector ✓, API Hunter ✓, Web Crawler ✓
 - Ghost Mode: off
 
-**What NightOwl will find:**
+**What OwlScan will find:**
 - Open ports and exposed services (admin panels, staging, APIs)
 - Technology stack (CMS version, frameworks, CDNs, WAF presence)
 - Missing security headers (CSP, X-Frame-Options, HSTS)
@@ -160,7 +160,7 @@ You are redirected to the live results page where findings stream in as they're 
 - Modules: Port Scanner ✓, DNS Recon ✓, Intel APIs ✓
 - Port Profile: **Extended (1000 ports)** or **Full (65535)** for thorough coverage
 
-**What NightOwl will find:**
+**What OwlScan will find:**
 - All open TCP ports with service banners (nginx version, SSH version, etc.)
 - Reverse DNS and PTR records
 - ASN, ISP, geolocation data
@@ -183,7 +183,7 @@ You are redirected to the live results page where findings stream in as they're 
 - Modules: DNS Recon ✓, Tech Detector ✓, Intel APIs ✓, Web Crawler ✓
 - Crawl depth: 3
 
-**What NightOwl will find:**
+**What OwlScan will find:**
 - All DNS records (A, AAAA, MX, NS, TXT, SOA, CAA)
 - Zone transfer vulnerabilities
 - Subdomain enumeration via brute-force wordlist + certificate transparency (crt.sh)
@@ -208,7 +208,7 @@ You are redirected to the live results page where findings stream in as they're 
 - Username / handle
 - Phone number
 
-**What NightOwl aggregates:**
+**What OwlScan aggregates:**
 - Public social media profiles (GitHub, Twitter/X, LinkedIn via Clearbit)
 - Breach exposure via HaveIBeenPwned (requires HIBP API key)
 - People-search aggregator data (Pipl, FullContact, Spokeo, WhitePages — keys required)
@@ -265,7 +265,7 @@ You are redirected to the live results page where findings stream in as they're 
 ```bash
 docker-compose --profile ghost up -d
 ```
-This spins up a Tor sidecar and routes all NightOwl traffic through it automatically.
+This spins up a Tor sidecar and routes all OwlScan traffic through it automatically.
 
 **Tip:** Ghost Mode significantly increases scan duration. Plan for 30–90 minutes on a moderately sized target.
 
@@ -354,7 +354,7 @@ From any scan results page, click **↓ EXPORT INTEL** and choose a format:
 
 ### Encrypting exports
 
-All formats support **AES-256-GCM encryption**. Check the **Encrypt** checkbox before exporting and set a passphrase. The encrypted file includes a nonce and authentication tag — decryption requires NightOwl or a compatible AES-256-GCM implementation.
+All formats support **AES-256-GCM encryption**. Check the **Encrypt** checkbox before exporting and set a passphrase. The encrypted file includes a nonce and authentication tag — decryption requires OwlScan or a compatible AES-256-GCM implementation.
 
 ---
 
@@ -365,22 +365,22 @@ All formats support **AES-256-GCM encryption**. Check the **Encrypt** checkbox b
 source .venv/bin/activate
 
 # Quick scan
-nightowl scan example.com --profile quick
+owlscan scan example.com --profile quick
 
 # Standard recon with HTML report
-nightowl scan example.com --profile standard --format html --output ./reports
+owlscan scan example.com --profile standard --format html --output ./reports
 
 # Full spectrum scan
-nightowl scan 192.168.1.1 --type ip_recon --profile deep --format json
+owlscan scan 192.168.1.1 --type ip_recon --profile deep --format json
 
 # People intelligence
-nightowl profile --email target@example.com --first-name John --last-name Doe
+owlscan profile --email target@example.com --first-name John --last-name Doe
 
 # List all available APIs and their status
-nightowl apis
+owlscan apis
 
 # Check version
-nightowl --version
+owlscan --version
 ```
 
 ### Common flags
@@ -417,10 +417,10 @@ pip install -e .
 
 **SQLite database locked**
 ```bash
-# Kill any stale NightOwl process
+# Kill any stale OwlScan process
 pkill -f "python run.py"
 # If the DB is still locked:
-fuser nightowl/data/nightowl.db
+fuser owlscan/data/owlscan.db
 ```
 
 **SocketIO connection shows "CONNECTING..." permanently**
@@ -432,9 +432,9 @@ proxy_set_header Upgrade $http_upgrade;
 proxy_set_header Connection "upgrade";
 ```
 
-**Permission denied on `/nightowl/data/`**
+**Permission denied on `/owlscan/data/`**
 ```bash
-chmod 755 nightowl/data
+chmod 755 owlscan/data
 ```
 
 ---
@@ -464,9 +464,9 @@ pip install weasyprint
 
 **Port 5000 blocked by AirPlay Receiver (macOS Monterey+)**
 
-macOS Monterey and later reserves port 5000 for AirPlay. Either disable AirPlay Receiver in *System Settings → General → AirDrop & Handoff*, or run NightOwl on a different port:
+macOS Monterey and later reserves port 5000 for AirPlay. Either disable AirPlay Receiver in *System Settings → General → AirDrop & Handoff*, or run OwlScan on a different port:
 ```bash
-NIGHTOWL_PORT=5001 python run.py
+OWLSCAN_PORT=5001 python run.py
 # Then open http://127.0.0.1:5001
 ```
 
@@ -481,9 +481,9 @@ pip install certifi
 
 ### Windows
 
-**Running NightOwl on Windows**
+**Running OwlScan on Windows**
 
-NightOwl is primarily tested on Linux and macOS. Windows support is provided via WSL2 (recommended) or native Python.
+OwlScan is primarily tested on Linux and macOS. Windows support is provided via WSL2 (recommended) or native Python.
 
 **Recommended: WSL2**
 ```powershell
@@ -539,10 +539,10 @@ Allow inbound connections to port 5000 in Windows Defender Firewall, or use `loc
 docker-compose ps
 
 # Check logs for errors
-docker-compose logs nightowl
+docker-compose logs owlscan
 
 # Confirm port binding
-docker-compose port nightowl 5000
+docker-compose port owlscan 5000
 ```
 
 **API keys not persisting between container restarts**
@@ -551,25 +551,25 @@ Mount a volume for the data directory:
 ```yaml
 # docker-compose.yml
 volumes:
-  - ./data:/app/nightowl/data
+  - ./data:/app/owlscan/data
 ```
 
 **Database migration errors on upgrade**
 ```bash
 docker-compose down
-docker volume rm nightowl_data
+docker volume rm owlscan_data
 docker-compose up -d
 ```
-> ⚠ This clears all scan history. Back up `nightowl/data/nightowl.db` first.
+> ⚠ This clears all scan history. Back up `owlscan/data/owlscan.db` first.
 
 **Scans complete instantly with 0 results (DNS not resolving in container)**
 ```bash
 # Test DNS inside container
-docker-compose exec nightowl nslookup example.com
+docker-compose exec owlscan nslookup example.com
 
 # If failing, add DNS servers to docker-compose.yml:
 services:
-  nightowl:
+  owlscan:
     dns:
       - 8.8.8.8
       - 1.1.1.1
@@ -596,6 +596,6 @@ docker-compose up -d
 
 ## Getting Help
 
-- **GitHub Issues:** https://github.com/the-clipper/nightowl/issues
+- **GitHub Issues:** https://github.com/owlscan/owlscan/issues
 - **About page:** Click **ABOUT** in the footer for version info and capability overview
-- **Logs:** Check `/tmp/nightowl.log` (manual) or `docker-compose logs` (Docker) for detailed error output
+- **Logs:** Check `/tmp/owlscan.log` (manual) or `docker-compose logs` (Docker) for detailed error output

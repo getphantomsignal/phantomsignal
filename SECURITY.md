@@ -1,4 +1,4 @@
-# Security Policy — NightOwl // PHANTOM SIGNAL
+# Security Policy — OwlScan // PHANTOM SIGNAL
 
 ---
 
@@ -18,10 +18,10 @@ Only the latest release on the `main` branch receives security fixes. Older tags
 
 **Do not open a public GitHub Issue for security vulnerabilities.**
 
-If you discover a security flaw in NightOwl — including vulnerabilities in the web interface, plugin API, authentication handling, export pipeline, or dependency chain — report it privately:
+If you discover a security flaw in OwlScan — including vulnerabilities in the web interface, plugin API, authentication handling, export pipeline, or dependency chain — report it privately:
 
-**Email:** `security@owlrecon.io`  
-**Subject line:** `[NightOwl SECURITY] <one-line description>`
+**Email:** `security@owlscan.sh`  
+**Subject line:** `[OwlScan SECURITY] <one-line description>`
 
 ### What to include
 
@@ -62,7 +62,7 @@ If we fail to respond within 48 hours or miss agreed milestones without communic
 
 The following are **in scope** for responsible disclosure:
 
-- NightOwl web interface (Flask/SocketIO layer, authentication, session handling)
+- OwlScan web interface (Flask/SocketIO layer, authentication, session handling)
 - Plugin/module API system
 - Export pipeline (including encryption implementation)
 - CLI input handling and command injection vectors
@@ -70,8 +70,8 @@ The following are **in scope** for responsible disclosure:
 
 The following are **out of scope:**
 
-- Vulnerabilities in third-party APIs that NightOwl integrates with (report those upstream)
-- Issues that require physical access to the machine running NightOwl
+- Vulnerabilities in third-party APIs that OwlScan integrates with (report those upstream)
+- Issues that require physical access to the machine running OwlScan
 - Theoretical attacks with no practical exploitation path
 - Vulnerabilities in the user's own environment or misconfiguration
 
@@ -90,4 +90,4 @@ We do not currently offer a monetary bug bounty.
 
 ## A Note on the Nature of This Project
 
-NightOwl is an OSINT and intelligence framework. If you discover that the tool can be used to gather intelligence on targets beyond its documented scope — that is by design for authorized use cases and is not a security vulnerability. Misuse of the tool is governed by the [Code of Conduct](CODE_OF_CONDUCT.md) and applicable law, not this policy.
+OwlScan is an OSINT and intelligence framework. If you discover that the tool can be used to gather intelligence on targets beyond its documented scope — that is by design for authorized use cases and is not a security vulnerability. Misuse of the tool is governed by the [Code of Conduct](CODE_OF_CONDUCT.md) and applicable law, not this policy.

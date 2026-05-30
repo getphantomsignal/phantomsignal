@@ -1,20 +1,20 @@
 version: "3.9"
 
 services:
-  nightowl:
+  owlscan:
     build: .
-    image: nightowl-osint:latest
-    container_name: nightowl
+    image: owlscan:latest
+    container_name: owlscan
     ports:
       - "5000:5000"
     volumes:
-      - nightowl-data:/app/data
-      - nightowl-exports:/app/exports
+      - owlscan-data:/app/data
+      - owlscan-exports:/app/exports
       - ./config:/app/config:ro
     environment:
-      - NIGHTOWL_HOST=0.0.0.0
-      - NIGHTOWL_PORT=5000
-      - NIGHTOWL_DB_URL=sqlite:////app/data/nightowl.db
+      - OWLSCAN_HOST=0.0.0.0
+      - OWLSCAN_PORT=5000
+      - OWLSCAN_DB_URL=sqlite:////app/data/owlscan.db
       # Add your API keys as environment variables:
       # - SHODAN_API_KEY=your-key
       # - VIRUSTOTAL_API_KEY=your-key
@@ -37,7 +37,7 @@ services:
   # Optional: Tor proxy for Ghost Mode
   tor:
     image: dperson/torproxy:latest
-    container_name: nightowl-tor
+    container_name: owlscan-tor
     ports:
       - "9050:9050"
       - "8118:8118"
@@ -45,5 +45,5 @@ services:
     profiles: ["ghost"]
 
 volumes:
-  nightowl-data:
-  nightowl-exports:
+  owlscan-data:
+  owlscan-exports:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate NightOwl demo assets: SVG screenshots + asciinema cast file."""
+"""Generate OwlScan demo assets: SVG screenshots + asciinema cast file."""
 
 import json
 import math
@@ -20,7 +20,7 @@ from rich.terminal_theme import TerminalTheme, MONOKAI
 # ---------------------------------------------------------------------------
 # Cyberpunk terminal theme (dark bg, neon accent)
 # ---------------------------------------------------------------------------
-NIGHTOWL_THEME = TerminalTheme(
+OWLSCAN_THEME = TerminalTheme(
     background=(10, 10, 20),
     foreground=(0, 243, 255),
     normal=[
@@ -61,7 +61,7 @@ def gen_dashboard():
 
     c.print()
     c.print(
-        "  [bold bright_cyan]🦉 NIGHTOWL[/] [dim cyan]//[/] [bold bright_green]SHADOW GRID[/]"
+        "  [bold bright_cyan]🦉 OWLSCAN[/] [dim cyan]//[/] [bold bright_green]SHADOW GRID[/]"
         "                         [dim]Operative command center — all systems nominal[/]"
     )
     c.print(
@@ -114,7 +114,7 @@ def gen_dashboard():
 
     # Live feed panel
     live = Text()
-    live.append("[NIGHTOWL] ", style="bold bright_cyan")
+    live.append("[OWLSCAN] ", style="bold bright_cyan")
     live.append("Signal established. Grid online.\n", style="bright_white")
     live.append("[SYSTEM]   ", style="bold bright_green")
     live.append("3 active ghost runs in progress.\n", style="dim")
@@ -155,7 +155,7 @@ def gen_dashboard():
     )
     c.print()
 
-    c.save_svg(DOCS / "screenshot_dashboard.svg", title="NightOwl — Shadow Grid", theme=NIGHTOWL_THEME)
+    c.save_svg(DOCS / "screenshot_dashboard.svg", title="OwlScan — Shadow Grid", theme=OWLSCAN_THEME)
     print("✓  screenshot_dashboard.svg")
 
 
@@ -167,7 +167,7 @@ def gen_launch():
 
     c.print()
     c.print(
-        "  [bold bright_cyan]🦉 NIGHTOWL[/] [dim cyan]//[/] [bold bright_green]LAUNCH GHOST RUN[/]"
+        "  [bold bright_cyan]🦉 OWLSCAN[/] [dim cyan]//[/] [bold bright_green]LAUNCH GHOST RUN[/]"
         "                    [dim]Configure your recon parameters, Operative[/]"
     )
     c.print("[dim cyan]" + "─" * 108 + "[/]")
@@ -228,7 +228,7 @@ def gen_launch():
     c.print("  " + "[bold bright_green on grey7]  ◈  INITIATE GHOST RUN  [/]", justify="left")
     c.print()
 
-    c.save_svg(DOCS / "screenshot_launch.svg", title="NightOwl — Launch Ghost Run", theme=NIGHTOWL_THEME)
+    c.save_svg(DOCS / "screenshot_launch.svg", title="OwlScan — Launch Ghost Run", theme=OWLSCAN_THEME)
     print("✓  screenshot_launch.svg")
 
 
@@ -299,7 +299,7 @@ def gen_results():
     )
     c.print()
 
-    c.save_svg(DOCS / "screenshot_results.svg", title="NightOwl — Scan Results", theme=NIGHTOWL_THEME)
+    c.save_svg(DOCS / "screenshot_results.svg", title="OwlScan — Scan Results", theme=OWLSCAN_THEME)
     print("✓  screenshot_results.svg")
 
 
@@ -311,7 +311,7 @@ def gen_cli():
 
     lines = [
         ("", "dim",                 ""),
-        ("$ nightowl scan example.com --profile standard --format html", "bold bright_white", ""),
+        ("$ owlscan scan example.com --profile standard --format html", "bold bright_white", ""),
         ("", "", ""),
         (" ███╗   ██╗██╗ ██████╗ ██╗  ██╗████████╗ ██████╗ ██╗    ██╗██╗", "bright_cyan", ""),
         (" ████╗  ██║██║██╔════╝ ██║  ██║╚══██╔══╝██╔═══██╗██║    ██║██║", "bright_cyan", ""),
@@ -367,7 +367,7 @@ def gen_cli():
         else:
             c.print(text, highlight=False)
 
-    c.save_svg(DOCS / "screenshot_cli.svg", title="NightOwl CLI", theme=NIGHTOWL_THEME)
+    c.save_svg(DOCS / "screenshot_cli.svg", title="OwlScan CLI", theme=OWLSCAN_THEME)
     print("✓  screenshot_cli.svg")
 
 
@@ -381,7 +381,7 @@ def gen_cast():
         "width": 100,
         "height": 38,
         "timestamp": 1748304000,
-        "title": "NightOwl OSINT Framework — Live Demo",
+        "title": "OwlScan OSINT Framework — Live Demo",
         "env": {"TERM": "xterm-256color", "SHELL": "/bin/zsh"},
     }
 
@@ -422,12 +422,12 @@ def gen_cast():
     def prompt(delay=0.5):
         nonlocal t
         t += delay
-        out(f"{green('┌──(')}nightowl㉿phantom{green(')')} {dim('~')}\r\n{green('└─$ ')}")
+        out(f"{green('┌──(')}owlscan㉿phantom{green(')')} {dim('~')}\r\n{green('└─$ ')}")
 
     # Start
     prompt(1.0)
     # Typing the command
-    cmd = "nightowl scan example.com --profile standard --format html"
+    cmd = "owlscan scan example.com --profile standard --format html"
     for ch in cmd:
         out(ch, 0.06)
     out("\r\n", 0.4)
@@ -489,7 +489,7 @@ def gen_cast():
 
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    print("Generating NightOwl demo assets...")
+    print("Generating OwlScan demo assets...")
     gen_dashboard()
     gen_launch()
     gen_results()

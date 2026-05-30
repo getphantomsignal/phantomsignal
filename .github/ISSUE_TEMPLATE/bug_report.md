@@ -8,7 +8,7 @@ labels: bug
 A clear description of what the bug is.
 
 **Steps to reproduce**
-1. Run `nightowl ...`
+1. Run `owlscan ...`
 2. Navigate to ...
 3. See error
 
@@ -19,14 +19,14 @@ What you expected to happen.
 What actually happened. Include any error output or tracebacks.
 
 **Environment**
-- NightOwl version: (run `nightowl --version`)
+- OwlScan version: (run `owlscan --version`)
 - OS: (e.g. Kali Linux 2024.1, Ubuntu 22.04, macOS 14)
 - Python version: (run `python --version`)
 - Install method: pip / docker / manual
 
 **Relevant configuration**
 ```yaml
-# Paste relevant config/nightowl.yaml sections here
+# Paste relevant config/owlscan.yaml sections here
 # NEVER include API keys
 ```
 

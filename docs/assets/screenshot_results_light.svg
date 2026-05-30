@@ -136,7 +136,7 @@
             </clipPath>
     </defs>
 
-    <rect fill="#eaf1f8" stroke="rgba(50,80,110,0.25)" stroke-width="1" x="1" y="1" width="1358" height="755.6" rx="8"/><text class="terminal-227183833-title" fill="#1a3a6c" text-anchor="middle" x="679" y="27">NightOwl&#160;—&#160;Scan&#160;Results</text>
+    <rect fill="#eaf1f8" stroke="rgba(50,80,110,0.25)" stroke-width="1" x="1" y="1" width="1358" height="755.6" rx="8"/><text class="terminal-227183833-title" fill="#1a3a6c" text-anchor="middle" x="679" y="27">OwlScan&#160;—&#160;Scan&#160;Results</text>
             <g transform="translate(26,22)">
             <circle cx="0" cy="0" r="7" fill="#ff5f57"/>
             <circle cx="22" cy="0" r="7" fill="#febc2e"/>

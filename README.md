@@ -1,4 +1,4 @@
-# 🦉 NightOwl // PHANTOM SIGNAL
+# 🦉 OwlScan // PHANTOM SIGNAL
 
 ```
  ███╗   ██╗██╗ ██████╗ ██╗  ██╗████████╗ ██████╗ ██╗    ██╗██╗
@@ -14,10 +14,10 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-00ff41?style=flat-square&logo=python)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-00f3ff?style=flat-square)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows%20%7C%20Docker-b026ff?style=flat-square)]()
-[![GitHub Stars](https://img.shields.io/github/stars/nightowl-osint/nightowl?style=flat-square&color=00ff41)](https://github.com/nightowl-osint/nightowl/stargazers)
-[![Open Issues](https://img.shields.io/github/issues/nightowl-osint/nightowl?style=flat-square&color=b026ff)](https://github.com/nightowl-osint/nightowl/issues)
-[![CI](https://img.shields.io/github/actions/workflow/status/nightowl-osint/nightowl/ci.yml?branch=main&style=flat-square&label=CI&color=00ff41)](https://github.com/nightowl-osint/nightowl/actions/workflows/ci.yml)
-[![Project Site](https://img.shields.io/badge/site-nightowl-00f3ff?style=flat-square&logo=github)](https://owlrecon.io)
+[![GitHub Stars](https://img.shields.io/github/stars/owlscan/owlscan?style=flat-square&color=00ff41)](https://github.com/owlscan/owlscan/stargazers)
+[![Open Issues](https://img.shields.io/github/issues/owlscan/owlscan?style=flat-square&color=b026ff)](https://github.com/owlscan/owlscan/issues)
+[![CI](https://img.shields.io/github/actions/workflow/status/owlscan/owlscan/ci.yml?branch=main&style=flat-square&label=CI&color=00ff41)](https://github.com/owlscan/owlscan/actions/workflows/ci.yml)
+[![Project Site](https://img.shields.io/badge/site-owlscan-00f3ff?style=flat-square&logo=github)](https://owlscan.sh)
 [![Changelog](https://img.shields.io/badge/changelog-view-00ff41?style=flat-square)](CHANGELOG.md)
 
 
@@ -43,7 +43,7 @@
 
 ### Web UI — Theme Options
 
-NightOwl ships with two built-in UI themes, selectable via the **☀/🌙 toggle** in the top navigation bar. Your preference is saved automatically and persists across sessions.
+OwlScan ships with two built-in UI themes, selectable via the **☀/🌙 toggle** in the top navigation bar. Your preference is saved automatically and persists across sessions.
 
 | Theme | Description |
 |-------|-------------|
@@ -60,11 +60,11 @@ NightOwl ships with two built-in UI themes, selectable via the **☀/🌙 toggle
 
 ---
 
-## ⚡ What is NightOwl?
+## ⚡ What is OwlScan?
 
-NightOwl is a **community-powered, open-source OSINT intelligence framework** built for security researchers, penetration testers, investigators, and enthusiasts. It combines web scraping, network reconnaissance, people intelligence aggregation, and threat analysis into a single cohesive platform.
+OwlScan is a **community-powered, open-source OSINT intelligence framework** built for security researchers, penetration testers, investigators, and enthusiasts. It combines web scraping, network reconnaissance, people intelligence aggregation, and threat analysis into a single cohesive platform.
 
-> **LEGAL DISCLAIMER:** NightOwl is for **authorized security research, OSINT investigations, and educational purposes only**. Only scan targets you have explicit permission to test. You are solely responsible for compliance with all applicable laws. The developers assume NO liability for misuse.
+> **LEGAL DISCLAIMER:** OwlScan is for **authorized security research, OSINT investigations, and educational purposes only**. Only scan targets you have explicit permission to test. You are solely responsible for compliance with all applicable laws. The developers assume NO liability for misuse.
 
 ---
 
@@ -132,8 +132,8 @@ All formats support **ZIP compression** and **AES-256-GCM encryption**.
 - **Scheduled Phantoms** — recurring automated ghost runs
 - **API health monitor** — dashboard showing configured APIs and rate limits
 - **Light/Dark theme** — toggle between cyberpunk Dark mode and "Phantom Dawn" Light mode via the ☀/🌙 button; preference persisted in localStorage
-- **Full REST API** — integrate NightOwl into your own toolchain
-- **CLI interface** — `nightowl scan`, `nightowl profile`, `nightowl export`
+- **Full REST API** — integrate OwlScan into your own toolchain
+- **CLI interface** — `owlscan scan`, `owlscan profile`, `owlscan export`
 - **Docker** — single-command deployment
 
 ---
@@ -142,8 +142,8 @@ All formats support **ZIP compression** and **AES-256-GCM encryption**.
 
 ### Option 1: Docker (Recommended)
 ```bash
-git clone https://github.com/nightowl-osint/nightowl
-cd nightowl
+git clone https://github.com/owlscan/owlscan
+cd owlscan
 docker-compose up -d
 # Open http://localhost:5000
 ```
@@ -151,23 +151,23 @@ docker-compose up -d
 ### Option 2: Manual Installation
 ```bash
 # Python 3.10+ required
-git clone https://github.com/nightowl-osint/nightowl
-cd nightowl
+git clone https://github.com/owlscan/owlscan
+cd owlscan
 pip install -e .
-nightowl init
-nightowl web --open-browser
+owlscan init
+owlscan web --open-browser
 ```
 
 ### Option 3: CLI Scan
 ```bash
 # Quick probe
-nightowl scan example.com --profile quick
+owlscan scan example.com --profile quick
 
 # Full spectrum with export
-nightowl scan 192.168.1.1 --type ip_recon --format html --output ./reports
+owlscan scan 192.168.1.1 --type ip_recon --format html --output ./reports
 
 # People intelligence
-nightowl profile --email target@company.com --first-name John --last-name Doe
+owlscan profile --email target@company.com --first-name John --last-name Doe
 ```
 
 ---
@@ -186,21 +186,21 @@ export ABUSEIPDB_API_KEY="your-abuseipdb-key"
 export ALIENVAULT_API_KEY="your-otx-key"
 export GITHUB_TOKEN="your-github-token"
 export SECURITYTRAILS_API_KEY="your-st-key"
-# See config/nightowl.yaml for full list
+# See config/owlscan.yaml for full list
 ```
 
 ### Config File
-Copy `config/nightowl.yaml` to `~/.nightowl/config.yaml` and customize.
+Copy `config/owlscan.yaml` to `~/.owlscan/config.yaml` and customize.
 
 ---
 
 ## 🔌 Adding Custom APIs
 
-NightOwl uses a plugin architecture. Adding a new intelligence source takes ~20 lines:
+OwlScan uses a plugin architecture. Adding a new intelligence source takes ~20 lines:
 
 ```python
-# nightowl/intel/apis/my_api.py
-from nightowl.intel.apis.base import BaseIntelAPI, register_api, APICategory, APITier
+# owlscan/intel/apis/my_api.py
+from owlscan.intel.apis.base import BaseIntelAPI, register_api, APICategory, APITier
 
 @register_api
 class MyAPI(BaseIntelAPI):
@@ -220,14 +220,14 @@ class MyAPI(BaseIntelAPI):
         return [self._wrap_result("my_result", data)]
 ```
 
-Then import it in `nightowl/intel/orchestrator.py` and it auto-registers.
+Then import it in `owlscan/intel/orchestrator.py` and it auto-registers.
 
 ---
 
 ## 🏗 Architecture
 
 ```
-nightowl/
+owlscan/
 ├── core/               — Engine, config, database, models
 ├── scrapers/           — Scrapy crawler, tech detector, port scanner, API hunter, DNS recon
 ├── intel/
@@ -264,11 +264,11 @@ curl http://localhost:5000/api/v1/health
 
 ## 🤝 Contributing
 
-NightOwl thrives on community contributions. Ways to help:
+OwlScan thrives on community contributions. Ways to help:
 
 1. **Add API integrations** — Follow the plugin pattern above
 2. **Improve detection signatures** — Expand `tech_detector.py`
-3. **Bug reports** — [GitHub Issues](https://github.com/nightowl-osint/nightowl/issues)
+3. **Bug reports** — [GitHub Issues](https://github.com/owlscan/owlscan/issues)
 4. **Documentation** — Improve the wiki
 5. **Translations** — Internationalize the UI
 
@@ -284,7 +284,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. Please also review our [C
 
 ## ⚠️ Legal & Ethics
 
-NightOwl is a dual-use tool. Operators are responsible for:
+OwlScan is a dual-use tool. Operators are responsible for:
 - Obtaining explicit authorization before scanning any system
 - Complying with applicable laws (CFAA, GDPR, CCPA, ECPA, local laws)
 - Respecting privacy and data protection regulations
@@ -324,7 +324,7 @@ NightOwl is a dual-use tool. Operators are responsible for:
 | Document | Description |
 |----------|-------------|
 | [Code of Conduct](CODE_OF_CONDUCT.md) | Community standards and expectations |
-| [Contributing Guidelines](CONTRIBUTING.md) | How to contribute to NightOwl |
+| [Contributing Guidelines](CONTRIBUTING.md) | How to contribute to OwlScan |
 | [Security Policy](SECURITY.md) | Reporting vulnerabilities responsibly |
 | [License](LICENSE) | MIT License terms |
 

@@ -1,7 +1,7 @@
 FROM python:3.12-slim
 
-LABEL maintainer="NightOwl Community"
-LABEL description="NightOwl OSINT Framework — Phantom Signal"
+LABEL maintainer="OwlScan Community"
+LABEL description="OwlScan OSINT Framework — Phantom Signal"
 LABEL version="1.0.0"
 
 # System deps
@@ -27,16 +27,16 @@ COPY . .
 RUN pip install --no-cache-dir -e .
 
 # Initialize database
-RUN python -c "from nightowl.core.database import init_db; init_db()"
+RUN python -c "from owlscan.core.database import init_db; init_db()"
 
 # Create exports directory
 RUN mkdir -p /app/exports /app/data
 
 EXPOSE 5000
 
-ENV NIGHTOWL_HOST=0.0.0.0
-ENV NIGHTOWL_PORT=5000
-ENV NIGHTOWL_DB_URL=sqlite:////app/data/nightowl.db
+ENV OWLSCAN_HOST=0.0.0.0
+ENV OWLSCAN_PORT=5000
+ENV OWLSCAN_DB_URL=sqlite:////app/data/owlscan.db
 
 VOLUME ["/app/data", "/app/exports"]
 

@@ -31,7 +31,7 @@
 
 - [ ] I have run the test suite (`pytest`) and all tests pass
 - [ ] I have added tests covering the new or changed behaviour
-- [ ] I have tested this manually against a **locally running** NightOwl instance
+- [ ] I have tested this manually against a **locally running** OwlScan instance
 - [ ] I have verified the web UI renders correctly (if applicable)
 
 **Describe how you tested this:**
@@ -59,7 +59,7 @@
 
 ## Authorization Affirmation
 
-<!-- NightOwl is an authorized-use-only tool. By submitting this PR you confirm: -->
+<!-- OwlScan is an authorized-use-only tool. By submitting this PR you confirm: -->
 
 - [ ] This contribution does not introduce capabilities designed to circumvent authorization checks or facilitate unauthorized access to third-party systems
 - [ ] Any example data, targets, or output included in this PR relates to systems I own or have explicit written permission to test

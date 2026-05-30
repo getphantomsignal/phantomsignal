@@ -1,0 +1,124 @@
+"""OwlScan Scan Routes — Ghost Run Command & Control"""
+from __future__ import annotations
+
+from datetime import datetime
+
+from flask import (
+    Blueprint, current_app, flash, jsonify,
+    redirect, render_template, request, url_for
+)
+
+from owlscan.core.database import get_db
+from owlscan.core.models import Scan, ScanResult, ScanStatus, ScanType
+
+scans_bp = Blueprint("scans", __name__)
+
+
+@scans_bp.route("/")
+def list_scans():
+    with get_db() as db:
+        scans = db.query(Scan).order_by(Scan.created_at.desc()).limit(100).all()
+        scan_list = [s.to_dict() for s in scans]
+    return render_template("scans/list.html", scans=scan_list)
+
+
+@scans_bp.route("/new")
+def new_scan():
+    from owlscan.intel.orchestrator import IntelOrchestrator
+    from owlscan.core.config import config
+    orchestrator = IntelOrchestrator(config)
+    api_status = orchestrator.get_api_status()
+    return render_template("scans/new.html", api_status=api_status)
+
+
+@scans_bp.route("/launch", methods=["POST"])
+def launch_scan():
+    from owlscan.web.app import run_scan_async
+
+    target = request.form.get("target", "").strip()
+    if not target:
+        flash("Target required — no ghost run without a mark.", "error")
+        return redirect(url_for("scans.new_scan"))
+
+    name = request.form.get("name", f"Ghost Run — {target[:30]}")
+    scan_type_str = request.form.get("scan_type", "web_recon")
+    profile = request.form.get("profile", "standard")
+    modules = request.form.getlist("modules")
+
+    options = {
+        "depth": int(request.form.get("depth", 2)),
+        "ports": request.form.get("port_profile", "common"),
+        "respect_robots": request.form.get("respect_robots") == "on",
+        "ghost_mode": request.form.get("ghost_mode") == "on",
+    }
+
+    try:
+        scan_type = ScanType(scan_type_str)
+    except ValueError:
+        scan_type = ScanType.WEB_RECON
+
+    with get_db() as db:
+        scan = Scan(
+            name=name,
+            target=target,
+            scan_type=scan_type,
+            profile=profile,
+            modules_enabled=modules or ["dns_recon", "port_scan", "tech_detect", "api_hunt", "intel"],
+            options=options,
+            tags=request.form.getlist("tags"),
+        )
+        db.add(scan)
+        db.flush()
+        scan_id = scan.id
+
+    run_scan_async(current_app._get_current_object(), scan_id)
+
+    flash(f"Ghost run initiated. Signal locked on {target}.", "success")
+    return redirect(url_for("scans.scan_results", scan_id=scan_id))
+
+
+@scans_bp.route("/<scan_id>")
+def scan_results(scan_id):
+    with get_db() as db:
+        scan = db.query(Scan).filter(Scan.id == scan_id).first()
+        if not scan:
+            flash("Ghost run not found in the grid.", "error")
+            return redirect(url_for("scans.list_scans"))
+        scan_dict = scan.to_dict()
+        results = db.query(ScanResult).filter(
+            ScanResult.scan_id == scan_id
+        ).order_by(ScanResult.relevance_score.desc()).all()
+        results_list = [r.to_dict() for r in results]
+
+    grouped = {}
+    for r in results_list:
+        module = r.get("module", "unknown")
+        if module not in grouped:
+            grouped[module] = []
+        grouped[module].append(r)
+
+    return render_template(
+        "scans/results.html",
+        scan=scan_dict,
+        results=results_list,
+        grouped_results=grouped,
+        is_live=scan_dict["status"] == "running",
+    )
+
+
+@scans_bp.route("/<scan_id>/delete", methods=["POST"])
+def delete_scan(scan_id):
+    with get_db() as db:
+        scan = db.query(Scan).filter(Scan.id == scan_id).first()
+        if scan:
+            db.delete(scan)
+    flash("Ghost run purged from the grid.", "success")
+    return redirect(url_for("scans.list_scans"))
+
+
+@scans_bp.route("/<scan_id>/abort", methods=["POST"])
+def abort_scan(scan_id):
+    aborted = current_app.phantom_engine.abort_scan(scan_id)
+    if aborted:
+        flash("Ghost run terminated. Signal severed.", "warning")
+    return redirect(url_for("scans.scan_results", scan_id=scan_id))

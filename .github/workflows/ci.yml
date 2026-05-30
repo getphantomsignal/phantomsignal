@@ -29,11 +29,11 @@ jobs:
 
       - name: Import check
         run: |
-          python -c "import nightowl; print('v' + nightowl.__version__)"
-          python -c "from nightowl.core.config import NightOwlConfig"
-          python -c "from nightowl.core.models import Scan"
-          python -c "from nightowl.intel.apis.base import BaseIntelAPI, get_registered_apis"
-          python -c "import nightowl.intel.apis.all_apis; from nightowl.intel.apis.base import get_registered_apis; assert len(get_registered_apis()) > 0"
+          python -c "import owlscan; print('v' + owlscan.__version__)"
+          python -c "from owlscan.core.config import OwlScanConfig"
+          python -c "from owlscan.core.models import Scan"
+          python -c "from owlscan.intel.apis.base import BaseIntelAPI, get_registered_apis"
+          python -c "import owlscan.intel.apis.all_apis; from owlscan.intel.apis.base import get_registered_apis; assert len(get_registered_apis()) > 0"
 
       - name: Run tests
         run: |
@@ -59,4 +59,4 @@ jobs:
         run: pip install flake8 -q
 
       - name: Flake8
-        run: flake8 nightowl/ --max-line-length=120 --ignore=E501,W503,E203
+        run: flake8 owlscan/ --max-line-length=120 --ignore=E501,W503,E203
