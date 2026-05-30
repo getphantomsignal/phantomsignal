@@ -17,7 +17,8 @@
 [![GitHub Stars](https://img.shields.io/github/stars/owlscan/owlscan?style=flat-square&color=00ff41)](https://github.com/owlscan/owlscan/stargazers)
 [![Open Issues](https://img.shields.io/github/issues/owlscan/owlscan?style=flat-square&color=b026ff)](https://github.com/owlscan/owlscan/issues)
 [![CI](https://img.shields.io/github/actions/workflow/status/owlscan/owlscan/ci.yml?branch=main&style=flat-square&label=CI&color=00ff41)](https://github.com/owlscan/owlscan/actions/workflows/ci.yml)
-[![Project Site](https://img.shields.io/badge/site-owlscan-00f3ff?style=flat-square&logo=github)](https://owlscan.sh)
+[![PyPI](https://img.shields.io/pypi/v/owlscan?style=flat-square&color=b026ff&logo=pypi&logoColor=white)](https://pypi.org/project/owlscan/)
+[![Project Site](https://img.shields.io/badge/site-owlscan.sh-00f3ff?style=flat-square&logo=github)](https://owlscan.sh)
 [![Changelog](https://img.shields.io/badge/changelog-view-00ff41?style=flat-square)](CHANGELOG.md)
 
 
