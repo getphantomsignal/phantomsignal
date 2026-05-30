@@ -12,7 +12,7 @@ with open("requirements.txt", "r") as f:
 
 setup(
     name="owlscan",
-    version="1.2.2",
+    version="1.2.3",
     description="OwlScan :: Open-Source OSINT Intelligence Framework",
     long_description=long_description,
     long_description_content_type="text/markdown",

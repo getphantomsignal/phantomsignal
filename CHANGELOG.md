@@ -11,6 +11,13 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.2.3] — 2026-05-30
+
+### Fixed
+- Web UI navbar brand link displayed "NIGHTOWL" instead of "OWLSCAN"
+
+---
+
 ## [1.2.2] — 2026-05-30
 
 ### Fixed
