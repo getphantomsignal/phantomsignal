@@ -24,6 +24,7 @@
       <span>OWL<span class="accent">SCAN</span></span>
     </a>
     <div class="nav-links">
+      <a href="#whatsnew" class="nav-link">WHAT'S NEW</a>
       <a href="#features" class="nav-link">FEATURES</a>
       <a href="#quickstart" class="nav-link">INSTALL</a>
       <a href="https://github.com/owlscan/owlscan/blob/main/docs/USAGE.md" class="nav-link">DOCS</a>
@@ -41,14 +42,14 @@
         <img src="assets/owl-ascii-transparent.png" class="hero-owl" alt="OwlScan">
       </div>
       <div class="hero-text">
-        <div class="hero-eyebrow">// PHANTOM SIGNAL v1.1.0</div>
+        <div class="hero-eyebrow">// PHANTOM SIGNAL v1.3.0</div>
         <h1 class="hero-title">OWL<span class="accent">SCAN</span></h1>
         <p class="hero-tagline">"See everything. Leave no trace."</p>
         <p class="hero-sub">Open-source OSINT intelligence framework for security researchers,<br>penetration testers, and digital investigators.</p>
         <div class="hero-actions">
           <div class="install-block">
             <span class="install-prompt">$</span>
-            <code class="install-cmd" id="install-cmd">git clone https://github.com/owlscan/owlscan</code>
+            <code class="install-cmd" id="install-cmd">pip install owlscan</code>
             <button class="copy-btn" onclick="copyInstall()" title="Copy">
               <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h-1v1H2V6h1V5H2z"/></svg>
             </button>
@@ -89,6 +90,40 @@
     </div>
   </section>
 
+  <!-- WHAT'S NEW -->
+  <section class="section section-whatsnew" id="whatsnew">
+    <div class="section-inner">
+      <div class="section-label">🆕 WHAT'S NEW</div>
+      <h2 class="section-title">v1.3.0 — PHANTOM SIGNAL</h2>
+      <p class="section-sub">The biggest CLI and scanning update since launch.</p>
+      <div class="whatsnew-grid">
+        <div class="whatsnew-card">
+          <div class="whatsnew-icon">🖥️</div>
+          <h3 class="whatsnew-title">Rich Terminal Panels</h3>
+          <p class="whatsnew-desc"><code>owlscan scan &lt;target&gt;</code> now renders module-specific intelligence panels — DNS records, aligned port table with version/banner/risk, tech stack with security grade A–F, exposed endpoints, GeoIP/ASN, and a red anomaly callout. All borders flush to terminal width.</p>
+        </div>
+        <div class="whatsnew-card">
+          <div class="whatsnew-icon">🎯</div>
+          <h3 class="whatsnew-title">nmap Integration</h3>
+          <p class="whatsnew-desc">Port scanner now chains <code>nmap -sV -O</code> for full service-version detection and OS fingerprinting. Falls back silently to the pure-Python async prober when nmap is absent or unprivileged — no config required. OS guess and engine label shown in output.</p>
+        </div>
+        <div class="whatsnew-card">
+          <div class="whatsnew-icon">🌐</div>
+          <h3 class="whatsnew-title">Expanded Port Coverage</h3>
+          <p class="whatsnew-desc">Default scan covers 99 ports (up from 56) — both low privileged services and high-numbered application ports: WinRM, Webmin, InfluxDB, Radmin, Kubernetes API, Docker API, and more. Dangerous port list extended accordingly.</p>
+        </div>
+        <div class="whatsnew-card">
+          <div class="whatsnew-icon">🌑</div>
+          <h3 class="whatsnew-title">Web UI Parity</h3>
+          <p class="whatsnew-desc">Results page renders each result type as structured output matching CLI panels — port cards, DNS tables, SPF/DMARC status, TLS info, security header grade, API endpoint status codes, geo/TOR flags. Quick Probe now runs all 5 default modules.</p>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:2rem;">
+        <a href="https://github.com/owlscan/owlscan/blob/main/CHANGELOG.md" target="_blank" class="btn btn-outline">📋 FULL CHANGELOG</a>
+      </div>
+    </div>
+  </section>
+
   <!-- FEATURES -->
   <section class="section" id="features">
     <div class="section-inner">
@@ -118,9 +153,9 @@
         <div class="feature-card">
           <div class="feature-icon" style="color:var(--purple)">🔌</div>
           <h3 class="feature-title">Port Scanner</h3>
-          <p class="feature-desc">Async TCP scanner up to 65,535 ports. Service banner grabbing and version detection. Risk-based port assessment — identifies admin panels, databases, and exposed dev services.</p>
+          <p class="feature-desc">nmap-powered service &amp; OS detection (<code style="font-size:0.78rem">-sV -O</code>) with transparent pure-Python async fallback. 99 ports by default, 1 000+ or full 65 535 on demand. Risk-based assessment flags databases, admin panels, and exposed dev services.</p>
           <div class="feature-tags">
-            <span class="tag">Async</span><span class="tag">Banner Grab</span><span class="tag">65k Ports</span>
+            <span class="tag">nmap -sV -O</span><span class="tag">OS Detection</span><span class="tag">65k Ports</span>
           </div>
         </div>
 
@@ -260,15 +295,35 @@
       <h2 class="section-title">Up in 60 Seconds</h2>
 
       <div class="qs-tabs">
-        <button class="qs-tab active" onclick="showTab('docker')">Docker</button>
-        <button class="qs-tab" onclick="showTab('pip')">Python / pip</button>
+        <button class="qs-tab active" onclick="showTab('pypi')">pip install</button>
+        <button class="qs-tab" onclick="showTab('docker')">Docker</button>
+        <button class="qs-tab" onclick="showTab('git')">From Source</button>
         <button class="qs-tab" onclick="showTab('cli')">CLI</button>
       </div>
 
-      <div class="qs-panel active" id="tab-docker">
+      <div class="qs-panel active" id="tab-pypi">
         <div class="demo-bar">
           <span class="demo-dot red"></span><span class="demo-dot yellow"></span><span class="demo-dot green"></span>
-          <span class="demo-title">Docker (recommended)</span>
+          <span class="demo-title">pip install — Python 3.10+</span>
+        </div>
+        <pre class="code-block"><span class="c-dim"># Install from PyPI</span>
+<span class="c-green">pip</span> install owlscan
+
+<span class="c-dim"># Initialize database</span>
+<span class="c-green">owlscan</span> init
+
+<span class="c-dim"># Launch web UI</span>
+<span class="c-green">owlscan</span> web --open-browser
+<span class="c-dim"># → http://127.0.0.1:5000</span>
+
+<span class="c-dim"># Or scan straight from the CLI</span>
+<span class="c-green">owlscan</span> scan example.com</pre>
+      </div>
+
+      <div class="qs-panel" id="tab-docker">
+        <div class="demo-bar">
+          <span class="demo-dot red"></span><span class="demo-dot yellow"></span><span class="demo-dot green"></span>
+          <span class="demo-title">Docker</span>
         </div>
         <pre class="code-block"><span class="c-green">git</span> clone https://github.com/owlscan/owlscan
 <span class="c-green">cd</span> owlscan
@@ -276,38 +331,40 @@
 <span class="c-dim"># Open http://localhost:5000</span></pre>
       </div>
 
-      <div class="qs-panel" id="tab-pip">
+      <div class="qs-panel" id="tab-git">
         <div class="demo-bar">
           <span class="demo-dot red"></span><span class="demo-dot yellow"></span><span class="demo-dot green"></span>
-          <span class="demo-title">Python 3.10+ required</span>
+          <span class="demo-title">From source — Python 3.10+</span>
         </div>
         <pre class="code-block"><span class="c-green">git</span> clone https://github.com/owlscan/owlscan
 <span class="c-green">cd</span> owlscan
 <span class="c-green">python</span> -m venv .venv
 <span class="c-green">source</span> .venv/bin/activate   <span class="c-dim"># Windows: .venv\Scripts\activate</span>
 <span class="c-green">pip</span> install -e .
-<span class="c-green">python</span> run.py
+<span class="c-green">owlscan</span> web --open-browser
 <span class="c-dim"># Open http://127.0.0.1:5000</span></pre>
       </div>
 
       <div class="qs-panel" id="tab-cli">
         <div class="demo-bar">
           <span class="demo-dot red"></span><span class="demo-dot yellow"></span><span class="demo-dot green"></span>
-          <span class="demo-title">CLI scan examples</span>
+          <span class="demo-title">CLI — rich panel output</span>
         </div>
-        <pre class="code-block"><span class="c-dim"># Quick probe</span>
-<span class="c-green">owlscan</span> scan example.com --profile quick
+        <pre class="code-block"><span class="c-dim"># IP recon — nmap version + OS detection, GeoIP, panels</span>
+<span class="c-green">owlscan</span> scan 192.168.1.1 --type ip_recon
 
-<span class="c-dim"># Standard recon with HTML report</span>
+<span class="c-dim"># Domain recon with HTML report</span>
 <span class="c-green">owlscan</span> scan example.com \
   --profile standard \
-  --format html \
-  --output ./reports
+  --format html --output ./reports
 
 <span class="c-dim"># People intelligence</span>
 <span class="c-green">owlscan</span> profile \
   --email target@example.com \
-  --first-name John --last-name Doe</pre>
+  --first-name John --last-name Doe
+
+<span class="c-dim"># Extend with API keys for Shodan, VT, AbuseIPDB...</span>
+<span class="c-green">owlscan</span> config --list-apis</pre>
       </div>
 
       <p class="qs-note">⚠ For authorized use only. See the <a href="https://github.com/owlscan/owlscan#️-legal--ethics" target="_blank">Legal &amp; Ethics</a> section before running any scan.</p>
