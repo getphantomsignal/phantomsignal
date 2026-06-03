@@ -1,12 +1,18 @@
-# 🦉 OwlScan // PHANTOM SIGNAL
+# PhantomSignal
 
 ```
-  ██████╗ ██╗    ██╗██╗     ███████╗ ██████╗ █████╗ ███╗   ██╗
- ██╔═══██╗██║    ██║██║     ██╔════╝██╔════╝██╔══██╗████╗  ██║
- ██║   ██║██║ █╗ ██║██║     ███████╗██║     ███████║██╔██╗ ██║
- ██║   ██║██║███╗██║██║     ╚════██║██║     ██╔══██║██║╚██╗██║
- ╚██████╔╝╚███╔███╔╝███████╗███████║╚██████╗██║  ██║██║ ╚████║
-  ╚═════╝  ╚══╝╚══╝ ╚══════╝╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝
+    ____  __  _____    _   ____________  __  ___
+   / __ \/ / / /   |  / | / /_  __/ __ \/  |/  /
+  / /_/ / /_/ / /| | /  |/ / / / / / / / /|_/ /
+ / ____/ __  / ___ |/ /|  / / / / /_/ / /  / /
+/_/   /_/ /_/_/  |_/_/ |_/ /_/  \____/_/  /_/
+
+   _____ ___________   _____    __
+  / ___//  _/ ____/ | / /   |  / /
+  \__ \ / // / __/  |/ / /| | / /
+ ___/ // // /_/ / /|  / ___ |/ /___
+/____/___/\____/_/ |_/_/  |_/_____/
+
          >> OPEN-SOURCE OSINT INTELLIGENCE FRAMEWORK <<
                  "See everything. Leave no trace."
 ```
@@ -14,11 +20,11 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-00ff41?style=flat-square&logo=python)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-00f3ff?style=flat-square)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows%20%7C%20Docker-b026ff?style=flat-square)]()
-[![GitHub Stars](https://img.shields.io/github/stars/owlscan/owlscan?style=flat-square&color=00ff41)](https://github.com/owlscan/owlscan/stargazers)
-[![Open Issues](https://img.shields.io/github/issues/owlscan/owlscan?style=flat-square&color=b026ff)](https://github.com/owlscan/owlscan/issues)
-[![CI](https://img.shields.io/github/actions/workflow/status/owlscan/owlscan/ci.yml?branch=main&style=flat-square&label=CI&color=00ff41)](https://github.com/owlscan/owlscan/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/owlscan?style=flat-square&color=b026ff&logo=pypi&logoColor=white)](https://pypi.org/project/owlscan/)
-[![Project Site](https://img.shields.io/badge/site-owlscan.sh-00f3ff?style=flat-square&logo=github)](https://owlscan.sh)
+[![GitHub Stars](https://img.shields.io/github/stars/owlscan/phantomsignal?style=flat-square&color=00ff41)](https://github.com/owlscan/phantomsignal/stargazers)
+[![Open Issues](https://img.shields.io/github/issues/owlscan/phantomsignal?style=flat-square&color=b026ff)](https://github.com/owlscan/phantomsignal/issues)
+[![CI](https://img.shields.io/github/actions/workflow/status/owlscan/phantomsignal/ci.yml?branch=main&style=flat-square&label=CI&color=00ff41)](https://github.com/owlscan/phantomsignal/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/phantomsignal?style=flat-square&color=b026ff&logo=pypi&logoColor=white)](https://pypi.org/project/phantomsignal/)
+[![Project Site](https://img.shields.io/badge/site-phantomsignal.sh-00f3ff?style=flat-square&logo=github)](https://phantomsignal.sh)
 [![Changelog](https://img.shields.io/badge/changelog-view-00ff41?style=flat-square)](CHANGELOG.md)
 
 
@@ -27,7 +33,7 @@
 ## ⚡ What's New in v1.3.0
 
 ### Rich CLI output panels
-`owlscan scan <target>` now renders module-specific intelligence panels instead of a raw table — DNS records, subdomains, SPF/DMARC/DNSSEC status, an aligned port table with version/banner/risk, tech stack with security header grade A–F, exposed API resources, GeoIP/ASN intel, and a red anomaly callout. All panel right-borders are pinned to terminal width.
+`phantomsignal scan <target>` now renders module-specific intelligence panels instead of a raw table — DNS records, subdomains, SPF/DMARC/DNSSEC status, an aligned port table with version/banner/risk, tech stack with security header grade A–F, exposed API resources, GeoIP/ASN intel, and a red anomaly callout. All panel right-borders are pinned to terminal width.
 
 ### nmap integration
 The port scanner now chains **nmap** (`-sV --version-intensity 7 -O --osscan-guess`) for full service-version detection and OS fingerprinting, with a transparent pure-Python async TCP fallback when nmap is absent or running without raw-socket privileges (macOS / Windows). The scan engine used and OS guess are shown inline in the port panel footer.
@@ -44,23 +50,23 @@ The scan results page now renders each result type as structured output — port
 
 ### CLI — Ghost Run in action
 
-![CLI scan demo](https://raw.githubusercontent.com/owlscan/owlscan/main/docs/assets/demo.gif)
+![CLI scan demo](https://raw.githubusercontent.com/phantomsignal/phantomsignal/main/docs/assets/demo.gif)
 
 ### Web UI — Shadow Grid (Dashboard)
 
-![Dashboard](https://raw.githubusercontent.com/owlscan/owlscan/main/docs/assets/screenshot_dashboard.svg)
+![Dashboard](https://raw.githubusercontent.com/phantomsignal/phantomsignal/main/docs/assets/screenshot_dashboard.svg)
 
 ### Web UI — Launch Ghost Run
 
-![Launch Ghost Run](https://raw.githubusercontent.com/owlscan/owlscan/main/docs/assets/screenshot_launch.svg)
+![Launch Ghost Run](https://raw.githubusercontent.com/phantomsignal/phantomsignal/main/docs/assets/screenshot_launch.svg)
 
 ### Web UI — Scan Results
 
-![Scan results](https://raw.githubusercontent.com/owlscan/owlscan/main/docs/assets/screenshot_results.svg)
+![Scan results](https://raw.githubusercontent.com/phantomsignal/phantomsignal/main/docs/assets/screenshot_results.svg)
 
 ### Web UI — Theme Options
 
-OwlScan ships with two built-in UI themes, selectable via the **☀/🌙 toggle** in the top navigation bar. Your preference is saved automatically and persists across sessions.
+PhantomSignal ships with two built-in UI themes, selectable via the **☀/🌙 toggle** in the top navigation bar. Your preference is saved automatically and persists across sessions.
 
 | Theme | Description |
 |-------|-------------|
@@ -70,18 +76,18 @@ OwlScan ships with two built-in UI themes, selectable via the **☀/🌙 toggle*
 > **Asciinema recording:** Watch the full interactive demo on asciinema.org, or play it locally:
 > ```bash
 > pip install asciinema
-> asciinema play https://raw.githubusercontent.com/owlscan/owlscan/main/docs/assets/demo.cast
+> asciinema play https://raw.githubusercontent.com/phantomsignal/phantomsignal/main/docs/assets/demo.cast
 > ```
 
 [![asciicast](https://asciinema.org/a/1163488.svg)](https://asciinema.org/a/1163488)
 
 ---
 
-## ⚡ What is OwlScan?
+## ⚡ What is PhantomSignal?
 
-OwlScan is a **community-powered, open-source OSINT intelligence framework** built for security researchers, penetration testers, investigators, and enthusiasts. It combines web scraping, network reconnaissance, people intelligence aggregation, and threat analysis into a single cohesive platform.
+PhantomSignal is a **community-powered, open-source OSINT intelligence framework** built for security researchers, penetration testers, investigators, and enthusiasts. It combines web scraping, network reconnaissance, people intelligence aggregation, and threat analysis into a single cohesive platform.
 
-> **LEGAL DISCLAIMER:** OwlScan is for **authorized security research, OSINT investigations, and educational purposes only**. Only scan targets you have explicit permission to test. You are solely responsible for compliance with all applicable laws. The developers assume NO liability for misuse.
+> **LEGAL DISCLAIMER:** PhantomSignal is for **authorized security research, OSINT investigations, and educational purposes only**. Only scan targets you have explicit permission to test. You are solely responsible for compliance with all applicable laws. The developers assume NO liability for misuse.
 
 ---
 
@@ -150,8 +156,8 @@ All formats support **ZIP compression** and **AES-256-GCM encryption**.
 - **Scheduled Phantoms** — recurring automated ghost runs
 - **API health monitor** — dashboard showing configured APIs and rate limits
 - **Light/Dark theme** — toggle between cyberpunk Dark mode and "Phantom Dawn" Light mode via the ☀/🌙 button; preference persisted in localStorage
-- **Full REST API** — integrate OwlScan into your own toolchain
-- **CLI interface** — `owlscan scan`, `owlscan profile`, `owlscan export`
+- **Full REST API** — integrate PhantomSignal into your own toolchain
+- **CLI interface** — `phantomsignal scan`, `phantomsignal profile`, `phantomsignal export`
 - **Docker** — single-command deployment
 
 ---
@@ -160,8 +166,8 @@ All formats support **ZIP compression** and **AES-256-GCM encryption**.
 
 ### Option 1: Docker (Recommended)
 ```bash
-git clone https://github.com/owlscan/owlscan
-cd owlscan
+git clone https://github.com/owlscan/phantomsignal
+cd phantomsignal
 docker-compose up -d
 # Open http://localhost:5000
 ```
@@ -169,23 +175,23 @@ docker-compose up -d
 ### Option 2: Manual Installation
 ```bash
 # Python 3.10+ required
-git clone https://github.com/owlscan/owlscan
-cd owlscan
+git clone https://github.com/owlscan/phantomsignal
+cd phantomsignal
 pip install -e .
-owlscan init
-owlscan web --open-browser
+phantomsignal init
+phantomsignal web --open-browser
 ```
 
 ### Option 3: CLI Scan
 ```bash
 # Quick probe
-owlscan scan example.com --profile quick
+phantomsignal scan example.com --profile quick
 
 # Full spectrum with export
-owlscan scan 192.168.1.1 --type ip_recon --format html --output ./reports
+phantomsignal scan 192.168.1.1 --type ip_recon --format html --output ./reports
 
 # People intelligence
-owlscan profile --email target@company.com --first-name John --last-name Doe
+phantomsignal profile --email target@company.com --first-name John --last-name Doe
 ```
 
 ---
@@ -204,21 +210,21 @@ export ABUSEIPDB_API_KEY="your-abuseipdb-key"
 export ALIENVAULT_API_KEY="your-otx-key"
 export GITHUB_TOKEN="your-github-token"
 export SECURITYTRAILS_API_KEY="your-st-key"
-# See config/owlscan.yaml for full list
+# See config/phantomsignal.yaml for full list
 ```
 
 ### Config File
-Copy `config/owlscan.yaml` to `~/.owlscan/config.yaml` and customize.
+Copy `config/phantomsignal.yaml` to `~/.phantomsignal/config.yaml` and customize.
 
 ---
 
 ## 🔌 Adding Custom APIs
 
-OwlScan uses a plugin architecture. Adding a new intelligence source takes ~20 lines:
+PhantomSignal uses a plugin architecture. Adding a new intelligence source takes ~20 lines:
 
 ```python
-# owlscan/intel/apis/my_api.py
-from owlscan.intel.apis.base import BaseIntelAPI, register_api, APICategory, APITier
+# phantomsignal/intel/apis/my_api.py
+from phantomsignal.intel.apis.base import BaseIntelAPI, register_api, APICategory, APITier
 
 @register_api
 class MyAPI(BaseIntelAPI):
@@ -238,14 +244,14 @@ class MyAPI(BaseIntelAPI):
         return [self._wrap_result("my_result", data)]
 ```
 
-Then import it in `owlscan/intel/orchestrator.py` and it auto-registers.
+Then import it in `phantomsignal/intel/orchestrator.py` and it auto-registers.
 
 ---
 
 ## 🏗 Architecture
 
 ```
-owlscan/
+phantomsignal/
 ├── core/               — Engine, config, database, models
 ├── scrapers/           — Scrapy crawler, tech detector, port scanner, API hunter, DNS recon
 ├── intel/
@@ -282,11 +288,11 @@ curl http://localhost:5000/api/v1/health
 
 ## 🤝 Contributing
 
-OwlScan thrives on community contributions. Ways to help:
+PhantomSignal thrives on community contributions. Ways to help:
 
 1. **Add API integrations** — Follow the plugin pattern above
 2. **Improve detection signatures** — Expand `tech_detector.py`
-3. **Bug reports** — [GitHub Issues](https://github.com/owlscan/owlscan/issues)
+3. **Bug reports** — [GitHub Issues](https://github.com/owlscan/phantomsignal/issues)
 4. **Documentation** — Improve the wiki
 5. **Translations** — Internationalize the UI
 
@@ -302,7 +308,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. Please also review our [C
 
 ## ⚠️ Legal & Ethics
 
-OwlScan is a dual-use tool. Operators are responsible for:
+PhantomSignal is a dual-use tool. Operators are responsible for:
 - Obtaining explicit authorization before scanning any system
 - Complying with applicable laws (CFAA, GDPR, CCPA, ECPA, local laws)
 - Respecting privacy and data protection regulations
@@ -342,7 +348,7 @@ OwlScan is a dual-use tool. Operators are responsible for:
 | Document | Description |
 |----------|-------------|
 | [Code of Conduct](CODE_OF_CONDUCT.md) | Community standards and expectations |
-| [Contributing Guidelines](CONTRIBUTING.md) | How to contribute to OwlScan |
+| [Contributing Guidelines](CONTRIBUTING.md) | How to contribute to PhantomSignal |
 | [Security Policy](SECURITY.md) | Reporting vulnerabilities responsibly |
 | [License](LICENSE) | MIT License terms |
 
@@ -354,5 +360,5 @@ MIT License — see [LICENSE](LICENSE)
 
 ---
 
-*Built with questionable amounts of caffeine. "The night sees all. The owl forgets nothing."*
+*Built with questionable amounts of caffeine. "See everything. Leave no trace."*
 *Some ghosts leave no trace. This one left commits. — Claude*    

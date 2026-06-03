@@ -1,6 +1,6 @@
-# Contributing to OwlScan
+# Contributing to PhantomSignal
 
-Thanks for wanting to improve OwlScan. Here's how to get from zero to a merged PR.
+Thanks for wanting to improve PhantomSignal. Here's how to get from zero to a merged PR.
 
 Before you start: read the [Code of Conduct](CODE_OF_CONDUCT.md). It is short, direct, and non-negotiable. If you are contributing a security-relevant change or have found a vulnerability, read the [Security Policy](SECURITY.md) first.
 
@@ -9,12 +9,12 @@ Before you start: read the [Code of Conduct](CODE_OF_CONDUCT.md). It is short, d
 ## Dev Setup
 
 ```bash
-git clone https://github.com/owlscan/owlscan
-cd owlscan
+git clone https://github.com/owlscan/phantomsignal
+cd phantomsignal
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e .
-owlscan init          # creates ~/.owlscan/config.yaml
-owlscan web           # http://localhost:5000
+phantomsignal init          # creates ~/.phantomsignal/config.yaml
+phantomsignal web           # http://localhost:5000
 ```
 
 ---
@@ -23,11 +23,11 @@ owlscan web           # http://localhost:5000
 
 | Area | Where to look |
 |---|---|
-| New intelligence API | `owlscan/intel/apis/` — copy `shodan_api.py` as a template |
-| New tech fingerprint | `owlscan/scrapers/tech_detector.py` |
-| New export format | `owlscan/exporters/manager.py` |
+| New intelligence API | `phantomsignal/intel/apis/` — copy `shodan_api.py` as a template |
+| New tech fingerprint | `phantomsignal/scrapers/tech_detector.py` |
+| New export format | `phantomsignal/exporters/manager.py` |
 | Bug fix | File an issue first if the root cause is unclear |
-| Web UI / templates | `owlscan/web/templates/`, `owlscan/web/static/` |
+| Web UI / templates | `phantomsignal/web/templates/`, `phantomsignal/web/static/` |
 
 ---
 
@@ -36,8 +36,8 @@ owlscan web           # http://localhost:5000
 The plugin system auto-registers anything decorated with `@register_api`:
 
 ```python
-# owlscan/intel/apis/myapi.py
-from owlscan.intel.apis.base import BaseIntelAPI, register_api, APICategory, APITier
+# phantomsignal/intel/apis/myapi.py
+from phantomsignal.intel.apis.base import BaseIntelAPI, register_api, APICategory, APITier
 
 @register_api
 class MyAPI(BaseIntelAPI):
@@ -54,7 +54,7 @@ class MyAPI(BaseIntelAPI):
         return [self._wrap_result("result", data)]
 ```
 
-Then add one import line to `owlscan/intel/orchestrator.py`.
+Then add one import line to `phantomsignal/intel/orchestrator.py`.
 
 ---
 
@@ -63,14 +63,14 @@ Then add one import line to `owlscan/intel/orchestrator.py`.
 - Keep PRs focused — one feature or fix per PR
 - Match the existing code style (no new linting warnings)
 - If you add a new API, include the `SIGN_UP_URL` so users can get a key
-- Don't commit `config/owlscan.yaml` or any file containing API keys
+- Don't commit `config/phantomsignal.yaml` or any file containing API keys
 - Reference any related issue in the PR description (`Fixes #123`)
 
 ---
 
 ## Reporting Bugs
 
-Use the [bug report template](https://github.com/owlscan/owlscan/issues/new?template=bug_report.md).
+Use the [bug report template](https://github.com/owlscan/phantomsignal/issues/new?template=bug_report.md).
 
 For security vulnerabilities, **do not open a public issue.** Follow the process in [`SECURITY.md`](SECURITY.md) — private email first, coordinated disclosure before anything goes public.
 

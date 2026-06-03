@@ -1,4 +1,4 @@
-# Code of Conduct — OwlScan // PHANTOM SIGNAL
+# Code of Conduct — PhantomSignal // PHANTOM SIGNAL
 
 > *This project exists to advance legitimate security research. That purpose is non-negotiable.*
 
@@ -6,7 +6,7 @@
 
 ## Preamble
 
-OwlScan is an intelligence framework with real capability. The people who build and use it operate in a domain where the line between research and harm is drawn by intent, authorization, and discipline — not by the tool itself.
+PhantomSignal is an intelligence framework with real capability. The people who build and use it operate in a domain where the line between research and harm is drawn by intent, authorization, and discipline — not by the tool itself.
 
 This Code of Conduct is not a formality. It is the terms under which this community operates. Violations are taken seriously, reviewed without sentiment, and acted upon.
 
@@ -14,7 +14,7 @@ This Code of Conduct is not a formality. It is the terms under which this commun
 
 ## Scope
 
-This Code applies to all spaces associated with OwlScan: GitHub Issues, Pull Requests, Discussions, the project wiki, and any other forum where you represent this project or its community. It applies to maintainers, contributors, and users who engage publicly in this space.
+This Code applies to all spaces associated with PhantomSignal: GitHub Issues, Pull Requests, Discussions, the project wiki, and any other forum where you represent this project or its community. It applies to maintainers, contributors, and users who engage publicly in this space.
 
 ---
 
@@ -22,9 +22,9 @@ This Code applies to all spaces associated with OwlScan: GitHub Issues, Pull Req
 
 ### Expected
 
-- **Operate within authorization.** Never discuss, share, or celebrate the use of OwlScan — or any derivative — against systems, organizations, or individuals without documented, explicit permission.
+- **Operate within authorization.** Never discuss, share, or celebrate the use of PhantomSignal — or any derivative — against systems, organizations, or individuals without documented, explicit permission.
 - **Communicate with precision.** This community values clear, technical, professional communication. Be direct. Be accurate. Be concise.
-- **Disclose responsibly.** If you discover a vulnerability in OwlScan itself, follow the process in [`SECURITY.md`](SECURITY.md). Do not post it publicly before a fix is available.
+- **Disclose responsibly.** If you discover a vulnerability in PhantomSignal itself, follow the process in [`SECURITY.md`](SECURITY.md). Do not post it publicly before a fix is available.
 - **Respect the research.** Critique ideas, not people. Disagree with evidence, not volume. Assume competence and good intent until demonstrated otherwise.
 - **Protect your sources.** Do not share real target data, scan output against live systems, or personally identifiable information in Issues, PRs, or Discussions — even as an example.
 
@@ -64,8 +64,8 @@ There is no appeal process for bans resulting from illegal use of the software.
 
 To report a violation, contact the maintainers privately:
 
-**Email:** `security@owlscan.sh`  
-**Subject line:** `[OwlScan CoC] <one-line summary>`
+**Email:** `security@phantomsignal.sh`  
+**Subject line:** `[PhantomSignal CoC] <one-line summary>`
 
 Reports are treated as confidential. Include as much context as you can: links, timestamps, screenshots. You will receive acknowledgement within 72 hours.
 
@@ -81,4 +81,4 @@ Act accordingly.
 
 ---
 
-*Effective from the first public commit. Maintained by the OwlScan project.*
+*Effective from the first public commit. Maintained by the PhantomSignal project.*

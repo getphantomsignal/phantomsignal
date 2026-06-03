@@ -11,21 +11,21 @@ with open("requirements.txt", "r") as f:
     ]
 
 setup(
-    name="owlscan",
+    name="phantomsignal",
     version="1.3.0",
-    description="OwlScan :: Open-Source OSINT Intelligence Framework",
+    description="PhantomSignal :: Open-Source OSINT Intelligence Framework",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="packetsn1ffer",
-    url="https://github.com/owlscan/owlscan",
+    url="https://github.com/owlscan/phantomsignal",
     packages=find_packages(),
     include_package_data=True,
     python_requires=">=3.10",
     install_requires=requirements,
     entry_points={
         "console_scripts": [
-            "owlscan=owlscan.cli:main",
-            "owl=owlscan.cli:main",
+            "phantomsignal=phantomsignal.cli:main",
+            "psig=phantomsignal.cli:main",
         ],
     },
     classifiers=[
@@ -43,11 +43,11 @@ setup(
         "Topic :: Internet :: WWW/HTTP :: Indexing/Search",
         "Topic :: System :: Networking :: Monitoring",
     ],
-    keywords="osint intelligence reconnaissance security pentest",
+    keywords="osint intelligence reconnaissance security pentest phantom signal",
     project_urls={
-        "Homepage": "https://owlscan.sh",
-        "Documentation": "https://owlscan.sh",
-        "Bug Reports": "https://github.com/owlscan/owlscan/issues",
-        "Source": "https://github.com/owlscan/owlscan",
+        "Homepage": "https://phantomsignal.sh",
+        "Documentation": "https://phantomsignal.sh",
+        "Bug Reports": "https://github.com/owlscan/phantomsignal/issues",
+        "Source": "https://github.com/owlscan/phantomsignal",
     },
 )

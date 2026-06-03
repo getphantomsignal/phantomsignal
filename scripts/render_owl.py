@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Render the OwlScan ASCII owl art to PNG assets.
+Render the PhantomSignal ASCII owl art to PNG assets.
 
 Outputs two files:
-  owlscan/web/static/img/owl-ascii.png             — dark background version
-  owlscan/web/static/img/owl-ascii-transparent.png — transparent background (used in UI)
+  phantomsignal/web/static/img/owl-ascii.png             — dark background version
+  phantomsignal/web/static/img/owl-ascii-transparent.png — transparent background (used in UI)
 
 Requirements:
   pip install Pillow
@@ -41,7 +41,7 @@ OWL_LINES = [
     "               888   ,g8s/8. ooo ,8\\g8s.   888",
     "               88`  i888888fo_X_of888888i  '88",
     "               V    YY'`~'`  ~~~  '` ~ YY    V",
-    '                    ""     OwlScan    ""',
+    '                    ""     PhantomSignal    ""',
 ]
 
 # ── Config ───────────────────────────────────────────────────────────────────
@@ -53,7 +53,7 @@ DARK_BG = (10, 10, 15, 255)         # near-black
 
 FONT_PATH = "/usr/share/fonts/truetype/hack/Hack-Regular.ttf"
 
-OUT_DIR = Path(__file__).parent.parent / "owlscan" / "web" / "static" / "img"
+OUT_DIR = Path(__file__).parent.parent / "phantomsignal" / "web" / "static" / "img"
 
 # ── Render ───────────────────────────────────────────────────────────────────
 def main() -> None:
@@ -88,7 +88,7 @@ def main() -> None:
         img.save(path)
         print(f"  ✓  {path}  ({total_w}×{total_h})")
 
-    print("Rendering OwlScan owl assets...")
+    print("Rendering PhantomSignal owl assets...")
     render(DARK_BG, FG, OUT_DIR / "owl-ascii.png")
     render((0, 0, 0, 0), FG, OUT_DIR / "owl-ascii-transparent.png")
     print("Done.")

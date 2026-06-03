@@ -1,20 +1,20 @@
 version: "3.9"
 
 services:
-  owlscan:
+  phantomsignal:
     build: .
-    image: owlscan:latest
-    container_name: owlscan
+    image: phantomsignal:latest
+    container_name: phantomsignal
     ports:
       - "5000:5000"
     volumes:
-      - owlscan-data:/app/data
-      - owlscan-exports:/app/exports
+      - phantomsignal-data:/app/data
+      - phantomsignal-exports:/app/exports
       - ./config:/app/config:ro
     environment:
-      - OWLSCAN_HOST=0.0.0.0
-      - OWLSCAN_PORT=5000
-      - OWLSCAN_DB_URL=sqlite:////app/data/owlscan.db
+      - PHANTOMSIGNAL_HOST=0.0.0.0
+      - PHANTOMSIGNAL_PORT=5000
+      - PHANTOMSIGNAL_DB_URL=sqlite:////app/data/phantomsignal.db
       # Add your API keys as environment variables:
       # - SHODAN_API_KEY=your-key
       # - VIRUSTOTAL_API_KEY=your-key
@@ -37,7 +37,7 @@ services:
   # Optional: Tor proxy for Ghost Mode
   tor:
     image: dperson/torproxy:latest
-    container_name: owlscan-tor
+    container_name: phantomsignal-tor
     ports:
       - "9050:9050"
       - "8118:8118"
@@ -45,5 +45,5 @@ services:
     profiles: ["ghost"]
 
 volumes:
-  owlscan-data:
-  owlscan-exports:
+  phantomsignal-data:
+  phantomsignal-exports:

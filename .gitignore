@@ -1,4 +1,4 @@
-## NightOwl .gitignore
+## PhantomSignal .gitignore
 
 # Python
 __pycache__/
@@ -18,10 +18,10 @@ env/
 .env.local
 .env.production
 
-# NightOwl runtime
-nightowl.db
-nightowl.db-shm
-nightowl.db-wal
+# PhantomSignal runtime
+phantomsignal.db
+phantomsignal.db-shm
+phantomsignal.db-wal
 *.db
 *.sqlite
 *.sqlite3
@@ -31,7 +31,7 @@ exports/
 instance/
 
 # API keys — NEVER commit these
-config/nightowl.yaml
+config/phantomsignal.yaml
 config/*.yaml
 config/*.json
 config/*.toml
@@ -82,7 +82,7 @@ test-results/
 tmp/
 temp/
 
-# NightOwl scan data / exports
+# PhantomSignal scan data / exports
 /scans/
 /reports/
 /screenshots/

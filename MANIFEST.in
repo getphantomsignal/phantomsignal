@@ -1,6 +1,6 @@
 include requirements.txt
 include LICENSE
 include README.md
-recursive-include owlscan/web/templates *.html
-recursive-include owlscan/web/static *
+recursive-include phantomsignal/web/templates *.html
+recursive-include phantomsignal/web/static *
 recursive-include config *.yaml *.yml
