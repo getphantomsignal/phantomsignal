@@ -1,5 +1,5 @@
 /**
- * OwlScan App Core — Grid Interface Logic
+ * PhantomSignal App Core — Grid Interface Logic
  * SocketIO connection, toast system, and shared utilities
  */
 
@@ -181,7 +181,7 @@ function timeAgo(dateStr) {
 // ── Theme Management ─────────────────────────────────────────
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
-  localStorage.setItem('owlscan-theme', theme);
+  localStorage.setItem('phantomsignal-theme', theme);
   const icon = document.getElementById('theme-icon');
   if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀';
 }
@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initSocket();
 
   // Apply saved theme and wire toggle
-  const savedTheme = localStorage.getItem('owlscan-theme') || 'dark';
+  const savedTheme = localStorage.getItem('phantomsignal-theme') || 'dark';
   applyTheme(savedTheme);
   const themeToggle = document.getElementById('theme-toggle');
   if (themeToggle) {

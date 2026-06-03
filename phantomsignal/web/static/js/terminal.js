@@ -1,5 +1,5 @@
 /**
- * OwlScan Terminal Module — Live Feed Handler
+ * PhantomSignal Terminal Module — Live Feed Handler
  * Manages real-time scan output via SocketIO
  */
 

@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="OwlScan — Open Source OSINT Intelligence Framework">
-  <title>{% block title %}OwlScan{% endblock %} // PHANTOM SIGNAL</title>
+  <meta name="description" content="PhantomSignal — Open Source OSINT Intelligence Framework">
+  <title>{% block title %}PhantomSignal{% endblock %} // PHANTOM SIGNAL</title>
   <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/owl-icon.svg') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/owlscan.css') }}">
-  <script>(function(){var t=localStorage.getItem('owlscan-theme');if(t)document.documentElement.setAttribute('data-theme',t);})();</script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/phantomsignal.css') }}">
+  <script>(function(){var t=localStorage.getItem('phantomsignal-theme');if(t)document.documentElement.setAttribute('data-theme',t);})();</script>
   {% block head_extra %}{% endblock %}
 </head>
 <body>
@@ -21,7 +21,7 @@
   <nav class="nav-bar">
     <div class="nav-brand">
       <a href="{{ url_for('dashboard.index') }}" class="brand-link">
-        <img src="{{ url_for('static', filename='img/owl-ascii-transparent.png') }}" class="owl-ascii-nav" alt="OwlScan">
+        <img src="{{ url_for('static', filename='img/owl-ascii-transparent.png') }}" class="owl-ascii-nav" alt="PhantomSignal">
         <span class="brand-name">OWL<span class="brand-accent">SCAN</span></span>
         <span class="brand-tag">// {{ codename }}</span>
       </a>
@@ -87,7 +87,7 @@
     <div class="footer-right">
       <span class="footer-credits" title="by packetsn1ffer · AI arch: Claude (Anthropic) · MIT License">© 2026 packetsn1ffer</span>
       <span class="footer-sep">·</span>
-      <a href="https://github.com/owlscan/owlscan" target="_blank" class="footer-link">GITHUB</a>
+      <a href="https://github.com/owlscan/phantomsignal" target="_blank" class="footer-link">GITHUB</a>
       <span class="footer-sep">·</span>
       <a href="{{ url_for('dashboard.about') }}" class="footer-link">ABOUT</a>
     </div>

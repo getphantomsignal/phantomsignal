@@ -1,5 +1,5 @@
 /**
- * OwlScan Matrix Rain — Digital Ghost Effect
+ * PhantomSignal Matrix Rain — Digital Ghost Effect
  * Cyberpunk canvas background animation
  */
 (function () {
