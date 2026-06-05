@@ -11,6 +11,15 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.3.1] — 2026-06-04
+
+### Changed
+- **Author rebrand** — all author references updated from `packetsn1ffer` to `the-clipper` across package metadata, LICENSE, and inline credits.
+- **GitHub Sponsors** — added sponsorship links to README, landing page, and `FUNDING.yml`.
+- **Assets** — updated org avatar and asciinema recording to reflect PhantomSignal branding.
+
+---
+
 ## [1.3.0] — 2026-05-31
 
 ### Added
