@@ -88,3 +88,6 @@ temp/
 /scans/
 /reports/
 /screenshots/
+
+# Offline wheel cache (Docker build artifact — regenerate with pip download)
+wheels/
