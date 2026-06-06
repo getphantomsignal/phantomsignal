@@ -51,7 +51,7 @@
 /____/___/\____/_/ |_/_/  |_/_____/</pre>
       </div>
       <div class="hero-text">
-        <div class="hero-eyebrow">// PHANTOM SIGNAL v1.3.0</div>
+        <div class="hero-eyebrow">// PHANTOM SIGNAL v1.4.1</div>
         <h1 class="hero-title">PHANTOM<span class="accent">SIGNAL</span></h1>
         <p class="hero-tagline">"See everything. Leave no trace."</p>
         <p class="hero-sub">Open-source OSINT intelligence framework for security researchers,<br>penetration testers, and digital investigators.</p>
@@ -103,28 +103,28 @@
   <section class="section section-whatsnew" id="whatsnew">
     <div class="section-inner">
       <div class="section-label">🆕 WHAT'S NEW</div>
-      <h2 class="section-title">v1.3.0 — PHANTOM SIGNAL</h2>
-      <p class="section-sub">The biggest CLI and scanning update since launch.</p>
+      <h2 class="section-title">v1.4.0 — PHANTOM SIGNAL</h2>
+      <p class="section-sub">16 new intelligence APIs, smarter key validation, and a rock-solid async pipeline.</p>
       <div class="whatsnew-grid">
         <div class="whatsnew-card">
-          <div class="whatsnew-icon">🖥️</div>
-          <h3 class="whatsnew-title">Rich Terminal Panels</h3>
-          <p class="whatsnew-desc"><code>phantomsignal scan &lt;target&gt;</code> now renders module-specific intelligence panels — DNS records, aligned port table with version/banner/risk, tech stack with security grade A–F, exposed endpoints, GeoIP/ASN, and a red anomaly callout. All borders flush to terminal width.</p>
+          <div class="whatsnew-icon">📡</div>
+          <h3 class="whatsnew-title">16 New Intelligence APIs</h3>
+          <p class="whatsnew-desc">Social, identity, and threat intel now spans Twitch, Mastodon, Keybase, Gravatar, HackerNews, Tumblr, Flickr, Spotify, Steam, VK, Telegram public channels, Discord, Facebook Graph, EmailRep, Intelligence X (dark web / pastes / breaches), and Abstract Phone validation. Total: 46+ integrations.</p>
         </div>
         <div class="whatsnew-card">
-          <div class="whatsnew-icon">🎯</div>
-          <h3 class="whatsnew-title">nmap Integration</h3>
-          <p class="whatsnew-desc">Port scanner now chains <code>nmap -sV -O</code> for full service-version detection and OS fingerprinting. Falls back silently to the pure-Python async prober when nmap is absent or unprivileged — no config required. OS guess and engine label shown in output.</p>
+          <div class="whatsnew-icon">🔑</div>
+          <h3 class="whatsnew-title">Ghost Key Invalid-Key Detection</h3>
+          <p class="whatsnew-desc">The Ghost Key Vault TEST button now distinguishes a rejected key (HTTP 401/403) from a working-but-empty result. Invalid keys surface an amber <code>⚠ INVALID</code> badge and targeted toast — no more false <code>✓ OK</code> on dead credentials.</p>
         </div>
         <div class="whatsnew-card">
-          <div class="whatsnew-icon">🌐</div>
-          <h3 class="whatsnew-title">Expanded Port Coverage</h3>
-          <p class="whatsnew-desc">Default scan covers 99 ports (up from 56) — both low privileged services and high-numbered application ports: WinRM, Webmin, InfluxDB, Radmin, Kubernetes API, Docker API, and more. Dangerous port list extended accordingly.</p>
+          <div class="whatsnew-icon">⚡</div>
+          <h3 class="whatsnew-title">AlienVault OTX Fix</h3>
+          <p class="whatsnew-desc">Section requests (<code>general</code>, <code>reputation</code>, <code>geo</code>, <code>malware</code>, <code>passive_dns</code>) now run concurrently via <code>asyncio.gather</code> with an 8-second per-section cap. Eliminates the consistent 30 s timeout caused by the notoriously slow <code>reputation</code> endpoint.</p>
         </div>
         <div class="whatsnew-card">
-          <div class="whatsnew-icon">🌑</div>
-          <h3 class="whatsnew-title">Web UI Parity</h3>
-          <p class="whatsnew-desc">Results page renders each result type as structured output matching CLI panels — port cards, DNS tables, SPF/DMARC status, TLS info, security header grade, API endpoint status codes, geo/TOR flags. Quick Probe now runs all 5 default modules.</p>
+          <div class="whatsnew-icon">🔄</div>
+          <h3 class="whatsnew-title">WebSocket Sync Improvements</h3>
+          <p class="whatsnew-desc">Server now emits current scan progress to clients that join mid-run, eliminating the stuck-at-0% progress bar on direct URL navigation. A polling fallback keeps results accurate even when SocketIO events are missed on slow connections.</p>
         </div>
       </div>
       <div style="text-align:center;margin-top:2rem;">
@@ -171,9 +171,9 @@
         <div class="feature-card">
           <div class="feature-icon" style="color:var(--pink)">📡</div>
           <h3 class="feature-title">Intelligence APIs</h3>
-          <p class="feature-desc">30+ integrations: Shodan, VirusTotal, AbuseIPDB, GreyNoise, SecurityTrails, URLScan, AlienVault OTX, IPInfo, Hunter.io, HaveIBeenPwned, and more. Plugin architecture for custom sources.</p>
+          <p class="feature-desc">46+ integrations: Shodan, VirusTotal, AbuseIPDB, GreyNoise, AlienVault OTX, Intelligence X, EmailRep, social APIs (Twitch, Mastodon, Steam, Discord, Telegram), and more. Plugin architecture for custom sources.</p>
           <div class="feature-tags">
-            <span class="tag">Shodan</span><span class="tag">VirusTotal</span><span class="tag">+28 more</span>
+            <span class="tag">Shodan</span><span class="tag">VirusTotal</span><span class="tag">+44 more</span>
           </div>
         </div>
 
@@ -384,7 +384,7 @@
   <section class="section section-apis">
     <div class="section-inner">
       <div class="section-label">🔌 INTELLIGENCE GRID</div>
-      <h2 class="section-title">30+ API Integrations</h2>
+      <h2 class="section-title">46+ API Integrations</h2>
       <p class="section-sub">Configure your own keys in Ghost Keys — every API has a free tier to get started.</p>
       <div class="api-chips">
         <span class="api-chip green">Shodan</span>
@@ -406,7 +406,23 @@
         <span class="api-chip cyan">Pipl</span>
         <span class="api-chip purple">GitHub</span>
         <span class="api-chip green">Twitter / X</span>
-        <span class="api-chip dim">+ 11 more via plugin API</span>
+        <span class="api-chip cyan">Twitch</span>
+        <span class="api-chip purple">Mastodon</span>
+        <span class="api-chip green">Keybase</span>
+        <span class="api-chip cyan">Gravatar</span>
+        <span class="api-chip purple">HackerNews</span>
+        <span class="api-chip green">Tumblr</span>
+        <span class="api-chip cyan">Flickr</span>
+        <span class="api-chip purple">Spotify</span>
+        <span class="api-chip green">Steam</span>
+        <span class="api-chip cyan">VK</span>
+        <span class="api-chip purple">Telegram</span>
+        <span class="api-chip green">Discord</span>
+        <span class="api-chip cyan">Facebook Graph</span>
+        <span class="api-chip purple">EmailRep</span>
+        <span class="api-chip green">Intelligence X</span>
+        <span class="api-chip cyan">Abstract Phone</span>
+        <span class="api-chip dim">+ plugin API</span>
       </div>
     </div>
   </section>
