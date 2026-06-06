@@ -15,7 +15,7 @@ r"""
          >> "See everything. Leave no trace."        <<
 """
 
-__version__ = "1.3.2"
+__version__ = "1.3.3"
 __codename__ = "PHANTOM SIGNAL"
 __author__ = "the-clipper"
 __credits__ = [

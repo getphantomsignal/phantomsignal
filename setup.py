@@ -12,7 +12,7 @@ with open("requirements.txt", "r") as f:
 
 setup(
     name="phantomsignal",
-    version="1.3.2",
+    version="1.3.3",
     description="PhantomSignal :: Open-Source OSINT Intelligence Framework",
     long_description=long_description,
     long_description_content_type="text/markdown",
