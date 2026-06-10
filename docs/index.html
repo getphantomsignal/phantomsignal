@@ -51,7 +51,7 @@
 /____/___/\____/_/ |_/_/  |_/_____/</pre>
       </div>
       <div class="hero-text">
-        <div class="hero-eyebrow">// PHANTOM SIGNAL v1.4.2</div>
+        <div class="hero-eyebrow">// PHANTOM SIGNAL v1.4.3</div>
         <h1 class="hero-title">PHANTOM<span class="accent">SIGNAL</span></h1>
         <p class="hero-tagline">"See everything. Leave no trace."</p>
         <p class="hero-sub">Open-source OSINT intelligence framework for security researchers,<br>penetration testers, and digital investigators.</p>
@@ -103,9 +103,14 @@
   <section class="section section-whatsnew" id="whatsnew">
     <div class="section-inner">
       <div class="section-label">🆕 WHAT'S NEW</div>
-      <h2 class="section-title">v1.4.2 — PHANTOM SIGNAL</h2>
-      <p class="section-sub">16 new intelligence APIs, smarter key validation, a rock-solid async pipeline — and two quality-of-life fixes in the latest patch.</p>
+      <h2 class="section-title">v1.4.3 — PHANTOM SIGNAL</h2>
+      <p class="section-sub">Full intel API coverage for all target types, 16 new intelligence sources, smarter key validation, and a rock-solid async pipeline.</p>
       <div class="whatsnew-grid">
+        <div class="whatsnew-card">
+          <div class="whatsnew-icon">🎯</div>
+          <h3 class="whatsnew-title">Quick Probe Full Intel Coverage</h3>
+          <p class="whatsnew-desc">The intel orchestrator now correctly routes every target type to all relevant APIs. Username targets now trigger all social and people-intel sources. Email targets include threat-intel and breach APIs. Domain targets include email-discovery sources (Hunter.io). IP targets include dark-web sources (Intelligence X). Previously these were silently skipped.</p>
+        </div>
         <div class="whatsnew-card">
           <div class="whatsnew-icon">📡</div>
           <h3 class="whatsnew-title">16 New Intelligence APIs</h3>
@@ -130,11 +135,6 @@
           <div class="whatsnew-icon">📦</div>
           <h3 class="whatsnew-title">Export Works Out of the Box</h3>
           <p class="whatsnew-desc">Export output now defaults to <code>/tmp</code> — no config required. Any user can run <code>phantomsignal export</code> immediately after install without hitting a permission error. Override anytime with <code>PHANTOMSIGNAL_EXPORT_DIR</code> or <code>--output</code>.</p>
-        </div>
-        <div class="whatsnew-card">
-          <div class="whatsnew-icon">🛠️</div>
-          <h3 class="whatsnew-title">Clean Async Pipeline</h3>
-          <p class="whatsnew-desc">Module coroutines are now created lazily — only for modules actually included in a given scan. Eliminates the <code>RuntimeWarning: coroutine was never awaited</code> noise that appeared on every run when modules were excluded from the pipeline.</p>
         </div>
       </div>
       <div style="text-align:center;margin-top:2rem;">
