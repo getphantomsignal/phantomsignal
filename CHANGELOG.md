@@ -11,6 +11,21 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.4.3] — 2026-06-10
+
+### Fixed
+- **Quick probe intel coverage** — `IntelOrchestrator._get_applicable_apis` was silently skipping applicable APIs for several target types. Username targets matched zero intel APIs (no branch existed for them). Email targets missed threat-intel, breach, and people-category sources. Domain targets missed email-category APIs (Hunter.io email discovery). IP targets missed dark-web sources (Intelligence X paste/leak search).
+
+  Updated category sets per target type:
+  - **IP** — `network | threat_intel | geolocation | vulnerability | dark_web`
+  - **Email** — `email | breach | threat_intel | people`
+  - **Domain** — `domain | threat_intel | email`
+  - **Username** — `social | people` *(new branch)*
+
+  All individual API implementations retain their own target-type guards and return `[]` gracefully for unsupported input, so no new noise is introduced.
+
+---
+
 ## [1.4.2] — 2026-06-06
 
 ### Fixed
