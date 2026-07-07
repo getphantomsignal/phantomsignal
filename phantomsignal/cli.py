@@ -119,6 +119,27 @@ def _subdomain_panel(con, results):
                     border_style="green", padding=(0, 2), width=_pw(con)))
 
 
+def _takeover_panel(con, results):
+    vuln = [r for r in results if r["result_type"] == "takeover_vulnerable"]
+    cand = [r for r in results if r["result_type"] == "takeover_candidate"]
+    if not vuln and not cand:
+        return
+    lines = []
+    for r in vuln:
+        d = r["data"]
+        lines.append(f"[bold red]⚠ VULNERABLE:[/bold red] {d['subdomain']} "
+                     f"→ {d['cname']}  [dim]({d['service']})[/dim]")
+        lines.append(f"   [dim]{d['reason']}[/dim]")
+    for r in cand:
+        d = r["data"]
+        lines.append(f"[yellow]○ candidate:[/yellow] {d['subdomain']} "
+                     f"→ {d['cname']}  [dim]({d['service']})[/dim]")
+    border = "red" if vuln else "yellow"
+    con.print(Panel("\n".join(lines),
+                    title="[bold red]⌖ SUBDOMAIN TAKEOVER[/bold red]",
+                    border_style=border, padding=(0, 2), width=_pw(con)))
+
+
 def _port_panel(con, results):
     open_ports = [r for r in results if r["result_type"] == "open_port"]
     summary_r  = next((r for r in results if r["result_type"] == "port_scan_summary"), None)
@@ -358,6 +379,7 @@ def _render_scan_results(con, results_list, scan_dict, target):
 
     if "dns_recon"  in by_module: _dns_panel(con,   by_module["dns_recon"])
     if "subdomain_enum" in by_module: _subdomain_panel(con, by_module["subdomain_enum"])
+    if "takeover"   in by_module: _takeover_panel(con, by_module["takeover"])
     if "port_scan"  in by_module: _port_panel(con,  by_module["port_scan"])
     if "tech_detect" in by_module: _tech_panel(con, by_module["tech_detect"])
     if "api_hunt"   in by_module: _api_panel(con,   by_module["api_hunt"])
@@ -428,7 +450,7 @@ def web(host, port, debug, open_browser):
               type=click.Choice(["web_recon", "ip_recon", "domain_recon", "people_intel", "full_spectrum"]),
               default="web_recon", help="Scan type")
 @click.option("--modules", "-m", multiple=True,
-              help="Modules to run (dns_recon, subdomain_enum, port_scan, tech_detect, api_hunt, web_crawl, intel)")
+              help="Modules to run (dns_recon, subdomain_enum, takeover, port_scan, tech_detect, api_hunt, web_crawl, intel)")
 @click.option("--profile", "-p",
               type=click.Choice(["quick", "standard", "deep", "ghost"]),
               default="standard")

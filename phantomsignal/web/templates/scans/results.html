@@ -253,6 +253,21 @@
     {% endfor %}
   </div>
 
+{%- elif result.result_type in ('takeover_vulnerable', 'takeover_candidate') -%}
+  <div class="ri-row ri-gap" style="margin-bottom:0.35rem;align-items:center;">
+    {% if result.result_type == 'takeover_vulnerable' %}
+      <span class="sev-badge sev-high">VULNERABLE</span>
+    {% else %}
+      <span class="sev-badge sev-medium">CANDIDATE</span>
+    {% endif %}
+    <span class="ri-bold ri-cyan">{{ d.subdomain }}</span>
+    <span class="ri-dim" style="font-size:0.72rem;">→ {{ d.cname }}</span>
+  </div>
+  <div class="ri-row ri-gap" style="margin-bottom:0.2rem;">
+    <span class="result-tag">{{ d.service }}</span>
+  </div>
+  <div class="ri-dim" style="font-size:0.72rem;">{{ d.reason }}</div>
+
 {%- else -%}
   <pre class="result-data">{{ result.data | tojson(indent=2) }}</pre>
 {%- endif %}
