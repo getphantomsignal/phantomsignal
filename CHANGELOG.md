@@ -11,6 +11,54 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.5.0] — 2026-07-07
+
+Attack-surface pipeline release. PhantomSignal moves from a single-pass API
+aggregator toward a continuous attack-surface platform: discovered assets now
+feed back in automatically, exposures are matched by data-driven signatures, and
+subdomain discovery/takeover detection land as first-class modules. All new
+capability is opt-in and the default single-pass behaviour is unchanged.
+
+### Added
+- **Recursive entity-graph pivoting** (`intel/pivot.py`) — the orchestrator can now
+  feed discovered IPs, subdomains, and emails back in as new targets via a
+  breadth-first `RecursivePivotEngine` with dedup, depth, entity-budget, and
+  eTLD+1 scope guards. Opt in through `run()` options (`recursive`, `max_depth`,
+  `allow_cross_domain`). Turns the aggregator into a SpiderFoot-class expander.
+- **Signature engine** (`intel/signatures/`) — a Nuclei-style YAML template engine
+  with two modes: `match` (word/regex/keyword matchers over aggregated results)
+  and `dork` (GHDB queries rendered scoped to the target). Ships GHDB
+  config/secrets and exposed-panel dork packs plus subdomain-takeover and
+  exposed-VCS/cloud-key match templates. Enable via the `signatures` option.
+- **Passive subdomain enumeration at scale** (`scrapers/subdomain_enum.py`) — new
+  `subdomain_enum` module. Keyless multi-source gathering (crt.sh, HackerTarget,
+  AlienVault OTX passive DNS, Anubis) with graceful per-source degradation,
+  permutation generation, wildcard-DNS detection + filtering, and concurrent
+  resolve-validation. Emits results carrying A records and CNAMEs.
+- **Active subdomain-takeover detection** (`scrapers/takeover.py`) — new `takeover`
+  module. A can-i-take-over-xyz-style fingerprint DB plus active HTTP-body and
+  NXDOMAIN confirmation, producing graded verdicts (vulnerable / candidate /
+  suppressed) tuned to minimise false positives.
+- **Attack-surface pipeline controls in the web UI** — the scan form gains a
+  Recursive Pivot toggle (with depth + cross-domain sub-options) and a Signature
+  Engine toggle, plus Subdomain Enum and Takeover Detect module cards. Results
+  render dork findings as clickable searches, and signature/takeover findings
+  with severity badges.
+- **Test suite** (`tests/`) — the repository's first automated tests: 33 tests
+  covering pivot entity-extraction and guards, signature matching/dork scoping,
+  subdomain-enum parsing and wildcard filtering, and the takeover grading matrix.
+
+### Changed
+- **Tagline** — replaced *"See everything. Leave no trace."* with **"Map the
+  surface. Own the signal."** across the CLI banner, README, homepage, HTML
+  export footer, and ASCII-art scripts; the old line was contradicted by
+  `ROBOTSTXT_OBEY` and a self-identifying User-Agent.
+- **CLI `--modules`** now accepts `subdomain_enum` and `takeover`, with dedicated
+  result panels for each.
+- Added a `docs/assets` project gravatar and `scripts/render_gravatar.py`.
+
+---
+
 ## [1.4.3] — 2026-06-10
 
 ### Fixed
