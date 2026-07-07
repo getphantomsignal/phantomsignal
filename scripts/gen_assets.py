@@ -351,7 +351,7 @@ def gen_cli():
         ("/____/___/\\____/_/ |_/_/  |_/_____/", "dim cyan", ""),
         ("", "", ""),
         ("         >> OPEN-SOURCE OSINT INTELLIGENCE FRAMEWORK <<", "bright_green", ""),
-        ('                 "See everything. Leave no trace."', "dim green", ""),
+        ('                 "Map the surface. Own the signal."', "dim green", ""),
         ("", "", ""),
         (" ◈  Target      : example.com                (domain)", "bright_white", ""),
         (" ◈  Profile     : standard                   (~2-5 min)", "bright_white", ""),
@@ -442,7 +442,7 @@ def gen_cast():
         f"{dim('/____/___/\\____/_/ |_/_/  |_/_____/')}\r\n"
         f"\r\n"
         f"{green('         >> OPEN-SOURCE OSINT INTELLIGENCE FRAMEWORK <<')}\r\n"
-        f'{dim(chr(34) + "See everything. Leave no trace." + chr(34))}\r\n'
+        f'{dim(chr(34) + "Map the surface. Own the signal." + chr(34))}\r\n'
     )
 
     events = []

@@ -99,7 +99,7 @@ def standalone_ghost() -> str:
         "  " + "░" * (W - 2),
         "  ·  ·  ·  " + "─" * 18 + "  ·  ·  ·",
         "",
-        '  "See everything. Leave no trace."',
+        '  "Map the surface. Own the signal."',
         "  pip install phantomsignal",
         "",
     ]
@@ -147,7 +147,7 @@ def scene() -> str:
     ln("║" + " " * 78 + "║")
 
     box(">> OPEN-SOURCE OSINT INTELLIGENCE FRAMEWORK <<")
-    box('"See everything. Leave no trace."')
+    box('"Map the surface. Own the signal."')
     ln("║" + " " * 78 + "║")
     box("pip install phantomsignal      github.com/getphantomsignal/phantomsignal")
     box("phantomsignal.sh" + " " * 54 + "v1.3.0")
@@ -185,7 +185,7 @@ def splash() -> str:
     ln("║  " + "─" * 76 + "║")
     ln("║  $ pip install phantomsignal" + " " * 49 + "║")
     ln("║  phantomsignal.sh  ·  github.com/getphantomsignal/phantomsignal  ·  v1.3.0  ║")
-    ln('║  "See everything. Leave no trace."' + " " * 42 + "║")
+    ln('║  "Map the surface. Own the signal."' + " " * 42 + "║")
     ln("╚" + "═" * 78 + "╝")
 
     while len(lines) < 24:

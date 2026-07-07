@@ -12,7 +12,7 @@ r"""
 /____/___/\____/_/ |_/_/  |_/_____/
 
          >> OPEN-SOURCE OSINT INTELLIGENCE FRAMEWORK <<
-         >> "See everything. Leave no trace."        <<
+         >> "Map the surface. Own the signal."        <<
 """
 
 __version__ = "1.4.3"
@@ -39,7 +39,7 @@ BANNER = r"""
 /____/___/\____/_/ |_/_/  |_/_____/
 
       ░░░░  PHANTOM SIGNAL  //  v{version}  //  OSINT FRAMEWORK  ░░░░
-      ░  "See everything. Leave no trace."                        ░
+      ░  "Map the surface. Own the signal."                        ░
       ░  by the-clipper  //  AI arch: Claude (Anthropic)        ░
       ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 """.format(version=__version__)

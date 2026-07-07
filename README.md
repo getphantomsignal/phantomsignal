@@ -14,7 +14,7 @@
 /____/___/\____/_/ |_/_/  |_/_____/
 
          >> OPEN-SOURCE OSINT INTELLIGENCE FRAMEWORK <<
-                 "See everything. Leave no trace."
+                 "Map the surface. Own the signal."
 ```
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-00ff41?style=flat-square&logo=python)](https://python.org)
@@ -388,5 +388,5 @@ MIT License — see [LICENSE](LICENSE)
 
 ---
 
-*Built with questionable amounts of caffeine. "See everything. Leave no trace."*
+*Built with questionable amounts of caffeine. "Map the surface. Own the signal."*
 *Some ghosts leave no trace. This one left commits. — Claude*    

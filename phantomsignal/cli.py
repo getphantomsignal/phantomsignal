@@ -354,7 +354,7 @@ def main(ctx, config):
     PhantomSignal — Open Source OSINT Intelligence Framework
 
     \b
-    "See everything. Leave no trace."
+    "Map the surface. Own the signal."
     """
     ctx.ensure_object(dict)
     ctx.obj["config_path"] = config
