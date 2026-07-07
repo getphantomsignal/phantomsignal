@@ -210,6 +210,52 @@
         </div>
       </div>
 
+      <!-- Attack-surface pipeline (Phase 1) -->
+      <div class="form-section">
+        <div class="section-header">
+          <span class="section-icon neon-purple">🕸</span>
+          <span class="section-title">ATTACK-SURFACE PIPELINE</span>
+        </div>
+        <div class="advanced-options">
+          <div class="toggle-row">
+            <label class="toggle-label">
+              <input type="checkbox" name="recursive" id="recursive-check" class="toggle-check">
+              <span class="toggle-switch"></span>
+              <span class="toggle-text">RECURSIVE PIVOT</span>
+            </label>
+          </div>
+          <p class="option-hint">Auto-expand: feed discovered IPs, subdomains &amp; emails back in as new targets.</p>
+
+          <div id="pivot-suboptions" style="display:none;">
+            <div class="form-group">
+              <label class="form-label">PIVOT DEPTH</label>
+              <div class="range-wrap">
+                <input type="range" name="max_depth" min="1" max="4" value="2"
+                       class="range-input" oninput="document.getElementById('pivot-depth-val').textContent=this.value">
+                <span id="pivot-depth-val" class="range-val">2</span>
+              </div>
+            </div>
+            <div class="toggle-row">
+              <label class="toggle-label">
+                <input type="checkbox" name="allow_cross_domain" class="toggle-check">
+                <span class="toggle-switch"></span>
+                <span class="toggle-text">FOLLOW CROSS-DOMAIN</span>
+              </label>
+            </div>
+            <p class="option-hint">Off by default — expansion stays within the target's registered domain.</p>
+          </div>
+
+          <div class="toggle-row">
+            <label class="toggle-label">
+              <input type="checkbox" name="signatures" class="toggle-check">
+              <span class="toggle-switch"></span>
+              <span class="toggle-text">SIGNATURE ENGINE</span>
+            </label>
+          </div>
+          <p class="option-hint">Run Nuclei-style exposure signatures + GHDB dork templates over the findings.</p>
+        </div>
+      </div>
+
       <!-- Active APIs for this scan -->
       <div class="form-section">
         <div class="section-header">
@@ -301,6 +347,11 @@ function toggleAll() {
   });
 }
 
+// Reveal pivot sub-options only when recursive pivot is enabled
+document.getElementById('recursive-check').addEventListener('change', function() {
+  document.getElementById('pivot-suboptions').style.display = this.checked ? 'block' : 'none';
+});
+
 document.getElementById('scan-form').addEventListener('submit', function() {
   const btn = document.getElementById('launch-btn');
   btn.querySelector('.launch-text').style.display = 'none';
@@ -309,4 +360,9 @@ document.getElementById('scan-form').addEventListener('submit', function() {
   btn.classList.add('loading');
 });
 </script>
+<style>
+.option-hint { font-size: 0.68rem; color: var(--text-dim, #6b7688); margin: 0.15rem 0 0.6rem 0; line-height: 1.35; }
+.section-icon.neon-purple { color: #b026ff; }
+#pivot-suboptions { border-left: 2px solid rgba(176,38,255,0.35); padding-left: 0.7rem; margin: 0.2rem 0 0.6rem 0; }
+</style>
 {% endblock %}

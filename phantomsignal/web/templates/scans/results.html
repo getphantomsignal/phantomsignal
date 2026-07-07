@@ -218,11 +218,63 @@
     {% if d.is_proxy %}<span class="ri-orange">PROXY</span>{% endif %}
   </div>
 
+{%- elif result.result_type == 'signature_match' -%}
+  <div class="ri-row ri-gap" style="margin-bottom:0.35rem;align-items:center;">
+    <span class="sev-badge sev-{{ d.severity }}">{{ d.severity | upper }}</span>
+    <span class="ri-bold ri-cyan">{{ d.name }}</span>
+  </div>
+  {% if d.matched_source %}
+    <div class="ri-dim" style="font-size:0.72rem;margin-bottom:0.25rem;">
+      matched <span class="result-tag">{{ d.matched_type }}</span> from <span class="result-tag">{{ d.matched_source }}</span>
+    </div>
+  {% endif %}
+  {% if d.evidence %}
+    <div class="ri-mono ri-dim" style="margin-top:0.3rem;font-size:0.7rem;max-height:90px;overflow:auto;">{{ d.evidence | tojson(indent=2) | truncate(320) }}</div>
+  {% endif %}
+  {% if d.references %}
+    <div class="ri-row ri-gap" style="margin-top:0.3rem;">
+      {% for ref in d.references[:3] %}<a href="{{ ref }}" target="_blank" rel="noopener" class="result-tag">ref ↗</a>{% endfor %}
+    </div>
+  {% endif %}
+
+{%- elif result.result_type == 'dork' -%}
+  <div class="ri-row ri-gap" style="margin-bottom:0.4rem;align-items:center;">
+    <span class="sev-badge sev-{{ d.severity }}">{{ d.severity | upper }}</span>
+    <span class="ri-bold ri-cyan">{{ d.name }}</span>
+    <span class="ri-dim" style="font-size:0.7rem;">{{ d.engine }} · {{ (d.queries or []) | length }} dorks</span>
+  </div>
+  <div class="dork-list">
+    {% for q in d.queries %}
+    <div class="dork-row">
+      <code class="dork-q">{{ q }}</code>
+      <a class="dork-run" target="_blank" rel="noopener"
+         href="https://www.google.com/search?q={{ q | urlencode }}">RUN ↗</a>
+    </div>
+    {% endfor %}
+  </div>
+
 {%- else -%}
   <pre class="result-data">{{ result.data | tojson(indent=2) }}</pre>
 {%- endif %}
 </div>
 {% endmacro %}
+<style>
+.sev-badge { display:inline-block; padding:0.08rem 0.45rem; border-radius:3px; font-size:0.62rem;
+  font-weight:700; letter-spacing:0.05em; text-transform:uppercase; }
+.sev-critical { background:rgba(244,63,94,0.18); color:#f43f5e; border:1px solid rgba(244,63,94,0.5); }
+.sev-high     { background:rgba(251,146,60,0.18); color:#fb923c; border:1px solid rgba(251,146,60,0.5); }
+.sev-medium   { background:rgba(251,191,36,0.15); color:#fbbf24; border:1px solid rgba(251,191,36,0.45); }
+.sev-low, .sev-info { background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.4); }
+.dork-list { display:flex; flex-direction:column; gap:0.3rem; }
+.dork-row { display:flex; align-items:center; justify-content:space-between; gap:0.5rem;
+  background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);
+  border-radius:4px; padding:0.3rem 0.5rem; }
+.dork-q { font-family:var(--font-mono,monospace); font-size:0.72rem; color:var(--text,#aeb8c7);
+  word-break:break-all; }
+.dork-run { font-size:0.62rem; font-weight:700; letter-spacing:0.05em; color:#00ff41;
+  text-decoration:none; white-space:nowrap; flex-shrink:0; }
+.dork-run:hover { text-shadow:0 0 6px rgba(0,255,65,0.6); }
+</style>
 <div class="page-header">
   <div class="page-title-block">
     <div class="breadcrumb">

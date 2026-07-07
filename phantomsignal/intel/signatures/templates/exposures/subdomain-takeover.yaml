@@ -1,0 +1,25 @@
+id: subdomain-takeover-fingerprint
+info:
+  name: Potential subdomain takeover (dangling CNAME fingerprint)
+  severity: high
+  tags: [takeover, exposure, dns]
+  reference:
+    - https://github.com/EdOverflow/can-i-take-over-xyz
+match:
+  # Fires when a discovered host's evidence contains a known unclaimed-service
+  # fingerprint string. Intended to run over DNS/crawler/tech-detect results.
+  matchers-condition: or
+  matchers:
+    - part: data
+      type: word
+      condition: or
+      words:
+        - "NoSuchBucket"
+        - "There isn't a GitHub Pages site here"
+        - "The specified bucket does not exist"
+        - "Sorry, this shop is currently unavailable"
+        - "Do you want to register *.wordpress.com"
+        - "herokucdn.com/error-pages/no-such-app.html"
+        - "The request could not be satisfied"
+        - "Fastly error: unknown domain"
+        - "project not found"

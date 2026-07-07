@@ -45,11 +45,19 @@ def launch_scan():
     profile = request.form.get("profile", "standard")
     modules = request.form.getlist("modules")
 
+    recursive = request.form.get("recursive") == "on"
+    signatures = request.form.get("signatures") == "on"
+
     options = {
         "depth": int(request.form.get("depth", 2)),
         "ports": request.form.get("port_profile", "common"),
         "respect_robots": request.form.get("respect_robots") == "on",
         "ghost_mode": request.form.get("ghost_mode") == "on",
+        # Attack-surface pipeline (Phase 1)
+        "recursive": recursive,
+        "max_depth": int(request.form.get("max_depth", 2)),
+        "allow_cross_domain": request.form.get("allow_cross_domain") == "on",
+        "signatures": signatures,
     }
 
     try:
@@ -57,13 +65,18 @@ def launch_scan():
     except ValueError:
         scan_type = ScanType.WEB_RECON
 
+    modules_enabled = modules or ["dns_recon", "port_scan", "tech_detect", "api_hunt", "intel"]
+    # The pipeline runs inside the intel orchestrator — ensure it's active when requested.
+    if (recursive or signatures) and "intel" not in modules_enabled:
+        modules_enabled = [*modules_enabled, "intel"]
+
     with get_db() as db:
         scan = Scan(
             name=name,
             target=target,
             scan_type=scan_type,
             profile=profile,
-            modules_enabled=modules or ["dns_recon", "port_scan", "tech_detect", "api_hunt", "intel"],
+            modules_enabled=modules_enabled,
             options=options,
             tags=request.form.getlist("tags"),
         )

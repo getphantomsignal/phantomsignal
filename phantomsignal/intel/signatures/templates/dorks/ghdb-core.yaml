@@ -1,0 +1,19 @@
+id: ghdb-exposed-config-and-secrets
+info:
+  name: GHDB — exposed config, env, and secret files
+  severity: high
+  tags: [dork, ghdb, exposure, secrets]
+  reference:
+    - https://www.exploit-db.com/google-hacking-database
+dork:
+  target-kinds: [domain, subdomain]
+  engine: google
+  queries:
+    - 'site:{target} ext:env'
+    - 'site:{target} filename:.env DB_PASSWORD'
+    - 'site:{target} ext:yml OR ext:yaml "password"'
+    - 'site:{target} ext:json "api_key" OR "apikey"'
+    - 'site:{target} intitle:"index of" ".env"'
+    - 'site:{target} ext:log'
+    - 'site:{target} ext:sql "INSERT INTO"'
+    - 'site:{target} ext:bak OR ext:old OR ext:backup'

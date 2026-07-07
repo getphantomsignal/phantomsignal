@@ -91,3 +91,6 @@ temp/
 
 # Offline wheel cache (Docker build artifact — regenerate with pip download)
 wheels/
+
+# Internal planning doc — kept local, mirrored in Claude memory
+ROADMAP.md

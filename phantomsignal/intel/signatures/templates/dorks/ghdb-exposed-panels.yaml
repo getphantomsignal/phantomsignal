@@ -1,0 +1,18 @@
+id: ghdb-exposed-panels-and-portals
+info:
+  name: GHDB — exposed login panels, admin portals, and dashboards
+  severity: medium
+  tags: [dork, ghdb, exposure, panel]
+  reference:
+    - https://www.exploit-db.com/google-hacking-database
+dork:
+  target-kinds: [domain, subdomain]
+  engine: google
+  queries:
+    - 'site:{target} inurl:admin OR inurl:login OR inurl:signin'
+    - 'site:{target} intitle:"admin panel" OR intitle:"dashboard"'
+    - 'site:{target} inurl:wp-admin OR inurl:wp-login'
+    - 'site:{target} intitle:"phpMyAdmin" "Welcome to phpMyAdmin"'
+    - 'site:{target} inurl:"/actuator/health" OR inurl:"/actuator/env"'
+    - 'site:{target} intitle:"Grafana" inurl:"/login"'
+    - 'site:{target} intitle:"Index of /" "backup" OR "config"'

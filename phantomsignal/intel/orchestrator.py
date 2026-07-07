@@ -39,8 +39,24 @@ class IntelOrchestrator:
                 self._apis[name] = instance
 
     async def run(self, target: str, scan_type: str, options: Dict) -> List[Dict]:
-        """Run all applicable intelligence APIs against a target."""
-        results = []
+        """
+        Run applicable intelligence APIs against a target.
+
+        Single-pass by default (backward compatible). Opt into the
+        attack-surface pipeline via options:
+          * ``recursive`` (bool)      — feed discovered entities back in
+          * ``max_depth`` (int)       — pivot depth when recursive (default 2)
+          * ``allow_cross_domain``    — follow co-hosted domains outside eTLD+1
+          * ``signatures`` (bool)     — run the signature/dork engine over results
+        """
+        options = options or {}
+        if options.get("recursive") or options.get("signatures"):
+            return await self.run_pipeline(target, scan_type, options)
+        return await self._single_pass(target, scan_type, options)
+
+    async def _single_pass(self, target: str, scan_type: str, options: Dict) -> List[Dict]:
+        """One fan-out round: every applicable API queried concurrently."""
+        results: List[Dict] = []
         applicable = self._get_applicable_apis(target, scan_type)
 
         if not applicable:
@@ -59,6 +75,44 @@ class IntelOrchestrator:
                 logger.error(f"API {name} failed: {result}")
             elif isinstance(result, list):
                 results.extend(result)
+
+        return results
+
+    async def run_pipeline(self, target: str, scan_type: str, options: Dict) -> List[Dict]:
+        """
+        Attack-surface pipeline: recursive entity pivoting + signature matching.
+        Returns aggregated API results plus any signature/dork findings.
+        """
+        from phantomsignal.intel.pivot import RecursivePivotEngine, PivotConfig, classify
+
+        options = options or {}
+
+        async def _pass(t: str) -> List[Dict]:
+            return await self._single_pass(t, scan_type, options)
+
+        if options.get("recursive"):
+            cfg = PivotConfig(
+                max_depth=int(options.get("max_depth", 2)),
+                max_entities=int(options.get("max_entities", 50)),
+                allow_cross_domain=bool(options.get("allow_cross_domain", False)),
+            )
+            engine = RecursivePivotEngine(_pass, cfg)
+            results, stats = await engine.expand(target)
+            logger.info(
+                "Pivot expansion: %d passes, %d entities, depth %d%s",
+                stats.passes, stats.entities_discovered, stats.max_depth_reached,
+                " (truncated)" if stats.truncated else "",
+            )
+        else:
+            results = await self._single_pass(target, scan_type, options)
+
+        if options.get("signatures"):
+            from phantomsignal.intel.signatures import SignatureEngine
+            sig_engine = SignatureEngine()
+            findings = sig_engine.evaluate(target, results, target_kind=classify(target))
+            if findings:
+                logger.info("Signature engine produced %d findings", len(findings))
+            results = results + findings
 
         return results
 
