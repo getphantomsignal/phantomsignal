@@ -253,6 +253,30 @@
     {% endfor %}
   </div>
 
+{%- elif result.result_type == 'favicon_hash' -%}
+  <div class="ri-row ri-gap" style="align-items:center;">
+    <span class="ri-bold ri-cyan">Favicon hash</span>
+    <span class="ri-mono">{{ d.value }}</span>
+  </div>
+  <div class="ri-mono ri-dim" style="font-size:0.7rem;">{{ d.shodan_dork }}</div>
+
+{%- elif result.result_type == 'tls_cert_fingerprint' -%}
+  <div class="ri-row ri-gap" style="align-items:center;margin-bottom:0.2rem;">
+    <span class="ri-bold ri-cyan">TLS cert</span>
+    <span class="ri-mono ri-dim" style="font-size:0.7rem;word-break:break-all;">{{ d.value }}</span>
+  </div>
+  <div class="ri-dim" style="font-size:0.72rem;">
+    CN {{ d.subject_cn or '—' }} · issuer {{ d.issuer or '—' }} · {{ d.san_count }} SANs
+  </div>
+
+{%- elif result.result_type == 'infra_sibling' -%}
+  <div class="ri-row ri-gap" style="align-items:center;">
+    <span class="result-tag">{{ d.pivot_kind }}</span>
+    <span class="ri-mono ri-cyan">{{ d.ip }}</span>
+    {% if d.org %}<span class="ri-dim" style="font-size:0.72rem;">{{ d.org }}</span>{% endif %}
+  </div>
+  {% if d.hostnames %}<div class="ri-dim" style="font-size:0.7rem;">{{ d.hostnames | join(', ') }}</div>{% endif %}
+
 {%- elif result.result_type == 'archive_url' -%}
   <div class="ri-row ri-gap" style="align-items:center;margin-bottom:0.2rem;">
     {% if 'sensitive-file' in d.flags %}<span class="sev-badge sev-high">SENSITIVE FILE</span>{% endif %}

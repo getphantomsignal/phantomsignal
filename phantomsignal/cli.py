@@ -193,6 +193,32 @@ def _archive_panel(con, results):
                     border_style=border, padding=(0, 2), width=_pw(con)))
 
 
+def _infra_panel(con, results):
+    fav = next((r for r in results if r["result_type"] == "favicon_hash"), None)
+    cert = next((r for r in results if r["result_type"] == "tls_cert_fingerprint"), None)
+    sibs = [r for r in results if r["result_type"] == "infra_sibling"]
+    if not fav and not cert:
+        return
+    lines = []
+    if fav:
+        lines.append(f"[bold cyan]Favicon hash:[/bold cyan] {fav['data']['value']}  "
+                     f"[dim]{fav['data']['shodan_dork']}[/dim]")
+    if cert:
+        d = cert["data"]
+        lines.append(f"[bold cyan]TLS cert:[/bold cyan] {d['value'][:32]}…  "
+                     f"[dim]CN={d.get('subject_cn')} · issuer={d.get('issuer')} · "
+                     f"{d.get('san_count', 0)} SANs[/dim]")
+    if sibs:
+        by_kind = {}
+        for r in sibs:
+            by_kind.setdefault(r["data"]["pivot_kind"], []).append(r["data"]["ip"])
+        for kind, ips in by_kind.items():
+            lines.append(f"[bold green]Siblings ({kind}):[/bold green] {len(ips)} host(s) — "
+                         f"{', '.join(ips[:6])}{' …' if len(ips) > 6 else ''}")
+    con.print(Panel("\n".join(lines), title="[bold green]◎ INFRA PIVOT (favicon + TLS)[/bold green]",
+                    border_style="green", padding=(0, 2), width=_pw(con)))
+
+
 def _port_panel(con, results):
     open_ports = [r for r in results if r["result_type"] == "open_port"]
     summary_r  = next((r for r in results if r["result_type"] == "port_scan_summary"), None)
@@ -438,6 +464,7 @@ def _render_scan_results(con, results_list, scan_dict, target):
     if "api_hunt"   in by_module: _api_panel(con,   by_module["api_hunt"])
     if "js_mine"    in by_module: _js_panel(con,    by_module["js_mine"])
     if "archive_mine" in by_module: _archive_panel(con, by_module["archive_mine"])
+    if "infra_pivot" in by_module: _infra_panel(con, by_module["infra_pivot"])
     if "intel"      in by_module: _intel_panel(con, by_module["intel"])
     if anomalies:                  _anomaly_panel(con, anomalies)
 
@@ -505,7 +532,7 @@ def web(host, port, debug, open_browser):
               type=click.Choice(["web_recon", "ip_recon", "domain_recon", "people_intel", "full_spectrum"]),
               default="web_recon", help="Scan type")
 @click.option("--modules", "-m", multiple=True,
-              help="Modules to run (dns_recon, subdomain_enum, takeover, port_scan, tech_detect, api_hunt, js_mine, archive_mine, web_crawl, intel)")
+              help="Modules to run (dns_recon, subdomain_enum, takeover, port_scan, tech_detect, api_hunt, js_mine, archive_mine, infra_pivot, web_crawl, intel)")
 @click.option("--profile", "-p",
               type=click.Choice(["quick", "standard", "deep", "ghost"]),
               default="standard")
