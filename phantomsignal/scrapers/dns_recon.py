@@ -9,6 +9,7 @@ License: MIT — see LICENSE
 from __future__ import annotations
 
 import asyncio
+import ipaddress
 import logging
 import re
 import socket
@@ -18,10 +19,51 @@ from urllib.parse import urlparse
 import dns.resolver
 import dns.zone
 import dns.query
+import dns.message
+import dns.flags
+import dns.name
 import dns.rdatatype
 import httpx
 
 logger = logging.getLogger("phantomsignal.dns_recon")
+
+
+# ── pure helpers (unit-tested) ──────────────────────────────────────────────
+
+def hosts_in_24(ip: str) -> List[str]:
+    """Every host address in the /24 containing ``ip`` (network + broadcast trimmed)."""
+    try:
+        net = ipaddress.ip_network(f"{ip}/24", strict=False)
+    except ValueError:
+        return []
+    return [str(h) for h in net.hosts()]
+
+
+def nsec_walk_names(next_of, domain: str, max_steps: int = 500) -> set:
+    """
+    Pure NSEC zone-walk driver. ``next_of(name)`` returns the NSEC `next` owner
+    after ``name`` (or None to stop). Terminates on wrap-to-apex, a repeat, or the
+    step bound. Returns the in-zone names discovered. Network-free → unit-tested.
+    """
+    found: set = set()
+    current = domain
+    for _ in range(max_steps):
+        nxt = next_of(current)
+        if not nxt or nxt == domain or nxt in found:
+            break
+        if nxt.endswith("." + domain):
+            found.add(nxt)
+        current = nxt
+    return found
+
+
+# Third-party domains probed for cache snooping — presence in a resolver's cache
+# implies someone behind it recently resolved them.
+CACHE_SNOOP_PROBES = [
+    "google.com", "facebook.com", "microsoft.com", "office365.com",
+    "dropbox.com", "slack.com", "zoom.us", "salesforce.com", "okta.com",
+    "github.com", "amazonaws.com", "cloudflare.com",
+]
 
 COMMON_SUBDOMAINS = [
     "www", "mail", "ftp", "smtp", "pop", "ns1", "ns2", "ns3",
@@ -74,6 +116,9 @@ class DNSRecon:
             self._reverse_dns(domain),
             self._check_dnssec(domain),
             self._check_spf_dmarc(domain),
+            self._nsec_walk(domain),
+            self._ptr_sweep(domain),
+            self._cache_snoop(domain),
         ]
 
         gathered = await asyncio.gather(*tasks, return_exceptions=True)
@@ -338,6 +383,186 @@ class DNSRecon:
             }]
         except Exception:
             return []
+
+    # ── classic enumeration (Phrack / textfiles) ────────────────────────────
+
+    def _authoritative_ns_ips(self, domain: str) -> List[str]:
+        """Resolve the domain's authoritative nameservers to IPs."""
+        ips: List[str] = []
+        for ns in self._query_record(domain, "NS"):
+            ips += self._query_record(str(ns).rstrip("."), "A")
+        return ips
+
+    async def _nsec_walk(self, domain: str) -> List[Dict]:
+        """
+        DNSSEC zone walking. NSEC-signed zones leak every name via the NSEC
+        `next` chain even when AXFR is refused. NSEC3 hashes the names, so we
+        detect it but don't attempt an (offline-cracking) walk.
+        """
+        loop = asyncio.get_event_loop()
+        try:
+            ns_ips = await loop.run_in_executor(None, self._authoritative_ns_ips, domain)
+        except Exception:
+            ns_ips = []
+        if not ns_ips:
+            return []
+
+        try:
+            walked, mode = await loop.run_in_executor(
+                None, self._do_nsec_walk, domain, ns_ips[0])
+        except Exception as e:
+            logger.debug("NSEC walk failed for %s: %s", domain, e)
+            return []
+
+        if mode == "nsec3":
+            return [{
+                "type": "dnssec_nsec3",
+                "source": "dns_recon",
+                "data": {"domain": domain,
+                         "note": "Zone uses NSEC3 (hashed) — names not directly enumerable"},
+                "confidence": 1.0, "relevance_score": 0.5,
+                "tags": ["dns", "dnssec", "nsec3"],
+            }]
+        if not walked:
+            return []
+        results = [{
+            "type": "nsec_zone_walk",
+            "source": "dns_recon",
+            "data": {"domain": domain, "names_found": len(walked),
+                     "names": sorted(walked)[:200]},
+            "confidence": 1.0, "relevance_score": 0.9,
+            "tags": ["dns", "dnssec", "nsec", "zone-walk"], "is_anomaly": True,
+        }]
+        # Emit in-zone names as subdomains so they feed the pivot + takeover.
+        for name in sorted(walked):
+            if name != domain and name.endswith("." + domain):
+                results.append({
+                    "type": "subdomain", "source": "dns_recon",
+                    "data": {"subdomain": name, "domain": domain, "origin": "nsec"},
+                    "confidence": 1.0, "relevance_score": 0.75,
+                    "tags": ["dns", "subdomain", "nsec"],
+                })
+        return results
+
+    def _do_nsec_walk(self, domain: str, ns_ip: str):
+        """Blocking NSEC walk against one authoritative NS. Returns (names, mode)."""
+        # First response decides the mode: NSEC (walkable) vs NSEC3 (hashed).
+        first = self._nsec_query(domain, ns_ip)
+        if first is not None and self._has_nsec3(first):
+            return set(), "nsec3"
+
+        def next_of(name: str):
+            resp = self._nsec_query(name, ns_ip)
+            nsec = self._extract_nsec(resp) if resp is not None else None
+            return nsec[1] if nsec else None
+
+        return nsec_walk_names(next_of, domain), "nsec"
+
+    def _nsec_query(self, name: str, ns_ip: str):
+        """Send a non-recursive DNSSEC query and return the response (or None)."""
+        try:
+            q = dns.message.make_query(name, dns.rdatatype.NSEC, want_dnssec=True)
+            q.flags &= ~dns.flags.RD
+            return dns.query.udp(q, ns_ip, timeout=4)
+        except Exception:
+            return None
+
+    @staticmethod
+    def _extract_nsec(resp):
+        for rrset in list(resp.answer) + list(resp.authority):
+            if rrset.rdtype == dns.rdatatype.NSEC:
+                owner = str(rrset.name).rstrip(".")
+                nxt = str(rrset[0].next).rstrip(".")
+                return owner, nxt
+        return None
+
+    @staticmethod
+    def _has_nsec3(resp) -> bool:
+        for rrset in list(resp.answer) + list(resp.authority):
+            if rrset.rdtype in (dns.rdatatype.NSEC3, dns.rdatatype.NSEC3PARAM):
+                return True
+        return False
+
+    async def _ptr_sweep(self, domain: str) -> List[Dict]:
+        """Sweep the /24 around the domain's A record for co-hosted PTR names."""
+        loop = asyncio.get_event_loop()
+        a_records = await loop.run_in_executor(None, self._query_record, domain, "A")
+        if not a_records:
+            return []
+        ip = a_records[0]
+        targets = hosts_in_24(ip)
+        sem = asyncio.Semaphore(100)
+
+        async def one(addr):
+            async with sem:
+                ptr = await loop.run_in_executor(None, self._ptr_lookup, addr)
+                return addr, ptr
+
+        pairs = await asyncio.gather(*(one(a) for a in targets), return_exceptions=True)
+        hosts = [(a, p) for r in pairs if isinstance(r, tuple) for a, p in [r] if p]
+
+        if not hosts:
+            return []
+        results = [{
+            "type": "ptr_sweep_summary",
+            "source": "dns_recon",
+            "data": {"domain": domain, "netblock": f"{ip}/24",
+                     "resolved": len(hosts),
+                     "hosts": [{"ip": a, "ptr": p} for a, p in hosts[:120]]},
+            "confidence": 1.0, "relevance_score": 0.75,
+            "tags": ["dns", "reverse", "ptr", "netblock"],
+        }]
+        # Co-hosted names within the target's registered domain feed the pivot.
+        for a, p in hosts:
+            name = p.rstrip(".").lower()
+            if name.endswith("." + domain) or name == domain:
+                results.append({
+                    "type": "subdomain", "source": "dns_recon",
+                    "data": {"subdomain": name, "domain": domain, "origin": "ptr"},
+                    "confidence": 0.8, "relevance_score": 0.6,
+                    "tags": ["dns", "subdomain", "ptr"],
+                })
+        return results
+
+    async def _cache_snoop(self, domain: str) -> List[Dict]:
+        """
+        Non-recursive (RD=0) probes of the domain's nameservers. An NS that
+        answers recursive queries for third-party domains is an open resolver;
+        the cached answers reveal what its users recently looked up.
+        """
+        loop = asyncio.get_event_loop()
+        ns_ips = await loop.run_in_executor(None, self._authoritative_ns_ips, domain)
+        if not ns_ips:
+            return []
+        ns_ip = ns_ips[0]
+
+        def probe(name: str) -> bool:
+            try:
+                q = dns.message.make_query(name, dns.rdatatype.A)
+                q.flags &= ~dns.flags.RD                      # non-recursive
+                resp = dns.query.udp(q, ns_ip, timeout=3)
+                return bool(resp.answer)                      # answered from cache
+            except Exception:
+                return False
+
+        cached = []
+        for probe_domain in CACHE_SNOOP_PROBES:
+            if await loop.run_in_executor(None, probe, probe_domain):
+                cached.append(probe_domain)
+
+        if not cached:
+            return []
+        return [{
+            "type": "dns_cache_snoop",
+            "source": "dns_recon",
+            "data": {"domain": domain, "nameserver": ns_ip,
+                     "cached_domains": cached,
+                     "detail": "Nameserver answers non-recursive queries for third-party "
+                               "domains — open resolver, cache-snoopable"},
+            "confidence": 0.85, "relevance_score": 0.85,
+            "tags": ["dns", "cache-snoop", "open-resolver", "misconfig"],
+            "is_anomaly": True,
+        }]
 
     async def _check_spf_dmarc(self, domain: str) -> List[Dict]:
         """Check email security: SPF, DMARC, DKIM selectors."""

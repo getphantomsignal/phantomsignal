@@ -89,6 +89,19 @@ def _dns_panel(con, results):
         ns = zt[0]["data"].get("nameserver", "?")
         lines.append(f"[bold red]⚠ ZONE TRANSFER VULNERABLE:[/bold red] {ns} leaks full zone")
 
+    nsec = next((r for r in results if r["result_type"] == "nsec_zone_walk"), None)
+    if nsec:
+        lines.append(f"[bold red]⚠ NSEC ZONE WALK:[/bold red] "
+                     f"{nsec['data']['names_found']} names enumerated via DNSSEC NSEC chain")
+    ptr = next((r for r in results if r["result_type"] == "ptr_sweep_summary"), None)
+    if ptr:
+        lines.append(f"[bold cyan]PTR sweep:[/bold cyan] {ptr['data']['resolved']} host(s) "
+                     f"in {ptr['data']['netblock']}")
+    snoop = next((r for r in results if r["result_type"] == "dns_cache_snoop"), None)
+    if snoop:
+        lines.append(f"[bold red]⚠ OPEN RESOLVER / CACHE SNOOP:[/bold red] "
+                     f"{snoop['data']['nameserver']} — {len(snoop['data']['cached_domains'])} cached")
+
     if lines:
         con.print(Panel("\n".join(lines), title="[bold green]◈ DNS INTELLIGENCE[/bold green]",
                         border_style="green", padding=(0, 2), width=_pw(con)))
