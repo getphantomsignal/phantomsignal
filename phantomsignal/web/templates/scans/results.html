@@ -253,6 +253,21 @@
     {% endfor %}
   </div>
 
+{%- elif result.result_type == 'archive_url' -%}
+  <div class="ri-row ri-gap" style="align-items:center;margin-bottom:0.2rem;">
+    {% if 'sensitive-file' in d.flags %}<span class="sev-badge sev-high">SENSITIVE FILE</span>{% endif %}
+    {% for f in d.flags if f != 'sensitive-file' %}<span class="result-tag">{{ f }}</span>{% endfor %}
+  </div>
+  <div class="ri-mono ri-cyan" style="font-size:0.74rem;word-break:break-all;">{{ d.url }}</div>
+  {% if d.params %}<div class="ri-dim" style="font-size:0.68rem;">params: {{ d.params | join(', ') }}</div>{% endif %}
+
+{%- elif result.result_type == 'archive_summary' -%}
+  <div class="ri-dim" style="font-size:0.76rem;">
+    {{ d.total_urls }} historical URLs · {{ d.interesting_urls }} flagged ·
+    {{ d.historical_subdomains }} subdomains · {{ d.param_count }} params —
+    <span class="ri-cyan">{{ d.domain }}</span>
+  </div>
+
 {%- elif result.result_type == 'js_secret' -%}
   <div class="ri-row ri-gap" style="margin-bottom:0.3rem;align-items:center;">
     <span class="sev-badge sev-{{ d.severity }}">{{ d.severity | upper }}</span>

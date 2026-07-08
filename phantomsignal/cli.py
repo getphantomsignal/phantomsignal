@@ -166,6 +166,33 @@ def _js_panel(con, results):
                     border_style=border, padding=(0, 2), width=_pw(con)))
 
 
+def _archive_panel(con, results):
+    summary = next((r for r in results if r["result_type"] == "archive_summary"), None)
+    interesting = [r for r in results if r["result_type"] == "archive_url"]
+    if not summary and not interesting:
+        return
+    lines = []
+    if summary:
+        d = summary["data"]
+        lines.append(f"[bold cyan]Historical URLs:[/bold cyan] {d.get('total_urls', 0)}"
+                     f"  ·  interesting: {d.get('interesting_urls', 0)}"
+                     f"  ·  hist. subdomains: {d.get('historical_subdomains', 0)}"
+                     f"  ·  params: {d.get('param_count', 0)}")
+        src = d.get("sources", {})
+        if src:
+            lines.append(f"[bold cyan]Sources:[/bold cyan] "
+                         + "  ".join(f"{k}:{v}" for k, v in src.items()))
+    sens = [r for r in interesting if "sensitive-file" in r["data"].get("flags", [])]
+    for r in sens[:8]:
+        lines.append(f"[bold red]⚠ sensitive file:[/bold red] {r['data']['url']}")
+    other = [r for r in interesting if "sensitive-file" not in r["data"].get("flags", [])]
+    if other:
+        lines.append(f"[dim]+ {len(other)} other flagged endpoint(s) (paths/params)[/dim]")
+    border = "red" if sens else "green"
+    con.print(Panel("\n".join(lines), title="[bold green]⟲ ARCHIVE URL MINING[/bold green]",
+                    border_style=border, padding=(0, 2), width=_pw(con)))
+
+
 def _port_panel(con, results):
     open_ports = [r for r in results if r["result_type"] == "open_port"]
     summary_r  = next((r for r in results if r["result_type"] == "port_scan_summary"), None)
@@ -410,6 +437,7 @@ def _render_scan_results(con, results_list, scan_dict, target):
     if "tech_detect" in by_module: _tech_panel(con, by_module["tech_detect"])
     if "api_hunt"   in by_module: _api_panel(con,   by_module["api_hunt"])
     if "js_mine"    in by_module: _js_panel(con,    by_module["js_mine"])
+    if "archive_mine" in by_module: _archive_panel(con, by_module["archive_mine"])
     if "intel"      in by_module: _intel_panel(con, by_module["intel"])
     if anomalies:                  _anomaly_panel(con, anomalies)
 
@@ -477,7 +505,7 @@ def web(host, port, debug, open_browser):
               type=click.Choice(["web_recon", "ip_recon", "domain_recon", "people_intel", "full_spectrum"]),
               default="web_recon", help="Scan type")
 @click.option("--modules", "-m", multiple=True,
-              help="Modules to run (dns_recon, subdomain_enum, takeover, port_scan, tech_detect, api_hunt, js_mine, web_crawl, intel)")
+              help="Modules to run (dns_recon, subdomain_enum, takeover, port_scan, tech_detect, api_hunt, js_mine, archive_mine, web_crawl, intel)")
 @click.option("--profile", "-p",
               type=click.Choice(["quick", "standard", "deep", "ghost"]),
               default="standard")
