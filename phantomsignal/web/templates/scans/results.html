@@ -253,6 +253,27 @@
     {% endfor %}
   </div>
 
+{%- elif result.result_type == 'smtp_users' -%}
+  <div class="ri-row ri-gap" style="align-items:center;margin-bottom:0.25rem;">
+    <span class="sev-badge sev-high">SMTP USERS</span>
+    <span class="ri-dim" style="font-size:0.72rem;">via {{ d.method }} · {{ d.host }}</span>
+  </div>
+  <div class="ri-mono ri-cyan" style="font-size:0.74rem;word-break:break-all;">{{ d.valid_users | join(', ') }}</div>
+
+{%- elif result.result_type == 'smtp_open_relay' -%}
+  <div class="ri-row ri-gap" style="align-items:center;">
+    <span class="sev-badge sev-critical">OPEN RELAY</span>
+    <span class="ri-cyan">{{ d.host }}</span>
+  </div>
+  <div class="ri-dim" style="font-size:0.72rem;">{{ d.detail }}</div>
+
+{%- elif result.result_type == 'snmp_community' -%}
+  <div class="ri-row ri-gap" style="align-items:center;margin-bottom:0.2rem;">
+    <span class="sev-badge sev-high">SNMP</span>
+    <span class="ri-bold ri-cyan">community: {{ d.community }}</span>
+  </div>
+  <div class="ri-mono ri-dim" style="font-size:0.72rem;word-break:break-all;">{{ d.sys_descr }}</div>
+
 {%- elif result.result_type == 'favicon_hash' -%}
   <div class="ri-row ri-gap" style="align-items:center;">
     <span class="ri-bold ri-cyan">Favicon hash</span>

@@ -121,6 +121,7 @@ class PhantomEngine:
         from phantomsignal.scrapers.js_miner import JSMiner
         from phantomsignal.scrapers.archive_miner import ArchiveURLMiner
         from phantomsignal.scrapers.infra_pivot import InfraPivot
+        from phantomsignal.scrapers.service_enum import ServiceEnumerator
         from phantomsignal.intel.orchestrator import IntelOrchestrator
 
         pipeline = []
@@ -134,6 +135,7 @@ class PhantomEngine:
             "js_mine": lambda: ("js_mine", JSMiner(config).run(target)),
             "archive_mine": lambda: ("archive_mine", ArchiveURLMiner(config).run(target)),
             "infra_pivot": lambda: ("infra_pivot", InfraPivot(config).run(target)),
+            "service_enum": lambda: ("service_enum", ServiceEnumerator(config).run(target)),
             "port_scan": lambda: ("port_scan", PortScanner(config).scan(target, opts.get("ports"))),
             "tech_detect": lambda: ("tech_detect", TechDetector(config).detect(target)),
             "api_hunt": lambda: ("api_hunt", APIHunter(config).hunt(target)),
