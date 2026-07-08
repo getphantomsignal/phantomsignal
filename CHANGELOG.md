@@ -11,6 +11,39 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.6.0] — 2026-07-07
+
+Content-mining release. Two new passive recon modules extend the attack-surface
+pipeline by mining what a target already exposes — its JavaScript and its
+historical URLs — and feed the discoveries back into the v1.5.0 pivot, takeover,
+and signature engines.
+
+### Added
+- **JavaScript secret & endpoint mining** (`scrapers/js_miner.py`, `js_mine`
+  module) — fetches a target's page plus every linked and inline script and mines
+  the JavaScript for leaked secrets (AWS/Google/Slack/GitHub/Stripe/Twilio/
+  SendGrid keys, private keys, JWTs, and entropy-gated generic key/token
+  assignments) and API endpoints (absolute URLs + root-relative API paths, with
+  XML-namespace and asset-extension noise filtered). Secrets are **masked** in
+  output so raw credentials are never written to the database or exports. Secret
+  detectors mirror the exposed-secret signature templates.
+- **Archive URL mining** (`scrapers/archive_miner.py`, `archive_mine` module) —
+  passive historical URL discovery (gau/waybackurls lineage) from keyless sources
+  (Wayback CDX, AlienVault OTX, URLScan) gathered concurrently with graceful
+  degradation. Scopes URLs to the target, flags sensitive files/paths and
+  parameterised endpoints, inventories query parameters, and emits the distinct
+  historical subdomains seen across captures — which feed the recursive pivot and
+  takeover detector.
+
+### Changed
+- **CLI `--modules`** now accepts `js_mine` and `archive_mine`, each with a
+  dedicated result panel; both modules also appear as cards on the web scan form
+  with tailored results rendering.
+- **Test suite** grew to 39 tests (added JS-miner extraction/detection/entropy
+  and archive parse/scope/classify coverage).
+
+---
+
 ## [1.5.0] — 2026-07-07
 
 Attack-surface pipeline release. PhantomSignal moves from a single-pass API
