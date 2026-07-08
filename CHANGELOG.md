@@ -11,6 +11,78 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.8.0] — 2026-07-08
+
+JARM release. Adds a validated, from-scratch **active TLS-stack fingerprint** to
+the `infra_pivot` module, replacing the JARM that was deliberately deferred in
+v1.7.0 rather than shipped incorrect. This entry is intentionally detailed: JARM
+is an algorithm that is easy to get *almost* right and impossible to debug by eye,
+so the failure modes are documented here as much as the feature.
+
+### Added
+- **JARM active TLS fingerprinting** (`scrapers/jarm.py`). Sends ten deliberately
+  varied TLS Client Hellos and fuzzy-hashes the server's responses into the
+  standard 62-character JARM. Two servers with the same TLS stack + configuration
+  produce the same fingerprint, making it a high-signal infrastructure pivot.
+  - Integrated into the `infra_pivot` module: emits a `jarm_fingerprint` result
+    and pivots siblings via Shodan `ssl.jarm:<hash>`. Surfaced in the CLI
+    `infra_pivot` panel and the web results view.
+  - The ten-probe matrix varies TLS version (1.1/1.2/1.3), cipher-list ordering
+    (forward / reverse / top-half / bottom-half / middle-out), GREASE injection,
+    rare-ALPN sets, and extension ordering — the server's *disagreements* across
+    these are the fingerprint.
+  - Pure packet-construction and hashing functions are split from the socket
+    driver; **7 unit tests** cover cipher reordering, hash encoding, Client Hello
+    framing, and Server Hello parser guards. Total suite: **51 tests**.
+- **Technical documentation** under `docs/jarm/` — a from-the-inside-out
+  walkthrough written because this was built from scratch:
+  - `README.md` — what JARM is and why it uses deliberately odd handshakes.
+  - `01-tls-primer.md` — the TLS record layer, Client/Server Hello framing, cipher
+    suites, extensions, and GREASE (just enough to follow the rest).
+  - `02-jarm-algorithm.md` — the ten probes as a matrix, what each axis tests, and
+    the token → raw → hash data flow.
+  - `03-clienthello-anatomy.md` — byte-by-byte Client Hello construction with
+    length-field maps and the exact extension set/order.
+  - `04-serverhello-and-hash.md` — Server Hello field offsets and the 62-char
+    fuzzy-hash assembly (30 cipher/version chars + 32 SHA-256 chars).
+  - `05-implementation-and-validation.md` — code map, the three silent bugs, and
+    the validation method.
+
+### Correctness notes (why this is "done right")
+The initial from-scratch attempt failed three ways — one loud, two silent — and
+all three are the kind that pass a casual "it runs and returns a hash" check:
+
+1. **Malformed Client Hello (loud).** A fabricated extension, wrong bytes for
+   `ec_point_formats` / `signature_algorithms`, and four missing extensions
+   (`extended_master_secret`, `max_fragment_length`, `renegotiation_info`,
+   `psk_key_exchange_modes`) caused servers to reject every probe with a TLS
+   `decode_error` alert → an all-zero fingerprint. Fixed by rebuilding the exact
+   extension set/order; the verification signal is the server switching from an
+   alert to a Server Hello (9/10 probes for a strict server, with the TLS-1.3
+   contradiction probe legitimately returning `handshake_failure`).
+2. **`supported_versions` sent unconditionally (silent).** The extension must be
+   emitted only on TLS-1.3 or `1.2_SUPPORT` probes; sending it on the
+   `NO_SUPPORT` probes changes what they ask and drifts the fingerprint while the
+   packets still parse.
+3. **Hashing with the wrong cipher table (silent).** `cipher_code` must index
+   JARM's separate **value-sorted** cipher table, not the offer-order list used in
+   the Client Hello. Using the wrong table yields a deterministic, well-formed,
+   62-char hash that matches no other JARM implementation — defeating the entire
+   purpose (cross-tool `ssl.jarm:` pivoting).
+
+**Validation.** With the free-tier Shodan key unable to run `ssl.jarm:` searches,
+correctness was established two ways: (a) diffing cipher lists, `cipher_mung`,
+extension bytes/order, Server Hello offsets, and the hash functions against the
+canonical Salesforce reference; and (b) reproducing Google's publicly documented
+fingerprint prefix `27d40d40d29d40d1dc42d43d00041d…` byte-for-byte.
+
+### Operational
+- JARM is **active** — it opens ten TCP connections to port 443. Run it only
+  against authorised targets. The blocking socket work runs in an executor so it
+  doesn't stall the async pipeline.
+
+---
+
 ## [1.7.0] — 2026-07-08
 
 Infrastructure-pivot release, completing the Phase 2 "modern recon sources" set.
