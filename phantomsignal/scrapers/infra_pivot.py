@@ -10,15 +10,12 @@ pivots on each to surface sibling infrastructure:
     Names. Shared certs/SANs are a strong sibling-infra signal; the SANs reveal
     sibling hostnames directly (no external service needed) and feed the pivot.
 
-Both discovered sibling IPs and cert SAN hostnames flow into the recursive pivot
-engine and takeover detector.
+  * JARM — an active TLS-stack fingerprint (see scrapers/jarm.py; validated
+    against the canonical reference). Two servers with the same TLS config share
+    a JARM, so it pivots sibling infra via Shodan `ssl.jarm:`.
 
-NOTE on JARM: an active JARM/JA3S TLS-stack fingerprint was intended here, but a
-correct implementation requires byte-exact reproduction of the Salesforce
-10-probe algorithm; a from-scratch port produced malformed Client Hellos, and a
-silently-wrong fingerprint is worse than none for a security tool. The TLS
-certificate fingerprint below is the correct, verifiable TLS-pivot substitute;
-JARM can be added later by vendoring the vetted reference with test vectors.
+Both discovered sibling IPs and cert SAN hostnames flow into the recursive pivot
+engine and takeover detector. Full JARM walkthrough: docs/jarm/.
 
 Design: MurmurHash3 and the Shodan favicon hash are pure and unit-tested (mmh3 is
 reimplemented to avoid a native dependency). Network / socket I/O is in the class.
@@ -126,14 +123,17 @@ class InfraPivot:
         self._shodan_key = config.get_api_key("shodan")
 
     async def run(self, target: str) -> List[Dict]:
+        from phantomsignal.scrapers.jarm import compute_jarm
+
         host = self._host(target)
         if not host:
             return []
-        logger.info("Infra pivot (favicon + TLS cert) for %s", host)
+        logger.info("Infra pivot (favicon + TLS cert + JARM) for %s", host)
 
         loop = asyncio.get_event_loop()
         favicon = await self._favicon_hash(host)
         cert_info = await loop.run_in_executor(None, self._tls_cert, host)
+        jarm = await loop.run_in_executor(None, compute_jarm, host)
 
         results: List[Dict] = []
 
@@ -141,6 +141,11 @@ class InfraPivot:
             results.append(self._fingerprint("favicon_hash", host, str(favicon),
                                               f"http.favicon.hash:{favicon}"))
             results += await self._shodan_pivot(f"http.favicon.hash:{favicon}", "favicon")
+
+        if jarm and set(jarm) != {"0"}:
+            results.append(self._fingerprint("jarm_fingerprint", host, jarm,
+                                              f"ssl.jarm:{jarm}"))
+            results += await self._shodan_pivot(f"ssl.jarm:{jarm}", "jarm")
 
         if cert_info:
             fp = cert_info["sha256"]

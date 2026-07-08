@@ -260,6 +260,13 @@
   </div>
   <div class="ri-mono ri-dim" style="font-size:0.7rem;">{{ d.shodan_dork }}</div>
 
+{%- elif result.result_type == 'jarm_fingerprint' -%}
+  <div class="ri-row ri-gap" style="align-items:center;">
+    <span class="ri-bold ri-cyan">JARM</span>
+    <span class="ri-mono" style="font-size:0.72rem;word-break:break-all;">{{ d.value }}</span>
+  </div>
+  <div class="ri-mono ri-dim" style="font-size:0.7rem;">{{ d.shodan_dork }}</div>
+
 {%- elif result.result_type == 'tls_cert_fingerprint' -%}
   <div class="ri-row ri-gap" style="align-items:center;margin-bottom:0.2rem;">
     <span class="ri-bold ri-cyan">TLS cert</span>

@@ -196,13 +196,16 @@ def _archive_panel(con, results):
 def _infra_panel(con, results):
     fav = next((r for r in results if r["result_type"] == "favicon_hash"), None)
     cert = next((r for r in results if r["result_type"] == "tls_cert_fingerprint"), None)
+    jarm = next((r for r in results if r["result_type"] == "jarm_fingerprint"), None)
     sibs = [r for r in results if r["result_type"] == "infra_sibling"]
-    if not fav and not cert:
+    if not fav and not cert and not jarm:
         return
     lines = []
     if fav:
         lines.append(f"[bold cyan]Favicon hash:[/bold cyan] {fav['data']['value']}  "
                      f"[dim]{fav['data']['shodan_dork']}[/dim]")
+    if jarm:
+        lines.append(f"[bold cyan]JARM:[/bold cyan] {jarm['data']['value']}")
     if cert:
         d = cert["data"]
         lines.append(f"[bold cyan]TLS cert:[/bold cyan] {d['value'][:32]}…  "
