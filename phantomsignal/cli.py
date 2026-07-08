@@ -140,6 +140,32 @@ def _takeover_panel(con, results):
                     border_style=border, padding=(0, 2), width=_pw(con)))
 
 
+def _js_panel(con, results):
+    summary = next((r for r in results if r["result_type"] == "js_mine_summary"), None)
+    secrets = [r for r in results if r["result_type"] == "js_secret"]
+    endpoints = [r for r in results if r["result_type"] == "js_endpoint"]
+    if not summary and not secrets:
+        return
+    lines = []
+    if summary:
+        d = summary["data"]
+        lines.append(f"[bold cyan]Scripts analyzed:[/bold cyan] {d.get('scripts_analyzed', 0)}"
+                     f"  ·  endpoints: {d.get('endpoints_found', 0)}"
+                     f"  ·  secrets: {d.get('secrets_found', 0)}")
+    for r in secrets:
+        d = r["data"]
+        col = "bold red" if d["severity"] in ("critical", "high") else "yellow"
+        lines.append(f"[{col}]⚠ {d['kind']}[/{col}]  [dim]{d['preview']}[/dim]  "
+                     f"[dim]{d['script']}[/dim]")
+    if endpoints:
+        sample = ', '.join(e["data"]["endpoint"] for e in endpoints[:6])
+        suffix = " …" if len(endpoints) > 6 else ""
+        lines.append(f"[bold cyan]Endpoints:[/bold cyan] {sample}{suffix}")
+    border = "red" if any(r["data"]["severity"] in ("critical", "high") for r in secrets) else "green"
+    con.print(Panel("\n".join(lines), title="[bold green]⟨/⟩ JS SECRET & ENDPOINT MINING[/bold green]",
+                    border_style=border, padding=(0, 2), width=_pw(con)))
+
+
 def _port_panel(con, results):
     open_ports = [r for r in results if r["result_type"] == "open_port"]
     summary_r  = next((r for r in results if r["result_type"] == "port_scan_summary"), None)
@@ -383,6 +409,7 @@ def _render_scan_results(con, results_list, scan_dict, target):
     if "port_scan"  in by_module: _port_panel(con,  by_module["port_scan"])
     if "tech_detect" in by_module: _tech_panel(con, by_module["tech_detect"])
     if "api_hunt"   in by_module: _api_panel(con,   by_module["api_hunt"])
+    if "js_mine"    in by_module: _js_panel(con,    by_module["js_mine"])
     if "intel"      in by_module: _intel_panel(con, by_module["intel"])
     if anomalies:                  _anomaly_panel(con, anomalies)
 
@@ -450,7 +477,7 @@ def web(host, port, debug, open_browser):
               type=click.Choice(["web_recon", "ip_recon", "domain_recon", "people_intel", "full_spectrum"]),
               default="web_recon", help="Scan type")
 @click.option("--modules", "-m", multiple=True,
-              help="Modules to run (dns_recon, subdomain_enum, takeover, port_scan, tech_detect, api_hunt, web_crawl, intel)")
+              help="Modules to run (dns_recon, subdomain_enum, takeover, port_scan, tech_detect, api_hunt, js_mine, web_crawl, intel)")
 @click.option("--profile", "-p",
               type=click.Choice(["quick", "standard", "deep", "ghost"]),
               default="standard")

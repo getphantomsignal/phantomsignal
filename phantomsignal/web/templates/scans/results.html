@@ -253,6 +253,28 @@
     {% endfor %}
   </div>
 
+{%- elif result.result_type == 'js_secret' -%}
+  <div class="ri-row ri-gap" style="margin-bottom:0.3rem;align-items:center;">
+    <span class="sev-badge sev-{{ d.severity }}">{{ d.severity | upper }}</span>
+    <span class="ri-bold ri-cyan">{{ d.kind }}</span>
+    <span class="ri-mono ri-dim" style="font-size:0.72rem;">{{ d.preview }}</span>
+  </div>
+  <div class="ri-dim" style="font-size:0.7rem;word-break:break-all;">{{ d.script }}</div>
+
+{%- elif result.result_type == 'js_endpoint' -%}
+  <div class="ri-row ri-gap" style="align-items:center;">
+    <span class="ri-mono ri-cyan" style="font-size:0.76rem;word-break:break-all;">{{ d.endpoint }}</span>
+  </div>
+  {% if d.script and d.script != '(inline)' %}
+    <div class="ri-dim" style="font-size:0.68rem;word-break:break-all;">from {{ d.script }}</div>
+  {% endif %}
+
+{%- elif result.result_type == 'js_mine_summary' -%}
+  <div class="ri-dim" style="font-size:0.76rem;">
+    {{ d.scripts_analyzed }} scripts analyzed · {{ d.endpoints_found }} endpoints ·
+    {{ d.secrets_found }} secrets — <span class="ri-cyan">{{ d.base_url }}</span>
+  </div>
+
 {%- elif result.result_type in ('takeover_vulnerable', 'takeover_candidate') -%}
   <div class="ri-row ri-gap" style="margin-bottom:0.35rem;align-items:center;">
     {% if result.result_type == 'takeover_vulnerable' %}

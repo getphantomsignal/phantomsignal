@@ -118,6 +118,7 @@ class PhantomEngine:
         from phantomsignal.scrapers.dns_recon import DNSRecon
         from phantomsignal.scrapers.subdomain_enum import SubdomainEnumerator
         from phantomsignal.scrapers.takeover import TakeoverDetector
+        from phantomsignal.scrapers.js_miner import JSMiner
         from phantomsignal.intel.orchestrator import IntelOrchestrator
 
         pipeline = []
@@ -128,6 +129,7 @@ class PhantomEngine:
             "dns_recon": lambda: ("dns_recon", DNSRecon(config).run(target)),
             "subdomain_enum": lambda: ("subdomain_enum", SubdomainEnumerator(config).run(target)),
             "takeover": lambda: ("takeover", TakeoverDetector(config).run(target)),
+            "js_mine": lambda: ("js_mine", JSMiner(config).run(target)),
             "port_scan": lambda: ("port_scan", PortScanner(config).scan(target, opts.get("ports"))),
             "tech_detect": lambda: ("tech_detect", TechDetector(config).detect(target)),
             "api_hunt": lambda: ("api_hunt", APIHunter(config).hunt(target)),
