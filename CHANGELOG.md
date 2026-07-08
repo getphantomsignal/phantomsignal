@@ -11,6 +11,34 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.7.0] — 2026-07-08
+
+Infrastructure-pivot release, completing the Phase 2 "modern recon sources" set.
+
+### Added
+- **Infrastructure pivot** (`scrapers/infra_pivot.py`, `infra_pivot` module) —
+  fingerprints a target and pivots to sibling infrastructure two ways:
+  - **Favicon hash** — Shodan's MurmurHash3-of-base64 favicon hash,
+    reimplemented in pure Python (no native `mmh3` dependency; verified
+    byte-for-byte against the reference). Pivots via Shodan `http.favicon.hash:`.
+  - **TLS certificate** — leaf-cert SHA-256 fingerprint plus Subject Alternative
+    Names via the stdlib `ssl` module. SANs are emitted as subdomains that feed
+    the recursive pivot and takeover detector; pivots via Shodan
+    `ssl.cert.serial:`. Sibling IPs from either pivot feed the graph.
+- CLI `--modules infra_pivot` with a result panel; a web scan-form card and
+  favicon/cert/sibling results rendering.
+
+### Notes
+- An active **JARM** TLS-stack fingerprint was scoped for this release but
+  deferred: a from-scratch port produced malformed TLS Client Hellos, and a
+  silently-wrong fingerprint is unacceptable in a security tool. The correct
+  stdlib TLS-certificate pivot ships as the TLS-axis substitute; JARM will land
+  later via a vetted reference implementation with published test vectors.
+- Test suite grew to 44 tests (added MurmurHash3 vectors, favicon hashing,
+  favicon-URL resolution, cert fingerprinting, and SAN scoping).
+
+---
+
 ## [1.6.0] — 2026-07-07
 
 Content-mining release. Two new passive recon modules extend the attack-surface
