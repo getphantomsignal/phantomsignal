@@ -11,6 +11,51 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.9.0] — 2026-07-08
+
+Classic enumeration release — the first of the Phase 3 "revive the footprinting
+canon" modules. PhantomSignal already flagged ports 25/139/445/161 as dangerous
+but never enumerated them; this adds correct, active enumeration for the two we
+can implement from scratch with confidence.
+
+### Added
+- **Service enumeration** (`scrapers/service_enum.py`, `service_enum` module):
+  - **SMTP (port 25)** — `VRFY`/`EXPN` username enumeration with an automatic
+    `RCPT TO` fallback when `VRFY` is disabled, plus an **open-relay** check
+    (a foreign `MAIL FROM` + foreign `RCPT TO` both accepted). For a domain
+    target the MX host is resolved and probed. Emits `smtp_users` (valid
+    mailboxes, flagged as anomalies) and `smtp_open_relay`.
+  - **SNMP (port 161/udp)** — community-string enumeration via a hand-built
+    SNMPv1 `GetRequest` for `sysDescr.0`; a valid community leaks the device
+    description. Tries a small default/common community list and stops at the
+    first hit. Emits `snmp_community` (with a `default-community` tag for
+    `public`/`private`).
+  - Wired into the engine pipeline, the CLI `--modules service_enum` with a
+    dedicated results panel, and the web scan form (module card + result
+    rendering for all three finding types).
+
+### Correctness & validation
+- The SNMP `GetRequest` encoder is validated **byte-for-byte** against the
+  canonical `sysDescr.0` / community `public` reference packet, and the response
+  parser round-trips a `GetResponse` and rejects `error-status`/non-SNMP input.
+- The SMTP conversation (banner → `EHLO` → `VRFY`/`RCPT` → relay probe → `QUIT`)
+  is verified end-to-end against an in-memory server: `VRFY` enumeration isolates
+  valid users and open-relay detection fires correctly.
+- Response classification and packet encode/parse are pure functions; **7 unit
+  tests** added (52 → **58 total**).
+
+### Deferred (deliberately)
+- **NetBIOS/SMB null-session enumeration** (139/445) is *not* included. A correct
+  implementation needs a real SMB stack (impacket); a hand-rolled one would be the
+  kind of silently-wrong protocol code this project refuses to ship (see the JARM
+  notes in v1.8.0). It is a tracked follow-up.
+
+### Operational
+- `service_enum` performs **active** enumeration (SMTP `VRFY`/`RCPT` probes, SNMP
+  community guesses). Run it only against systems you are authorised to test.
+
+---
+
 ## [1.8.0] — 2026-07-08
 
 JARM release. Adds a validated, from-scratch **active TLS-stack fingerprint** to
