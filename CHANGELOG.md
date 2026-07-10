@@ -11,6 +11,43 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.12.0] — 2026-07-10
+
+Stealth port-scan profiles — the final Phase 3 `port_scanner` addition, closing
+out the "revive the footprinting canon" work on the scanner. Adds nmap-gated
+idle and decoy scans for source-obscured reconnaissance.
+
+### Added
+- **Stealth scan profiles** (`scrapers/port_scanner.py`), exposed via
+  `--stealth {decoy,idle}` on the CLI `scan` command (with `--zombie` and
+  `--decoys`) and threaded through the engine's scan options:
+  - **Decoy scan** — `nmap -sS -D <spec> -Pn`; the real probe is hidden among
+    decoy source IPs (default `RND:10`, or a caller-supplied `ip1,ME,ip2` spec).
+  - **Idle scan** — `nmap -sI <zombie> -Pn`; a zombie-bounced side-channel scan
+    that never sends the scanner's own IP to the target.
+  - Both deliberately omit `-sV`/`-O`: version/OS probes would originate from
+    the real IP (decoy) or are impossible over the idle side channel.
+- `build_nmap_command` — pure, unit-tested nmap argv construction.
+- CLI port panel renders the stealth engine tag and an "unavailable" notice.
+
+### Correctness & honesty
+- **No silent loud fallback:** stealth requests never fall back to the plain
+  Python connect scan (which would emit from the real IP). Missing nmap, an
+  idle scan without a zombie, or a scan that can't run all emit a
+  `stealth_unavailable` finding explaining why — no scan is performed.
+- **Downgrade detection:** without raw-packet privileges nmap can silently turn
+  `-sS` into a connect scan (real IP, no decoys). The XML's `<scaninfo type>`
+  is parsed and a `connect` result is reported as "stealth NOT applied" rather
+  than being mislabelled a stealth scan. Verified against real nmap XML
+  (`type="syn"` vs `type="connect"`).
+- **argv-injection guard** (`_validate_nmap_operand`): zombie/decoy/host
+  operands beginning with `-` are rejected so they can't be misparsed as flags.
+- **Third-party consent:** an idle scan implicates the zombie host, so the CLI
+  requires a separate authorization confirmation naming it.
+- 14 new tests (`tests/test_stealth_scan.py`); 87 tests pass.
+
+---
+
 ## [1.11.0] — 2026-07-10
 
 Passive OS fingerprinting — a Phase 3 `port_scanner` addition. Until now the
