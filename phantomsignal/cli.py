@@ -257,6 +257,40 @@ def _service_panel(con, results):
                     border_style="red", padding=(0, 2), width=_pw(con)))
 
 
+def _docmeta_panel(con, results):
+    summary = next((r for r in results if r["result_type"] == "doc_metadata_summary"), None)
+    users   = next((r for r in results if r["result_type"] == "metadata_usernames"), None)
+    software = next((r for r in results if r["result_type"] == "metadata_software"), None)
+    paths   = next((r for r in results if r["result_type"] == "metadata_paths"), None)
+    emails  = next((r for r in results if r["result_type"] == "metadata_emails"), None)
+    geo     = [r for r in results if r["result_type"] == "document_geolocation"]
+    if not summary:
+        return
+
+    s = summary["data"]
+    lines = [f"[dim]{s['documents_parsed']} document(s) parsed "
+             f"of {s['candidates']} candidate(s)[/dim]"]
+    if users:
+        lines.append(f"[bold red]⚠ Usernames ({users['data']['count']}):[/bold red] "
+                     f"{', '.join(users['data']['usernames'][:15])}")
+    if paths:
+        lines.append(f"[bold red]⚠ Internal paths ({paths['data']['count']}):[/bold red] "
+                     f"[dim]{'; '.join(paths['data']['paths'][:5])}[/dim]")
+    if emails:
+        lines.append(f"[bold yellow]Emails ({emails['data']['count']}):[/bold yellow] "
+                     f"{', '.join(emails['data']['emails'][:15])}")
+    if software:
+        lines.append(f"[bold cyan]Software ({software['data']['count']}):[/bold cyan] "
+                     f"[dim]{', '.join(software['data']['software'][:10])}[/dim]")
+    for g in geo:
+        d = g["data"]
+        lines.append(f"[bold red]⚠ Geotag:[/bold red] {d['lat']}, {d['lon']} "
+                     f"[dim]({d['url']})[/dim]")
+
+    con.print(Panel("\n".join(lines), title="[bold green]◈ DOCUMENT METADATA[/bold green]",
+                    border_style="green", padding=(0, 2), width=_pw(con)))
+
+
 def _port_panel(con, results):
     open_ports = [r for r in results if r["result_type"] == "open_port"]
     summary_r  = next((r for r in results if r["result_type"] == "port_scan_summary"), None)
@@ -519,6 +553,7 @@ def _render_scan_results(con, results_list, scan_dict, target):
     if "archive_mine" in by_module: _archive_panel(con, by_module["archive_mine"])
     if "infra_pivot" in by_module: _infra_panel(con, by_module["infra_pivot"])
     if "service_enum" in by_module: _service_panel(con, by_module["service_enum"])
+    if "doc_metadata" in by_module: _docmeta_panel(con, by_module["doc_metadata"])
     if "intel"      in by_module: _intel_panel(con, by_module["intel"])
     if anomalies:                  _anomaly_panel(con, anomalies)
 
@@ -586,7 +621,7 @@ def web(host, port, debug, open_browser):
               type=click.Choice(["web_recon", "ip_recon", "domain_recon", "people_intel", "full_spectrum"]),
               default="web_recon", help="Scan type")
 @click.option("--modules", "-m", multiple=True,
-              help="Modules to run (dns_recon, subdomain_enum, takeover, port_scan, tech_detect, api_hunt, js_mine, archive_mine, infra_pivot, service_enum, web_crawl, intel)")
+              help="Modules to run (dns_recon, subdomain_enum, takeover, port_scan, tech_detect, api_hunt, js_mine, archive_mine, infra_pivot, service_enum, doc_metadata, web_crawl, intel)")
 @click.option("--profile", "-p",
               type=click.Choice(["quick", "standard", "deep", "ghost"]),
               default="standard")

@@ -122,6 +122,7 @@ class PhantomEngine:
         from phantomsignal.scrapers.archive_miner import ArchiveURLMiner
         from phantomsignal.scrapers.infra_pivot import InfraPivot
         from phantomsignal.scrapers.service_enum import ServiceEnumerator
+        from phantomsignal.scrapers.doc_metadata import DocMetadataExtractor
         from phantomsignal.intel.orchestrator import IntelOrchestrator
 
         pipeline = []
@@ -136,6 +137,7 @@ class PhantomEngine:
             "archive_mine": lambda: ("archive_mine", ArchiveURLMiner(config).run(target)),
             "infra_pivot": lambda: ("infra_pivot", InfraPivot(config).run(target)),
             "service_enum": lambda: ("service_enum", ServiceEnumerator(config).run(target)),
+            "doc_metadata": lambda: ("doc_metadata", DocMetadataExtractor(config).run(target)),
             "port_scan": lambda: ("port_scan", PortScanner(config).scan(
                 target, opts.get("ports"),
                 stealth=opts.get("stealth"),
