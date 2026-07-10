@@ -11,6 +11,40 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.10.0] — 2026-07-10
+
+Classic DNS enumeration — the second Phase 3 "revive the footprinting canon"
+release. `dns_recon` already pulled records, attempted zone transfer, and
+brute-forced subdomains; this adds three techniques that surface names and
+misconfigurations those passes miss, all authorised-active.
+
+### Added
+- **DNSSEC NSEC zone-walking** (`_nsec_walk`) — NSEC-signed zones leak every
+  name via the NSEC `next` chain even when AXFR is refused. Sends non-recursive
+  DNSSEC queries against an authoritative NS and follows the chain to its
+  wrap-to-apex. Detects **NSEC3** (hashed) and reports it rather than pretending
+  to walk it. Emits `nsec_zone_walk` (anomaly) and re-emits each in-zone name as
+  a `subdomain` finding so it feeds the pivot + takeover engines.
+- **PTR netblock sweep** (`_ptr_sweep`) — reverse-resolves the entire /24 around
+  the target's A record (concurrency-bounded), surfacing co-hosted infrastructure.
+  Emits `ptr_sweep_summary`; co-hosted names within the registered domain are
+  re-emitted as `subdomain` findings for the pivot.
+- **DNS cache snooping** (`_cache_snoop`) — non-recursive (RD=0) probes of the
+  domain's nameservers for a set of common third-party domains. A cached answer
+  means the server is cache-snoopable, revealing what its users recently
+  resolved. Emits `dns_cache_snoop` (anomaly, open-resolver/misconfig tags).
+- CLI `◈ DNS INTELLIGENCE` panel lines for NSEC walk, PTR sweep, and cache snoop.
+
+### Correctness & validation
+- Live NSEC/cache-snoop queries can't run in the sandbox (outbound UDP/53 is
+  blocked), so the error-prone logic is unit-tested against crafted records: the
+  pure walk driver `nsec_walk_names` (wrap-to-apex, loop, dead-end, and
+  out-of-zone termination), NSEC/NSEC3 record parsing, and `/24` host expansion.
+  The walk driver is bounded (`max_steps`) and network-free by construction.
+- 6 new tests (`tests/test_dns_enum.py`); 64 tests pass.
+
+---
+
 ## [1.9.0] — 2026-07-08
 
 Classic enumeration release — the first of the Phase 3 "revive the footprinting

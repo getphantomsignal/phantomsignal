@@ -15,7 +15,7 @@ r"""
          >> "Map the surface. Own the signal."        <<
 """
 
-__version__ = "1.9.0"
+__version__ = "1.10.0"
 __codename__ = "PHANTOM SIGNAL"
 __author__ = "the-clipper"
 __credits__ = [
