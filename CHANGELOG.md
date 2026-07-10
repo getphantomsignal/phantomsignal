@@ -11,6 +11,35 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.18.0] — 2026-07-10
+
+Email-account discovery — the final Phase 4 (identity) module, completing the
+identity + dark-web arc.
+
+### Added
+- **Email oracle** (`scrapers/email_oracle.py`, `email_oracle` module): given an
+  email, discovers which services it is registered on, keylessly, via account-
+  existence oracles.
+  - **Anchor oracle: Gravatar** — a reliable keyless check (avatar 200 vs 404)
+    whose public profile JSON also yields display name, employer, job title,
+    location, and **linked social accounts** (twitter/linkedin/github/…),
+    feeding the identity graph (`username_enum` / `profile_pivot`).
+  - Pure, unit-tested core: `is_valid_email`, `email_md5`,
+    `classify_oracle_response` (data-driven `exists`/`not_exists`/`unknown`),
+    `parse_gravatar_profile`. `GET_ORACLES` is a data-driven rule schema so more
+    existence oracles can be added without code changes.
+  - Skips non-email targets. Emits `email_account`, `email_profile`,
+    `email_linked_account` (per linked social), and `email_oracle_summary`.
+    Wired into the engine (`-m email_oracle`), a CLI panel, and the web form.
+
+### Honest scope
+- Password-reset/registration oracles for large sites are fragile and
+  ToS-sensitive; hand-authored rules would be silently wrong. The shipped oracle
+  set is the ones we can verify (Gravatar), and the classifier is extensible.
+  Verified live against Gravatar. 6 new tests; 133 tests pass.
+
+---
+
 ## [1.17.0] — 2026-07-10
 
 Dark-web category, part 2 — stealer-log credential correlation and Tor `.onion`
