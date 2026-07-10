@@ -341,6 +341,31 @@ def _profile_pivot_panel(con, results):
                     border_style="green", padding=(0, 2), width=_pw(con)))
 
 
+def _email_oracle_panel(con, results):
+    summary = next((r for r in results if r["result_type"] == "email_oracle_summary"), None)
+    profile = next((r for r in results if r["result_type"] == "email_profile"), None)
+    linked = [r for r in results if r["result_type"] == "email_linked_account"]
+    if not summary:
+        return
+
+    s = summary["data"]
+    reg = ", ".join(s.get("registered_on", [])) or "none"
+    lines = [f"[dim]email '[white]{s['email']}[/white]' — registered on: "
+             f"[white]{reg}[/white] ({s['services_checked']} checked)[/dim]"]
+    if profile:
+        d = profile["data"]
+        who = d.get("display_name") or d.get("username") or "?"
+        extra = " · ".join(x for x in (d.get("job_title"), d.get("company"),
+                                       d.get("location")) if x)
+        lines.append(f"[bold cyan]{who}[/bold cyan]" + (f" [dim]({extra})[/dim]" if extra else ""))
+    for r in linked[:20]:
+        d = r["data"]
+        lines.append(f"[cyan]{d['service']}[/cyan]: {d['handle']} [dim](via {d['via']})[/dim]")
+
+    con.print(Panel("\n".join(lines), title="[bold green]◈ EMAIL ORACLE[/bold green]",
+                    border_style="green", padding=(0, 2), width=_pw(con)))
+
+
 def _darkweb_panel(con, results):
     summary = next((r for r in results if r["result_type"] == "darkweb_summary"), None)
     hits = [r for r in results if r["result_type"] == "ransomware_exposure"]
@@ -648,6 +673,7 @@ def _render_scan_results(con, results_list, scan_dict, target):
     if "username_enum" in by_module: _username_panel(con, by_module["username_enum"])
     if "profile_pivot" in by_module: _profile_pivot_panel(con, by_module["profile_pivot"])
     if "darkweb"    in by_module: _darkweb_panel(con, by_module["darkweb"])
+    if "email_oracle" in by_module: _email_oracle_panel(con, by_module["email_oracle"])
     if "intel"      in by_module: _intel_panel(con, by_module["intel"])
     if anomalies:                  _anomaly_panel(con, anomalies)
 
@@ -715,7 +741,7 @@ def web(host, port, debug, open_browser):
               type=click.Choice(["web_recon", "ip_recon", "domain_recon", "people_intel", "full_spectrum"]),
               default="web_recon", help="Scan type")
 @click.option("--modules", "-m", multiple=True,
-              help="Modules to run (dns_recon, subdomain_enum, takeover, port_scan, tech_detect, api_hunt, js_mine, archive_mine, infra_pivot, service_enum, doc_metadata, username_enum, profile_pivot, darkweb, web_crawl, intel)")
+              help="Modules to run (dns_recon, subdomain_enum, takeover, port_scan, tech_detect, api_hunt, js_mine, archive_mine, infra_pivot, service_enum, doc_metadata, username_enum, profile_pivot, darkweb, email_oracle, web_crawl, intel)")
 @click.option("--profile", "-p",
               type=click.Choice(["quick", "standard", "deep", "ghost"]),
               default="standard")
