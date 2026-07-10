@@ -13,6 +13,7 @@ import logging
 import re
 import shutil
 import socket
+import time
 import xml.etree.ElementTree as ET
 from typing import Dict, List, Optional
 
@@ -146,6 +147,177 @@ DANGEROUS_PORTS: Dict[int, str] = {
 }
 
 
+# ── Passive OS fingerprinting (p0f-style, SYN-ACK TCP/IP signature) ──────────
+#
+# Everything below the class boundary here is pure and network-free: byte-level
+# IP/TCP/option parsers and TTL→OS inference, unit-tested against crafted packets
+# (raw capture needs CAP_NET_RAW, so the error-prone logic is validated offline).
+
+# Standard initial TTLs. A packet's observed TTL is the initial value minus the
+# hop count, so the origin's initial TTL is the smallest standard value that is
+# >= the observed TTL (routers only ever decrement). The obsolete 32 initial
+# (Win9x/ME) is deliberately excluded: an observed TTL of 32 today is far more
+# likely a distant Unix/Linux host than a dead OS, so we don't mislabel it.
+KNOWN_INITIAL_TTLS = (64, 128, 255)
+MAX_PLAUSIBLE_HOPS = 32
+
+# Initial TTL → OS family. Coarse but reliable at the family level; version-level
+# claims from TTL alone would be false precision, so we don't make them.
+TTL_OS_FAMILY: Dict[int, tuple] = {
+    64:  ("Linux / macOS / BSD / Android",
+          ["Linux", "macOS", "FreeBSD", "OpenBSD", "Android", "iOS"]),
+    128: ("Windows", ["Windows"]),
+    255: ("Network device / Solaris / AIX",
+          ["Cisco IOS", "Solaris", "AIX", "router/firewall"]),
+}
+
+
+def snap_initial_ttl(observed_ttl: int):
+    """
+    Map an observed TTL to (initial_ttl, hop_count) using the smallest standard
+    initial TTL that could have produced it. Returns (None, None) when no standard
+    initial yields a plausible hop count (i.e. the packet isn't cleanly bucketable).
+    """
+    for initial in KNOWN_INITIAL_TTLS:
+        if 0 < observed_ttl <= initial:
+            hops = initial - observed_ttl
+            if hops <= MAX_PLAUSIBLE_HOPS:
+                return initial, hops
+    return None, None
+
+
+def parse_ip_header(pkt: bytes) -> Optional[Dict]:
+    """Parse an IPv4 header from the front of a raw packet. None if malformed."""
+    if len(pkt) < 20:
+        return None
+    ver_ihl = pkt[0]
+    if (ver_ihl >> 4) != 4:
+        return None
+    ihl = (ver_ihl & 0x0F) * 4
+    if ihl < 20 or len(pkt) < ihl:
+        return None
+    return {
+        "ihl":      ihl,
+        "ttl":      pkt[8],
+        "protocol": pkt[9],
+        "src":      ".".join(str(b) for b in pkt[12:16]),
+        "dst":      ".".join(str(b) for b in pkt[16:20]),
+    }
+
+
+def parse_tcp_header(seg: bytes) -> Optional[Dict]:
+    """Parse a TCP header (options included if present). None if malformed."""
+    if len(seg) < 20:
+        return None
+    data_offset = (seg[12] >> 4) * 4
+    if data_offset < 20:
+        return None
+    # Options may be truncated by a short capture; slice tolerates that.
+    options = seg[20:data_offset] if data_offset > 20 else b""
+    return {
+        "src_port":    int.from_bytes(seg[0:2], "big"),
+        "dst_port":    int.from_bytes(seg[2:4], "big"),
+        "data_offset": data_offset,
+        "flags":       seg[13],
+        "window":      int.from_bytes(seg[14:16], "big"),
+        "options":     options,
+    }
+
+
+def parse_tcp_options(opts: bytes) -> Dict:
+    """
+    Parse TCP options into {order, mss, window_scale, sack_permitted, timestamps}.
+    ``order`` is the sequence of option kinds — its shape is itself a fingerprint.
+    Stops cleanly on EOL (0) or any malformed length rather than over-reading.
+    """
+    order: List[int] = []
+    mss = None
+    window_scale = None
+    sack = False
+    timestamps = False
+    i, n = 0, len(opts)
+    while i < n:
+        kind = opts[i]
+        if kind == 0:                      # End of Option List
+            order.append(0)
+            break
+        if kind == 1:                      # NOP (no length byte)
+            order.append(1)
+            i += 1
+            continue
+        if i + 1 >= n:                     # length byte missing → truncated
+            break
+        length = opts[i + 1]
+        if length < 2 or i + length > n:   # malformed / truncated option
+            break
+        order.append(kind)
+        val = opts[i + 2:i + length]
+        if kind == 2 and length == 4:
+            mss = int.from_bytes(val, "big")
+        elif kind == 3 and length == 3:
+            window_scale = val[0]
+        elif kind == 4 and length == 2:
+            sack = True
+        elif kind == 8 and length == 10:
+            timestamps = True
+        i += length
+    return {
+        "order": order, "mss": mss, "window_scale": window_scale,
+        "sack_permitted": sack, "timestamps": timestamps,
+    }
+
+
+def fingerprint_os(sig: Dict) -> Optional[Dict]:
+    """
+    Infer OS family from a captured SYN-ACK signature. ``sig`` keys: observed_ttl
+    (required), window, mss, window_scale, sack_permitted, timestamps,
+    options_order. TTL→family is the confident signal; window / MSS / option shape
+    are advisory evidence that can nudge confidence but never invent version-level
+    precision. Returns None when the TTL isn't cleanly bucketable.
+    """
+    ttl = sig.get("observed_ttl")
+    if not ttl:
+        return None
+    initial, hops = snap_initial_ttl(ttl)
+    if initial is None:
+        return None
+
+    family, candidates = TTL_OS_FAMILY[initial]
+    evidence = [f"initial TTL {initial} (observed {ttl}, ~{hops} hops)"]
+    confidence = 0.65 if hops <= 20 else 0.5
+
+    win = sig.get("window")
+    if win:
+        evidence.append(f"TCP window {win}")
+    mss = sig.get("mss")
+    if mss:
+        evidence.append(f"MSS {mss}")
+        if mss < 1460:
+            evidence.append("MSS < 1460 → tunnelled/VPN path")
+    if initial == 64 and sig.get("timestamps") and sig.get("sack_permitted"):
+        evidence.append("TCP timestamps + SACK — typical of modern Linux/Unix")
+        confidence = min(confidence + 0.10, 0.80)
+    if initial == 128 and not sig.get("timestamps"):
+        evidence.append("no TCP timestamps — typical of Windows defaults")
+        confidence = min(confidence + 0.05, 0.80)
+
+    return {
+        "os_family":      family,
+        "candidates":     candidates,
+        "observed_ttl":   ttl,
+        "initial_ttl":    initial,
+        "hop_count":      hops,
+        "tcp_window":     win,
+        "mss":            mss,
+        "window_scale":   sig.get("window_scale"),
+        "sack_permitted": sig.get("sack_permitted"),
+        "timestamps":     sig.get("timestamps"),
+        "tcp_options":    sig.get("options_order"),
+        "confidence":     round(confidence, 2),
+        "evidence":       evidence,
+    }
+
+
 class PortScanner:
     """Port scanner: nmap (version + OS detection) with async-TCP fallback."""
 
@@ -154,6 +326,7 @@ class PortScanner:
         self.timeout         = config.get("port_scanner", "timeout",         default=3)
         self.max_concurrent  = config.get("port_scanner", "max_concurrent",  default=300)
         self.service_detection = config.get("port_scanner", "service_detection", default=True)
+        self.os_fingerprint  = config.get("port_scanner", "os_fingerprint",     default=True)
         self._nmap           = shutil.which("nmap")
 
     # ── Public ──────────────────────────────────────────────────────────────
@@ -230,6 +403,22 @@ class PortScanner:
                 "relevance_score": 0.9,
                 "tags":           ["os", "fingerprint", "nmap"],
             })
+
+        # Passive OS fingerprint from the SYN-ACK — complements nmap and is the
+        # only OS signal when nmap is absent. Silently skips without CAP_NET_RAW.
+        if open_ports:
+            passive = await self._passive_os_fingerprint(host, open_ports)
+            if passive:
+                results.append({
+                    "type":           "passive_os",
+                    "source":         "port_scanner",
+                    "data":           {"target": host,
+                                       "method": "passive SYN-ACK (p0f-style)",
+                                       **passive},
+                    "confidence":     passive["confidence"],
+                    "relevance_score": 0.75,
+                    "tags":           ["os", "fingerprint", "passive", "p0f"],
+                })
 
         if open_ports:
             results.append({
@@ -359,6 +548,76 @@ class PortScanner:
                 ports.append(port_data)
 
         return {"ports": ports, "os": os_info}
+
+    # ── Passive OS fingerprint (SYN-ACK capture) ────────────────────────────
+
+    async def _passive_os_fingerprint(
+        self, host: str, open_ports: List[Dict]
+    ) -> Optional[Dict]:
+        """Capture a SYN-ACK from one open port and infer the OS family from it."""
+        if not self.os_fingerprint or not open_ports:
+            return None
+        port = min(p["port"] for p in open_ports)
+        loop = asyncio.get_event_loop()
+        try:
+            sig = await loop.run_in_executor(None, self._capture_syn_ack, host, port)
+        except Exception as exc:
+            logger.debug(f"passive OS fingerprint failed: {exc}")
+            return None
+        return fingerprint_os(sig) if sig else None
+
+    def _capture_syn_ack(self, host: str, port: int) -> Optional[Dict]:
+        """
+        Blocking: open a raw TCP socket, trigger a normal handshake to ``port``,
+        and capture the target's SYN-ACK to read its TTL/window/options. Needs
+        CAP_NET_RAW; returns None (no guess) when the raw socket is denied.
+        """
+        try:
+            rx = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
+        except (PermissionError, OSError) as exc:
+            logger.debug(f"raw socket unavailable — skipping passive OS fingerprint ({exc})")
+            return None
+
+        rx.settimeout(self.timeout)
+        tx = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        tx.setblocking(False)
+        try:
+            try:
+                tx.connect_ex((host, port))          # kick off the handshake
+            except OSError:
+                pass
+            local_port = tx.getsockname()[1]
+            deadline = time.monotonic() + self.timeout
+            while time.monotonic() < deadline:
+                try:
+                    pkt = rx.recv(65535)
+                except (socket.timeout, OSError):
+                    break
+                ip = parse_ip_header(pkt)
+                if not ip or ip["protocol"] != 6 or ip["src"] != host:
+                    continue
+                tcp = parse_tcp_header(pkt[ip["ihl"]:])
+                if not tcp or tcp["dst_port"] != local_port:
+                    continue
+                if (tcp["flags"] & 0x12) != 0x12:    # require SYN+ACK
+                    continue
+                opts = parse_tcp_options(tcp["options"])
+                return {
+                    "observed_ttl":   ip["ttl"],
+                    "window":         tcp["window"],
+                    "mss":            opts["mss"],
+                    "window_scale":   opts["window_scale"],
+                    "sack_permitted": opts["sack_permitted"],
+                    "timestamps":     opts["timestamps"],
+                    "options_order":  opts["order"],
+                }
+            return None
+        finally:
+            for sock in (tx, rx):
+                try:
+                    sock.close()
+                except Exception:
+                    pass
 
     # ── Pure-Python async TCP fallback ──────────────────────────────────────
 

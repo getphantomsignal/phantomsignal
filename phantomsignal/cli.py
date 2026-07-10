@@ -261,6 +261,7 @@ def _port_panel(con, results):
     open_ports = [r for r in results if r["result_type"] == "open_port"]
     summary_r  = next((r for r in results if r["result_type"] == "port_scan_summary"), None)
     os_r       = next((r for r in results if r["result_type"] == "os_detection"),      None)
+    passive_r  = next((r for r in results if r["result_type"] == "passive_os"),        None)
 
     if not open_ports:
         return
@@ -311,6 +312,11 @@ def _port_panel(con, results):
         acc     = d.get("accuracy", 0)
         fam     = d.get("os_family", "")
         footer += f" · OS: [cyan]{os_name}[/cyan]" + (f" ({fam})" if fam else "") + f" [{acc}%]"
+    elif passive_r:
+        d   = passive_r["data"]
+        pct = int(d.get("confidence", 0) * 100)
+        footer += (f" · OS(passive): [cyan]{d.get('os_family')}[/cyan] "
+                   f"[TTL {d.get('initial_ttl')}, {d.get('hop_count')} hops, {pct}%]")
 
     con.print(Panel(t, title=f"[bold green]◈ PORT SCAN[/bold green]  {engine_tag}",
                     border_style="green", padding=(0, 2), width=_pw(con)))
