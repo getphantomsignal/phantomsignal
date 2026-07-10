@@ -341,6 +341,35 @@ def _profile_pivot_panel(con, results):
                     border_style="green", padding=(0, 2), width=_pw(con)))
 
 
+def _asm_diff_panel(con, results):
+    summary = next((r for r in results if r["result_type"] == "asm_diff_summary"), None)
+    changes = [r for r in results if r["result_type"] == "asm_change"]
+    if not summary:
+        return
+    s = summary["data"]
+    if not changes:
+        con.print(f"  [dim]No attack-surface changes since the previous scan.[/dim]\n")
+        return
+
+    icon = {"new": "[bold green]+[/bold green]", "removed": "[red]−[/red]",
+            "changed": "[yellow]~[/yellow]"}
+    order = {"new": 0, "changed": 1, "removed": 2}
+    lines = [f"[dim]{s['new_assets']} new · {s['changed_assets']} changed · "
+             f"{s['removed_assets']} removed"
+             + (f" · [red]{s['new_sensitive']} new sensitive[/red]" if s['new_sensitive'] else "")
+             + "[/dim]"]
+    for c in sorted(changes, key=lambda x: (order.get(x["data"]["change"], 9),
+                                            x["data"]["asset_type"]))[:50]:
+        d = c["data"]
+        alert = " [red]⚠[/red]" if c.get("is_anomaly") else ""
+        detail = f" [dim]({', '.join(d['changed_fields'])})[/dim]" if d.get("changed_fields") else ""
+        lines.append(f"{icon.get(d['change'], '?')} [cyan]{d['asset_type']}[/cyan] "
+                     f"{d['key']}{detail}{alert}")
+
+    con.print(Panel("\n".join(lines), title="[bold green]◈ ATTACK-SURFACE DIFF[/bold green]",
+                    border_style="green", padding=(0, 2), width=_pw(con)))
+
+
 def _email_oracle_panel(con, results):
     summary = next((r for r in results if r["result_type"] == "email_oracle_summary"), None)
     profile = next((r for r in results if r["result_type"] == "email_profile"), None)
@@ -974,6 +1003,23 @@ def export(scan_id, fmt, output, compress, encrypt, password):
     except Exception as e:
         console.print(f"[red]Export failed: {e}[/red]")
         sys.exit(1)
+
+
+@main.command()
+@click.argument("target")
+def diff(target):
+    """Diff the two most recent completed scans of TARGET → surface changes."""
+    print_banner()
+    from phantomsignal.intel.asm_diff import ASMDiffer
+
+    console.print(f"\n[bold green]◈ ASM DIFF:[/bold green] [white]{target}[/white]\n")
+    results = ASMDiffer().diff_target(target)
+    if not results:
+        console.print("[yellow]Need at least two completed scans of this target to diff.[/yellow]")
+        return
+    for r in results:
+        r["result_type"] = r["type"]
+    _asm_diff_panel(console, results)
 
 
 @main.command()
