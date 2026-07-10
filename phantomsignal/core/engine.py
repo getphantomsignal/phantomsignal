@@ -125,6 +125,7 @@ class PhantomEngine:
         from phantomsignal.scrapers.doc_metadata import DocMetadataExtractor
         from phantomsignal.scrapers.username_enum import UsernameEnumerator
         from phantomsignal.intel.people.profile_pivot import ProfilePivotEngine
+        from phantomsignal.scrapers.darkweb import DarkWebMonitor
         from phantomsignal.intel.orchestrator import IntelOrchestrator
 
         pipeline = []
@@ -142,6 +143,7 @@ class PhantomEngine:
             "doc_metadata": lambda: ("doc_metadata", DocMetadataExtractor(config).run(target)),
             "username_enum": lambda: ("username_enum", UsernameEnumerator(config).run(target)),
             "profile_pivot": lambda: ("profile_pivot", ProfilePivotEngine(config).run(target)),
+            "darkweb": lambda: ("darkweb", DarkWebMonitor(config).run(target)),
             "port_scan": lambda: ("port_scan", PortScanner(config).scan(
                 target, opts.get("ports"),
                 stealth=opts.get("stealth"),
