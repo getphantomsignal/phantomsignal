@@ -262,8 +262,12 @@ def _port_panel(con, results):
     summary_r  = next((r for r in results if r["result_type"] == "port_scan_summary"), None)
     os_r       = next((r for r in results if r["result_type"] == "os_detection"),      None)
     passive_r  = next((r for r in results if r["result_type"] == "passive_os"),        None)
+    stealth_r  = next((r for r in results if r["result_type"] == "stealth_unavailable"), None)
 
     if not open_ports:
+        if stealth_r:
+            d = stealth_r["data"]
+            con.print(f"  [yellow]⚠ {d['profile']} scan unavailable:[/yellow] {d['reason']}\n")
         return
 
     t = Table(show_header=True, header_style="bold green", box=None,
@@ -305,7 +309,12 @@ def _port_panel(con, results):
             lvl_color = "red" if lvl in ("CRITICAL", "HIGH") else "yellow"
             footer += f" · Risk: [bold {lvl_color}]{lvl}[/bold {lvl_color}]"
 
-    engine_tag = "[dim]nmap -sV -O[/dim]" if engine == "nmap" else "[dim]async TCP[/dim]"
+    if engine == "nmap":
+        engine_tag = "[dim]nmap -sV -O[/dim]"
+    elif engine.startswith("nmap-"):
+        engine_tag = f"[dim]nmap {engine.split('-', 1)[1]} scan[/dim]"
+    else:
+        engine_tag = "[dim]async TCP[/dim]"
     if os_r:
         d       = os_r["data"]
         os_name = d.get("os_name", "Unknown")
@@ -589,7 +598,14 @@ def web(host, port, debug, open_browser):
 @click.option("--encrypt", is_flag=True)
 @click.option("--password", default=None, help="Encryption password")
 @click.option("--no-robots", is_flag=True, help="Ignore robots.txt")
-def scan(target, scan_type, modules, profile, output, fmt, compress, encrypt, password, no_robots):
+@click.option("--stealth", type=click.Choice(["decoy", "idle"]), default=None,
+              help="Stealth port-scan profile (nmap + root only)")
+@click.option("--zombie", default=None,
+              help="Zombie host for an idle scan (--stealth idle)")
+@click.option("--decoys", default=None,
+              help="Decoy spec for a decoy scan, e.g. RND:10 or ip1,ME,ip2 (--stealth decoy)")
+def scan(target, scan_type, modules, profile, output, fmt, compress, encrypt,
+         password, no_robots, stealth, zombie, decoys):
     """Launch a ghost run against a target from the command line."""
     print_banner()
     console.print(DISCLAIMER, style="yellow")
@@ -600,6 +616,16 @@ def scan(target, scan_type, modules, profile, output, fmt, compress, encrypt, pa
     if not click.confirm("Confirm you have authorization to scan this target?", default=False):
         console.print("[red]Mission aborted — no authorization confirmed.[/red]")
         sys.exit(1)
+
+    # An idle scan bounces probes off a third-party zombie host — that machine is
+    # also implicated in the scan, so require separate authorization for it.
+    if stealth == "idle":
+        console.print(f"[yellow]  ⚠ Idle scan bounces off zombie host "
+                      f"[bold]{zombie or '(not set)'}[/bold] — a third party.[/yellow]")
+        if not click.confirm("Confirm you are also authorized to use that zombie host?",
+                             default=False):
+            console.print("[red]Mission aborted — no zombie authorization confirmed.[/red]")
+            sys.exit(1)
 
     from phantomsignal.core.config import config as cfg
     from phantomsignal.core.database import get_db
@@ -616,7 +642,8 @@ def scan(target, scan_type, modules, profile, output, fmt, compress, encrypt, pa
             scan_type=ScanType(scan_type),
             profile=profile,
             modules_enabled=list(modules) if modules else ["dns_recon", "port_scan", "tech_detect", "api_hunt", "intel"],
-            options={"depth": 2 if profile == "quick" else 3},
+            options={"depth": 2 if profile == "quick" else 3,
+                     "stealth": stealth, "zombie": zombie, "decoys": decoys},
         )
         db.add(scan_obj)
         db.flush()

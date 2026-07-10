@@ -318,6 +318,64 @@ def fingerprint_os(sig: Dict) -> Optional[Dict]:
     }
 
 
+# ── Stealth scan profiles (idle / decoy) — nmap command construction ─────────
+#
+# Idle and decoy scans need raw packet crafting / source-IP spoofing, so they are
+# nmap-only and require root/CAP_NET_RAW at runtime. The command construction is
+# pure and unit-tested; the privileged execution degrades honestly (see scan()).
+
+STEALTH_PROFILES = ("decoy", "idle")
+
+
+def _validate_nmap_operand(value: str, what: str) -> str:
+    """
+    Reject operands that could be misread as nmap flags. argv is passed straight
+    to exec (no shell), so the only injection risk is a value that begins with
+    ``-`` and gets parsed as an option — guard against exactly that.
+    """
+    v = str(value).strip()
+    if not v:
+        raise ValueError(f"{what} is empty")
+    for part in v.split(","):
+        p = part.strip()
+        if not p or p.startswith("-"):
+            raise ValueError(f"invalid {what}: {part!r}")
+    return v
+
+
+def build_nmap_command(nmap_path: str, host: str, ports: List[int],
+                       stealth: Optional[str] = None,
+                       decoys: Optional[str] = None,
+                       zombie: Optional[str] = None) -> List[str]:
+    """
+    Build the nmap argv for a scan profile. ``stealth`` is None (rich -sV/-O
+    scan), "decoy" (SYN scan behind decoy source IPs), or "idle" (zombie-bounced
+    side-channel scan). Idle/decoy deliberately omit -sV/-O: over the idle side
+    channel there is no direct response to probe, and version/OS probes in a
+    decoy scan would originate from the real IP and defeat the decoys. Both use
+    -Pn to skip host discovery (which would also leak the real IP). Pure/testable.
+    """
+    port_str = ",".join(str(p) for p in sorted(ports))
+    common = ["--open", "-p", port_str, "--host-timeout", "120s", "-oX", "-"]
+    host = _validate_nmap_operand(host, "target host")
+
+    if stealth is None:
+        return [nmap_path, "-sV", "--version-intensity", "7",
+                "-O", "--osscan-guess"] + common + [host]
+
+    if stealth == "decoy":
+        spec = _validate_nmap_operand(decoys or "RND:10", "decoy spec")
+        return [nmap_path, "-sS", "-D", spec, "-Pn"] + common + [host]
+
+    if stealth == "idle":
+        if not zombie:
+            raise ValueError("idle scan requires a zombie host")
+        z = _validate_nmap_operand(zombie, "zombie host")
+        return [nmap_path, "-sI", z, "-Pn"] + common + [host]
+
+    raise ValueError(f"unknown stealth profile: {stealth!r}")
+
+
 class PortScanner:
     """Port scanner: nmap (version + OS detection) with async-TCP fallback."""
 
@@ -336,6 +394,9 @@ class PortScanner:
         target: str,
         ports: Optional[List[int]] = None,
         scan_profile: str = "common",
+        stealth: Optional[str] = None,
+        decoys: Optional[str] = None,
+        zombie: Optional[str] = None,
     ) -> List[Dict]:
         """Ghost probe a target. Tries nmap first, falls back to async TCP."""
         host = self._resolve_host(target)
@@ -352,6 +413,12 @@ class PortScanner:
                 ports = list(range(1, 65536))
             else:
                 ports = self.config.get("port_scanner", "default_ports", default=COMMON_PORTS)
+
+        # Stealth profiles (idle/decoy) take a separate, nmap-only path — we never
+        # fall back to the plain Python connect scan for them, which would send
+        # traffic from our real IP and defeat the requested stealth.
+        if stealth:
+            return await self._stealth_scan(target, host, ports, stealth, decoys, zombie)
 
         logger.info(f"Scanning {host} — {len(ports)} ports, profile={scan_profile}, nmap={'yes' if self._nmap else 'no'}")
 
@@ -373,19 +440,7 @@ class PortScanner:
             raw       = await asyncio.gather(*tasks, return_exceptions=True)
             open_ports = [r for r in raw if isinstance(r, dict) and r.get("state") == "open"]
 
-        results: List[Dict] = []
-        for port_info in open_ports:
-            port_info["scan_engine"] = scan_engine
-            is_dangerous = port_info["port"] in DANGEROUS_PORTS
-            results.append({
-                "type":           "open_port",
-                "source":         "port_scanner",
-                "data":           port_info,
-                "confidence":     1.0,
-                "relevance_score": 0.9 if is_dangerous else 0.6,
-                "tags":           ["port", "network"] + (["dangerous", "high_risk"] if is_dangerous else []),
-                "is_anomaly":     is_dangerous,
-            })
+        results: List[Dict] = self._open_port_findings(open_ports, scan_engine)
 
         if os_info:
             results.append({
@@ -421,44 +476,126 @@ class PortScanner:
                 })
 
         if open_ports:
-            results.append({
-                "type":   "port_scan_summary",
-                "source": "port_scanner",
-                "data": {
-                    "target":        target,
-                    "host":          host,
-                    "total_scanned": len(ports),
-                    "open_count":    len(open_ports),
-                    "scan_engine":   scan_engine,
-                    "open_ports":    sorted(p["port"] for p in open_ports),
-                    "dangerous_ports": [
-                        {"port": p["port"], "warning": DANGEROUS_PORTS[p["port"]]}
-                        for p in open_ports if p["port"] in DANGEROUS_PORTS
-                    ],
-                    "risk_assessment": self._assess_risk(open_ports),
-                },
-                "confidence":     1.0,
-                "relevance_score": 1.0,
-                "tags":           ["summary", "port_scan"],
-            })
+            results.append(self._summary_finding(target, host, ports, open_ports, scan_engine))
 
         return results
 
+    async def _stealth_scan(self, target: str, host: str, ports: List[int],
+                            stealth: str, decoys: Optional[str],
+                            zombie: Optional[str]) -> List[Dict]:
+        """Run an nmap idle/decoy scan, or explain honestly why it can't run."""
+        reason = None
+        if stealth not in STEALTH_PROFILES:
+            reason = f"unknown stealth profile {stealth!r}"
+        elif not self._nmap:
+            reason = "nmap is not installed"
+        elif stealth == "idle" and not zombie:
+            reason = "idle scan requires a zombie host (--zombie)"
+        if reason:
+            return [self._stealth_unavailable(target, host, stealth, reason)]
+
+        logger.info(f"Stealth {stealth} scan of {host} — {len(ports)} ports")
+        nmap_result = await self._try_nmap(host, ports, stealth=stealth,
+                                           decoys=decoys, zombie=zombie)
+        if nmap_result is None:
+            return [self._stealth_unavailable(
+                target, host, stealth,
+                "nmap stealth scan could not run — it typically needs root/CAP_NET_RAW",
+                detail=f"{stealth} scan crafts raw packets; grant nmap CAP_NET_RAW "
+                       f"or run as root")]
+
+        # Honesty guard: without raw-packet privileges nmap can silently downgrade
+        # -sS to a plain connect scan (real IP, no decoys). Its XML records the
+        # technique actually used, so a "connect" result means stealth wasn't
+        # applied — report that rather than claiming a stealth scan happened.
+        if nmap_result.get("scan_type") == "connect":
+            return [self._stealth_unavailable(
+                target, host, stealth,
+                "nmap downgraded to a connect scan (no raw-packet privileges) — "
+                "the scan ran from the real source IP and stealth was NOT applied")]
+
+        open_ports = nmap_result["ports"]
+        engine = f"nmap-{stealth}"
+        # Idle/decoy yield port state only: no OS/version, and no passive SYN-ACK
+        # capture (that would emit packets from our real IP, breaking stealth).
+        results = self._open_port_findings(open_ports, engine)
+        results.append(self._summary_finding(target, host, ports, open_ports, engine))
+        return results
+
+    # ── result assembly (shared by standard + stealth paths) ────────────────
+
+    def _open_port_findings(self, open_ports: List[Dict], scan_engine: str) -> List[Dict]:
+        results: List[Dict] = []
+        for port_info in open_ports:
+            port_info["scan_engine"] = scan_engine
+            is_dangerous = port_info["port"] in DANGEROUS_PORTS
+            results.append({
+                "type":           "open_port",
+                "source":         "port_scanner",
+                "data":           port_info,
+                "confidence":     1.0,
+                "relevance_score": 0.9 if is_dangerous else 0.6,
+                "tags":           ["port", "network"] + (["dangerous", "high_risk"] if is_dangerous else []),
+                "is_anomaly":     is_dangerous,
+            })
+        return results
+
+    def _summary_finding(self, target: str, host: str, ports: List[int],
+                         open_ports: List[Dict], scan_engine: str) -> Dict:
+        return {
+            "type":   "port_scan_summary",
+            "source": "port_scanner",
+            "data": {
+                "target":        target,
+                "host":          host,
+                "total_scanned": len(ports),
+                "open_count":    len(open_ports),
+                "scan_engine":   scan_engine,
+                "open_ports":    sorted(p["port"] for p in open_ports),
+                "dangerous_ports": [
+                    {"port": p["port"], "warning": DANGEROUS_PORTS[p["port"]]}
+                    for p in open_ports if p["port"] in DANGEROUS_PORTS
+                ],
+                "risk_assessment": self._assess_risk(open_ports),
+            },
+            "confidence":     1.0,
+            "relevance_score": 1.0,
+            "tags":           ["summary", "port_scan"],
+        }
+
+    def _stealth_unavailable(self, target: str, host: str, stealth: str,
+                             reason: str, detail: Optional[str] = None) -> Dict:
+        data = {
+            "target":  target,
+            "host":    host,
+            "profile": stealth,
+            "reason":  reason,
+            "note":    "no scan was performed",
+        }
+        if detail:
+            data["detail"] = detail
+        return {
+            "type":            "stealth_unavailable",
+            "source":          "port_scanner",
+            "data":            data,
+            "confidence":      1.0,
+            "relevance_score": 0.3,
+            "tags":            ["port", "stealth", stealth, "unavailable"],
+        }
+
     # ── nmap ────────────────────────────────────────────────────────────────
 
-    async def _try_nmap(self, host: str, ports: List[int]) -> Optional[Dict]:
-        """Run nmap -sV -O for rich version/OS data. Returns None on failure."""
-        port_str = ",".join(str(p) for p in sorted(ports))
-        cmd = [
-            self._nmap,
-            "-sV", "--version-intensity", "7",
-            "-O", "--osscan-guess",
-            "--open",
-            "-p", port_str,
-            "--host-timeout", "120s",
-            "-oX", "-",
-            host,
-        ]
+    async def _try_nmap(self, host: str, ports: List[int],
+                        stealth: Optional[str] = None,
+                        decoys: Optional[str] = None,
+                        zombie: Optional[str] = None) -> Optional[Dict]:
+        """Run nmap and parse its XML. Standard scan is -sV -O; stealth variants
+        (idle/decoy) are built by build_nmap_command. Returns None on failure."""
+        try:
+            cmd = build_nmap_command(self._nmap, host, ports, stealth, decoys, zombie)
+        except ValueError as exc:
+            logger.error(f"nmap command build failed: {exc}")
+            return None
         try:
             proc = await asyncio.create_subprocess_exec(
                 *cmd,
@@ -473,11 +610,17 @@ class PortScanner:
             return None
 
     def _parse_nmap_xml(self, xml_str: str) -> Optional[Dict]:
-        """Parse nmap XML output → {ports: [...], os: {...}}."""
+        """Parse nmap XML output → {ports: [...], os: {...}, scan_type: str}."""
         try:
             root = ET.fromstring(xml_str)
         except ET.ParseError:
             return None
+
+        # The actual scan technique nmap ran ("syn"/"connect"/"idle"/…). Lets the
+        # stealth path detect a silent downgrade to a connect scan (which happens
+        # when -sS is requested without raw-packet privileges).
+        scaninfo  = root.find("scaninfo")
+        scan_type = scaninfo.get("type") if scaninfo is not None else None
 
         ports:   List[Dict]     = []
         os_info: Optional[Dict] = None
@@ -547,7 +690,7 @@ class PortScanner:
 
                 ports.append(port_data)
 
-        return {"ports": ports, "os": os_info}
+        return {"ports": ports, "os": os_info, "scan_type": scan_type}
 
     # ── Passive OS fingerprint (SYN-ACK capture) ────────────────────────────
 
