@@ -314,6 +314,33 @@ def _username_panel(con, results):
                     border_style="green", padding=(0, 2), width=_pw(con)))
 
 
+def _profile_pivot_panel(con, results):
+    summary = next((r for r in results if r["result_type"] == "profile_pivot_summary"), None)
+    linked = [r for r in results if r["result_type"] == "linked_identity"]
+    if not summary:
+        return
+
+    s = summary["data"]
+    lines = [f"[dim]seed '[white]{s['seed']}[/white]' — parsed {s['profiles_parsed']} profile(s) → "
+             f"{s['linked_handles']} handle(s), {s['linked_emails']} email(s), "
+             f"{s['linked_domains']} domain(s)[/dim]"]
+    for r in sorted(linked, key=lambda x: (-x["data"].get("link_count", 0),
+                                           x["data"]["kind"]))[:30]:
+        d = r["data"]
+        mult = f" [dim]×{d['link_count']}[/dim]" if d.get("link_count", 0) >= 2 else ""
+        if d["kind"] == "handle":
+            lines.append(f"[cyan]{d['platform']}[/cyan]: {d['value']}{mult}")
+        elif d["kind"] == "email":
+            lines.append(f"[bold yellow]email:[/bold yellow] {d['value']}{mult}")
+        elif d["kind"] == "domain":
+            lines.append(f"[green]domain:[/green] {d['value']}{mult}")
+        elif d["kind"] == "gravatar_md5":
+            lines.append(f"[dim]gravatar md5:[/dim] {d['value']}")
+
+    con.print(Panel("\n".join(lines), title="[bold green]◈ PROFILE PIVOT[/bold green]",
+                    border_style="green", padding=(0, 2), width=_pw(con)))
+
+
 def _port_panel(con, results):
     open_ports = [r for r in results if r["result_type"] == "open_port"]
     summary_r  = next((r for r in results if r["result_type"] == "port_scan_summary"), None)
@@ -578,6 +605,7 @@ def _render_scan_results(con, results_list, scan_dict, target):
     if "service_enum" in by_module: _service_panel(con, by_module["service_enum"])
     if "doc_metadata" in by_module: _docmeta_panel(con, by_module["doc_metadata"])
     if "username_enum" in by_module: _username_panel(con, by_module["username_enum"])
+    if "profile_pivot" in by_module: _profile_pivot_panel(con, by_module["profile_pivot"])
     if "intel"      in by_module: _intel_panel(con, by_module["intel"])
     if anomalies:                  _anomaly_panel(con, anomalies)
 
@@ -645,7 +673,7 @@ def web(host, port, debug, open_browser):
               type=click.Choice(["web_recon", "ip_recon", "domain_recon", "people_intel", "full_spectrum"]),
               default="web_recon", help="Scan type")
 @click.option("--modules", "-m", multiple=True,
-              help="Modules to run (dns_recon, subdomain_enum, takeover, port_scan, tech_detect, api_hunt, js_mine, archive_mine, infra_pivot, service_enum, doc_metadata, username_enum, web_crawl, intel)")
+              help="Modules to run (dns_recon, subdomain_enum, takeover, port_scan, tech_detect, api_hunt, js_mine, archive_mine, infra_pivot, service_enum, doc_metadata, username_enum, profile_pivot, web_crawl, intel)")
 @click.option("--profile", "-p",
               type=click.Choice(["quick", "standard", "deep", "ghost"]),
               default="standard")

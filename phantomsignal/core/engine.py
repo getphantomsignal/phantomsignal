@@ -124,6 +124,7 @@ class PhantomEngine:
         from phantomsignal.scrapers.service_enum import ServiceEnumerator
         from phantomsignal.scrapers.doc_metadata import DocMetadataExtractor
         from phantomsignal.scrapers.username_enum import UsernameEnumerator
+        from phantomsignal.intel.people.profile_pivot import ProfilePivotEngine
         from phantomsignal.intel.orchestrator import IntelOrchestrator
 
         pipeline = []
@@ -140,6 +141,7 @@ class PhantomEngine:
             "service_enum": lambda: ("service_enum", ServiceEnumerator(config).run(target)),
             "doc_metadata": lambda: ("doc_metadata", DocMetadataExtractor(config).run(target)),
             "username_enum": lambda: ("username_enum", UsernameEnumerator(config).run(target)),
+            "profile_pivot": lambda: ("profile_pivot", ProfilePivotEngine(config).run(target)),
             "port_scan": lambda: ("port_scan", PortScanner(config).scan(
                 target, opts.get("ports"),
                 stealth=opts.get("stealth"),
