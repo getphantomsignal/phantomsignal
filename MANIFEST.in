@@ -4,3 +4,4 @@ include README.md
 recursive-include phantomsignal/web/templates *.html
 recursive-include phantomsignal/web/static *
 recursive-include config *.yaml *.yml
+recursive-include phantomsignal/scrapers/data *.json *.md

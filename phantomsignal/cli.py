@@ -291,6 +291,29 @@ def _docmeta_panel(con, results):
                     border_style="green", padding=(0, 2), width=_pw(con)))
 
 
+def _username_panel(con, results):
+    summary = next((r for r in results if r["result_type"] == "username_enum_summary"), None)
+    accounts = [r for r in results if r["result_type"] == "username_account"]
+    if not summary:
+        return
+
+    s = summary["data"]
+    lines = [f"[dim]handle '[white]{s['username']}[/white]' — "
+             f"{s['accounts_found']} account(s) across {s['sites_checked']} sites checked[/dim]"]
+    by_cat = s.get("by_category", {})
+    if by_cat:
+        cats = ", ".join(f"{k}: {v}" for k, v in sorted(by_cat.items(), key=lambda x: -x[1]))
+        lines.append(f"[dim]by category:[/dim] {cats}")
+    for r in sorted(accounts, key=lambda x: x["data"]["site"].lower())[:40]:
+        d = r["data"]
+        lines.append(f"[cyan]{d['site']}[/cyan] [dim]({d['category']})[/dim] {d['url']}")
+    if len(accounts) > 40:
+        lines.append(f"[dim]… and {len(accounts) - 40} more[/dim]")
+
+    con.print(Panel("\n".join(lines), title="[bold green]◈ USERNAME ENUMERATION[/bold green]",
+                    border_style="green", padding=(0, 2), width=_pw(con)))
+
+
 def _port_panel(con, results):
     open_ports = [r for r in results if r["result_type"] == "open_port"]
     summary_r  = next((r for r in results if r["result_type"] == "port_scan_summary"), None)
@@ -554,6 +577,7 @@ def _render_scan_results(con, results_list, scan_dict, target):
     if "infra_pivot" in by_module: _infra_panel(con, by_module["infra_pivot"])
     if "service_enum" in by_module: _service_panel(con, by_module["service_enum"])
     if "doc_metadata" in by_module: _docmeta_panel(con, by_module["doc_metadata"])
+    if "username_enum" in by_module: _username_panel(con, by_module["username_enum"])
     if "intel"      in by_module: _intel_panel(con, by_module["intel"])
     if anomalies:                  _anomaly_panel(con, anomalies)
 
@@ -621,7 +645,7 @@ def web(host, port, debug, open_browser):
               type=click.Choice(["web_recon", "ip_recon", "domain_recon", "people_intel", "full_spectrum"]),
               default="web_recon", help="Scan type")
 @click.option("--modules", "-m", multiple=True,
-              help="Modules to run (dns_recon, subdomain_enum, takeover, port_scan, tech_detect, api_hunt, js_mine, archive_mine, infra_pivot, service_enum, doc_metadata, web_crawl, intel)")
+              help="Modules to run (dns_recon, subdomain_enum, takeover, port_scan, tech_detect, api_hunt, js_mine, archive_mine, infra_pivot, service_enum, doc_metadata, username_enum, web_crawl, intel)")
 @click.option("--profile", "-p",
               type=click.Choice(["quick", "standard", "deep", "ghost"]),
               default="standard")
