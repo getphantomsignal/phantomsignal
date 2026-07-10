@@ -11,6 +11,41 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.13.0] — 2026-07-10
+
+Document metadata extraction — the final Phase 3 module, completing the
+"revive the footprinting canon" arc (FOCA / metagoofil lineage).
+
+### Added
+- **Document metadata extraction** (`scrapers/doc_metadata.py`, `doc_metadata`
+  module): discovers a domain's public documents via the keyless Wayback CDX
+  source, downloads them (streamed, size-capped), and mines embedded metadata
+  for internal usernames, software + versions, local/UNC paths, emails, and
+  EXIF geolocation. Parsers:
+  - **OOXML** (docx/xlsx/pptx + macro variants) — `docProps/core.xml` +
+    `app.xml` via stdlib `zipfile`+XML, no external dependency.
+  - **PDF** — Info dictionary (literal / hex / UTF-16BE strings, with
+    balanced-paren and octal-escape handling) plus the XMP packet.
+  - **Images** (JPEG/TIFF) — EXIF via Pillow, including GPS → decimal coords.
+  - Emits per-document findings plus username/software/path/email summaries and
+    `document_geolocation` (anomaly). Wired into the engine pipeline, the CLI
+    `-m doc_metadata` (with a results panel), and the web scan form.
+
+### Scope & correctness (honest by design)
+- **PDF parsing covers the uncompressed regions only** — metadata buried in
+  object/xref streams or encrypted PDFs is out of scope; a hand-rolled full PDF
+  parser would be silently wrong.
+- **Legacy OLE (.doc/.xls/.ppt) is not attempted** — it needs a real OLE
+  compound-file parser; those extensions are excluded from discovery.
+- **Zip-bomb guard bounds *actual* decompressed bytes** (reads a capped stream
+  rather than trusting the archive's declared uncompressed size).
+- Username aggregation drops software-looking values (e.g. auto-filled app
+  names) from person fields.
+- 13 new tests (`tests/test_doc_metadata.py`) validating the parsers against
+  in-memory OOXML/PDF/EXIF documents; 100 tests pass.
+
+---
+
 ## [1.12.0] — 2026-07-10
 
 Stealth port-scan profiles — the final Phase 3 `port_scanner` addition, closing
