@@ -11,6 +11,39 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.16.0] — 2026-07-10
+
+Dark-web leak-exposure monitoring — the third Phase 4 module (part 1 of the
+dark-web category). Defensive breach-exposure tracking for an authorized target.
+
+### Added
+- **Dark-web monitor** (`scrapers/darkweb.py`, `darkweb` module): checks whether
+  the authorized target appears on a **ransomware leak site**, via the keyless,
+  clearnet ransomware.live v2 API (parsed against the verified record schema).
+  Emits `ransomware_exposure` (group, dates, claim URL, infostealer-data flag)
+  and `darkweb_summary`. Wired into the engine (`-m darkweb`), a CLI panel, and
+  the web scan form.
+
+### Guardrails (built in; enforced for the part-2 stealer-log work)
+- **Target-scoped** — `victim_matches_target` confirms a fuzzy leak-site hit
+  actually concerns this domain before reporting. A **domain match** is a strong,
+  anomaly-raising alert (confidence 0.95); a **name match** is advisory only
+  (0.6, not an anomaly), since fuzzy search on a common brand is noisy. Junk
+  victim strings (scraped-HTML fragments) are rejected from name-matching.
+- **No credential store** — `mask_secret()` redacts any credential-shaped value
+  to `[redacted:N]` (length only, never plaintext), keeping this a breach-
+  *exposure* monitor rather than a credential harvester.
+
+### Correctness & validation
+- Parsing, target-scoping, junk-rejection, and masking are pure and unit-tested;
+  `run()` is exercised end-to-end over an httpx MockTransport, and verified live
+  against ransomware.live. 7 new tests (`tests/test_darkweb.py`); 122 tests pass.
+
+Part 2 (planned): Tor `.onion` crawling, paste sweeps, and stealer-log
+correlation, under the same masking/scoping guardrails.
+
+---
+
 ## [1.15.0] — 2026-07-10
 
 Recursive profile pivoting — the second Phase 4 (identity) module. Turns the
