@@ -11,6 +11,37 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.19.0] — 2026-07-10
+
+Attack-surface diff engine — the first Phase 5 (ASM monitoring) module. Turns
+single-shot recon into change detection over time.
+
+### Added
+- **ASM diff** (`intel/asm_diff.py`): compares two scans of the same target and
+  surfaces what changed — **new** assets (a fresh subdomain, open port, leak, or
+  credential exposure), **removed** assets, and **modified** ones (a service
+  version/banner that moved). New sensitive assets are flagged as alerts.
+  - Pure, unit-tested diff engine (operates on two result-dict lists, no DB):
+    `result_key` gives each asset a stable identity (via `IDENTITY_FIELDS` with a
+    canonical-hash fallback; summary/meta results are skipped); `state_signature`
+    / `changed_fields` detect modifications while ignoring volatile fields
+    (timestamps, discovered dates, scan engine); `diff_results` →
+    `AsmDiff(added, removed, modified)`; `build_diff_findings` emits `asm_change`
+    (new sensitive assets → anomalies) and `asm_diff_summary`.
+  - `ASMDiffer.diff_target` loads the two most recent completed scans of a target
+    from the DB and diffs them.
+  - CLI `psig diff <target>` command with a change panel.
+
+### Correctness & validation
+- The diff engine is pure and fully unit-tested (keying, volatile-field
+  handling, added/removed/modified detection, sensitive-asset alerting).
+  7 new tests (`tests/test_asm_diff.py`); 140 tests pass.
+
+Next in Phase 5: auto-diff on scan completion + alerting, and Playwright visual
+recon / screenshots.
+
+---
+
 ## [1.18.0] — 2026-07-10
 
 Email-account discovery — the final Phase 4 (identity) module, completing the
