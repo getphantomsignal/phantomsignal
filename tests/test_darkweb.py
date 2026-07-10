@@ -11,7 +11,8 @@ import pytest
 from phantomsignal.scrapers import darkweb as dw
 from phantomsignal.scrapers.darkweb import (
     mask_secret, extract_domain, registered_name,
-    parse_ransomware_victims, victim_matches_target, DarkWebMonitor,
+    parse_ransomware_victims, victim_matches_target, parse_combolist,
+    tor_available, DarkWebMonitor,
 )
 
 
@@ -23,7 +24,7 @@ class _Cfg:
 # ── guardrail: secret masking ───────────────────────────────────────────────
 
 def test_mask_secret_never_leaks_plaintext():
-    assert mask_secret("hunter2") == "[redacted:7]"
+    assert mask_secret("hunter2") == "redacted(7)"
     assert "hunter" not in mask_secret("hunter2")
     assert mask_secret("") == ""
 
@@ -110,3 +111,61 @@ async def test_run_reports_only_scoped_ransomware_hits(monkeypatch):
 async def test_run_rejects_non_domain_target(monkeypatch):
     mon = _monitor(monkeypatch)
     assert await mon.run("just-a-handle") == []
+
+
+# ── stealer-log / combolist correlation ─────────────────────────────────────
+
+_COMBO = """
+jdoe@acme.com:Summer2024!
+notme@other.com:whatever
+https://portal.acme.com/login:alice@acme.com:Hunter2
+https://evil.com/login:bob@other.com:passw0rd
+admin@sub.acme.com;p@ss;word
+"""
+
+
+def test_parse_combolist_scopes_and_masks():
+    recs = parse_combolist(_COMBO, "acme.com")
+    ids = {r["identity"]: r for r in recs}
+    assert set(ids) == {"jdoe@acme.com", "alice@acme.com", "admin@sub.acme.com"}
+    assert ids["jdoe@acme.com"]["kind"] == "corporate_credential"
+    assert ids["alice@acme.com"]["kind"] == "service_credential"      # ULP, target's login
+    assert ids["alice@acme.com"]["host"] == "portal.acme.com"
+    # out-of-scope lines dropped
+    assert "bob@other.com" not in ids and "notme@other.com" not in ids
+
+
+def test_parse_combolist_never_emits_plaintext_passwords():
+    blob = str(parse_combolist(_COMBO, "acme.com"))
+    for secret in ("Summer2024!", "Hunter2", "p@ss;word"):
+        assert secret not in blob
+    assert parse_combolist(_COMBO, "acme.com")[0]["password"].startswith("redacted(")
+
+
+def test_tor_available_false_without_socks_or_daemon():
+    # sandbox has neither socksio nor a Tor daemon → must be False, not raise
+    assert tor_available("socks5://127.0.0.1:9050") is False
+
+
+@pytest.mark.asyncio
+async def test_run_emits_masked_credential_exposures(tmp_path, monkeypatch):
+    dump = tmp_path / "stealer.txt"
+    dump.write_text(_COMBO)
+    mon = _monitor(monkeypatch)
+    mon.combolist_paths = [str(dump)]
+    results = await mon.run("acme.com")
+    creds = [r for r in results if r["type"] == "credential_exposure"]
+    assert len(creds) == 3
+    assert all(r["data"]["password"].startswith("redacted(") for r in creds)
+    assert all(r["is_anomaly"] for r in creds)
+    summary = next(r for r in results if r["type"] == "darkweb_summary")
+    assert "combolists" in summary["data"]["sources_checked"]
+
+
+@pytest.mark.asyncio
+async def test_tor_enrich_degrades_when_unavailable(monkeypatch):
+    mon = _monitor(monkeypatch)
+    mon.tor_enrich = True
+    matches = [{"claim_url": "http://abcd.onion/victim", "group": "X"}]
+    out = await mon._tor_enrich_onions("acme.com", matches)
+    assert len(out) == 1 and out[0]["type"] == "tor_unavailable"

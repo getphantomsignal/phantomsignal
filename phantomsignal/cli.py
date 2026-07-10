@@ -344,25 +344,39 @@ def _profile_pivot_panel(con, results):
 def _darkweb_panel(con, results):
     summary = next((r for r in results if r["result_type"] == "darkweb_summary"), None)
     hits = [r for r in results if r["result_type"] == "ransomware_exposure"]
+    creds = [r for r in results if r["result_type"] == "credential_exposure"]
+    tor_na = next((r for r in results if r["result_type"] == "tor_unavailable"), None)
     if not summary:
         return
 
     s = summary["data"]
-    if not hits:
-        con.print(f"  [dim]◈ Dark web: no leak-site exposure found for "
+    if not hits and not creds:
+        con.print(f"  [dim]◈ Dark web: no leak-site or credential exposure found for "
                   f"{s['target']} ({', '.join(s['sources_checked'])})[/dim]\n")
         return
 
-    lines = [f"[bold red]⚠ {s['ransomware_hits']} ransomware leak-site "
-             f"exposure(s)[/bold red] for [white]{s['target']}[/white]"]
-    for r in sorted(hits, key=lambda x: x["data"].get("discovered", ""), reverse=True):
-        d = r["data"]
-        stealer = " [red](+ infostealer data)[/red]" if d.get("has_infostealer_data") else ""
-        conf = "confirmed" if d.get("match") == "domain" else "name-match"
-        lines.append(f"[red]{d['group']}[/red] — {d['victim']} [dim]({d['attack_date'][:10]}, "
-                     f"{conf})[/dim]{stealer}")
-        if d.get("claim_url"):
-            lines.append(f"  [dim]{d['claim_url']}[/dim]")
+    lines = []
+    if hits:
+        lines.append(f"[bold red]⚠ {s['ransomware_hits']} ransomware leak-site "
+                     f"exposure(s)[/bold red] for [white]{s['target']}[/white]")
+        for r in sorted(hits, key=lambda x: x["data"].get("discovered", ""), reverse=True):
+            d = r["data"]
+            stealer = " [red](+ infostealer data)[/red]" if d.get("has_infostealer_data") else ""
+            conf = "confirmed" if d.get("match") == "domain" else "name-match"
+            lines.append(f"[red]{d['group']}[/red] — {d['victim']} [dim]({d['attack_date'][:10]}, "
+                         f"{conf})[/dim]{stealer}")
+            if d.get("claim_url"):
+                lines.append(f"  [dim]{d['claim_url']}[/dim]")
+    if creds:
+        lines.append(f"[bold red]⚠ {len(creds)} credential exposure(s)[/bold red] "
+                     f"[dim](passwords masked)[/dim]")
+        for r in creds[:15]:
+            d = r["data"]
+            where = f" @ {d['host']}" if d.get("kind") == "service_credential" else ""
+            lines.append(f"[red]{d['identity']}[/red]{where} → {d['password']} "
+                         f"[dim]({d['dump']})[/dim]")
+    if tor_na:
+        lines.append(f"[dim]Tor: {tor_na['data']['reason']}[/dim]")
 
     con.print(Panel("\n".join(lines), title="[bold red]⌗ DARK WEB EXPOSURE[/bold red]",
                     border_style="red", padding=(0, 2), width=_pw(con)))
