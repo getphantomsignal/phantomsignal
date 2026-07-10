@@ -11,6 +11,37 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.14.0] — 2026-07-10
+
+Keyless username enumeration — the first Phase 4 (identity) module, opening the
+"map a person across the grid" arc (WhatsMyName / Sherlock lineage).
+
+### Added
+- **Username enumeration** (`scrapers/username_enum.py`, `username_enum` module):
+  checks a handle's presence across ~700 sites with **no API keys**. For each
+  site it probes the profile URL and applies that site's detection rule
+  (expected status + marker string), then runs a false-positive guard.
+  - **Detection rules are vendored** from WhatsMyName
+    (`scrapers/data/wmn-data.json`, 719 sites, **CC BY-SA 4.0** with attribution)
+    rather than hand-authored — the per-site rules are the error-prone part and
+    the community set is tested and maintained.
+  - **False-positive guard:** every positive is re-checked against an improbable
+    control handle; sites that "match" that are catch-alls and are dropped.
+  - Skips dotted / `@`-bearing targets (domains/emails) so a full-spectrum scan
+    on a domain never probes the domain string as a username.
+  - Emits `username_account` per hit and a `username_enum_summary`
+    (by-category counts, profile URLs); a handle found on 10+ sites is flagged
+    as a broad-exposure anomaly. Wired into the engine (`-m username_enum`), a
+    CLI results panel, and the web scan form.
+
+### Correctness & validation
+- Rule evaluation, URL templating, and handle normalisation are pure and
+  unit-tested; `run()` is exercised end-to-end over an httpx MockTransport
+  (including the false-positive guard) with no network.
+- 10 new tests (`tests/test_username_enum.py`); 110 tests pass.
+
+---
+
 ## [1.13.0] — 2026-07-10
 
 Document metadata extraction — the final Phase 3 module, completing the
