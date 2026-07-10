@@ -11,6 +11,44 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.11.0] — 2026-07-10
+
+Passive OS fingerprinting — a Phase 3 `port_scanner` addition. Until now the
+scanner derived the OS only from nmap (`-O`); this adds a p0f-style TCP/IP
+fingerprint from the target's SYN-ACK, giving an OS-family signal even when
+nmap is absent.
+
+### Added
+- **Passive OS fingerprint** (`scrapers/port_scanner.py`):
+  - Byte-level `parse_ip_header` / `parse_tcp_header` / `parse_tcp_options` and
+    the inference pair `snap_initial_ttl` / `fingerprint_os` — all pure and
+    network-free.
+  - **TTL→family inference:** a packet's observed TTL is the origin's initial
+    TTL minus the hop count, so the initial TTL is the smallest standard value
+    (64/128/255) `>=` the observed TTL. 64 → Linux/macOS/BSD/Android, 128 →
+    Windows, 255 → network device/Solaris/AIX. The obsolete 32 initial
+    (Win9x/ME) is deliberately excluded — an observed TTL of 32 today is far
+    more likely a distant Unix host than a dead OS.
+  - The family claim is the confident signal; **TCP window / MSS / option shape
+    are advisory evidence only** — they nudge confidence but never invent
+    version-level precision. An un-bucketable TTL yields no finding (no guess).
+  - **SYN-ACK capture** (`_capture_syn_ack`): opens a raw socket, triggers a
+    normal handshake, and reads the target's SYN-ACK TTL/window/options.
+  - Emits a `passive_os` finding; the CLI port panel shows it when nmap OS is
+    absent. Opt-out via `port_scanner.os_fingerprint`.
+
+### Correctness & validation
+- Raw capture needs `CAP_NET_RAW`; without it `_capture_syn_ack` returns `None`
+  (clean skip, no false OS guess). Verified that `IP_RECVTTL` yields no
+  ancillary data on TCP streams and that raw sockets are denied unprivileged —
+  so live capture can't run in the sandbox, and the error-prone parsing +
+  inference is validated **offline against crafted Linux/Windows SYN-ACK
+  packets** (byte-built in the tests): option parsing, malformed-option
+  termination, TTL bucketing, and end-to-end family inference.
+- 9 new tests (`tests/test_os_fingerprint.py`); 73 tests pass.
+
+---
+
 ## [1.10.0] — 2026-07-10
 
 Classic DNS enumeration — the second Phase 3 "revive the footprinting canon"
