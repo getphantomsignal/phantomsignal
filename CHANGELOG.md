@@ -11,6 +11,40 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.15.0] — 2026-07-10
+
+Recursive profile pivoting — the second Phase 4 (identity) module. Turns the
+handles found by username enumeration into an identity graph.
+
+### Added
+- **Profile pivot** (`intel/people/profile_pivot.py`, `profile_pivot` module):
+  parses the profile pages surfaced by username enumeration and mines each for
+  the **linked identities** the person publishes — cross-linked handles on other
+  platforms, emails, personal domains, and gravatar avatar hashes. An identity
+  linked from multiple confirmed profiles scores higher (likely the same person)
+  and is flagged.
+  - **Pure extractor** (`extract_profile_identifiers`): social-URL →
+    `(platform, handle)` with a reserved-path denylist (so nav links like
+    `twitter.com/home` aren't mistaken for handles), emails, candidate personal
+    domains (registered-domain form, infra + the profile's own domain excluded),
+    and gravatar md5 hashes.
+  - `ProfilePivotEngine` composes an injectable username enumerator + bounded
+    HTTP fetch, with depth/budget/dedup guards mirroring the entity
+    `RecursivePivotEngine`. **Default `max_depth 0`** parses the seed's profiles
+    only (cheap); each extra hop re-runs the full username enum on discovered
+    handles, so deeper pivoting is explicit opt-in (`max_recurse_handles`).
+  - Skips dotted / `@`-bearing targets. Emits `linked_identity` per
+    handle/email/domain/gravatar (with provenance + cross-link count) and
+    `profile_pivot_summary`. Wired into the engine (`-m profile_pivot`), a CLI
+    panel, and the web scan form.
+
+### Correctness & validation
+- The extractor is pure and unit-tested; `run()` is exercised end-to-end with a
+  fake enumerator + an httpx MockTransport (no network).
+- 5 new tests (`tests/test_profile_pivot.py`); 115 tests pass.
+
+---
+
 ## [1.14.0] — 2026-07-10
 
 Keyless username enumeration — the first Phase 4 (identity) module, opening the
