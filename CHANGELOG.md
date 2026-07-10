@@ -11,6 +11,39 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.17.0] — 2026-07-10
+
+Dark-web category, part 2 — stealer-log credential correlation and Tor `.onion`
+enrichment. Extends the `darkweb` module.
+
+### Added
+- **Stealer-log / combolist correlation** (the modern breach signal):
+  `parse_combolist` ingests caller-supplied dump files
+  (`darkweb.combolist_paths`) and correlates them to the authorized target —
+  `email:password` (also `;`/`|`) and stealer **ULP** (`URL:login:password`)
+  lines. Emits `corporate_credential` (a `…@target` address) and
+  `service_credential` (a login **for** the target's service).
+  - **Guardrails:** results are target-scoped, and **every password is masked**
+    (`redacted(N)`, length only) before it leaves the parser — plaintext secrets
+    are never stored or emitted. This stays a breach-*exposure* monitor.
+- **Tor `.onion` enrichment** (opt-in, `darkweb.tor_enrich`): reaches ransomware
+  claim onion URLs over a SOCKS proxy. `tor_available()` checks both `socksio`
+  and a live daemon and **degrades to a `tor_unavailable` note** when either is
+  missing (no hard failure). `socksio` added to requirements for the opt-in path.
+- CLI dark-web panel now shows masked credential exposures and Tor status.
+
+### Deferred (honestly)
+- **Ahmia** onion search (results are JavaScript-only — no server-side HTML to
+  parse) and **paste sweeps** (psbdmp/scylla were DNS-unreachable to verify) are
+  not shipped rather than guess at parsers that would be silently wrong.
+
+### Correctness & validation
+- `parse_combolist` (scoping, ULP + delimited formats, masking) and the Tor
+  degradation path are pure/unit-tested; `run()`'s masked `credential_exposure`
+  emission is covered end-to-end. 6 new tests; 127 tests pass.
+
+---
+
 ## [1.16.0] — 2026-07-10
 
 Dark-web leak-exposure monitoring — the third Phase 4 module (part 1 of the
