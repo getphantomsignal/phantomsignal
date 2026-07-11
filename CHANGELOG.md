@@ -11,6 +11,44 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.21.0] — 2026-07-11
+
+Operations-console theme system — a ground-up redesign of the web UI's theming
+onto a USWDS-style semantic token model, with a full accessibility pass to W3C /
+WCAG 2.1 AA. Moves the default look off neon-green-on-black to a restrained slate
+console with an indigo→cyan accent, while preserving the original neon look as an
+opt-in "cyberpunk" theme.
+
+### Added
+- **Role-token design system** (`web/static/css/phantomsignal.css`): semantic
+  tokens (`--surface-*`, `--ink-*`, `--accent*`, `--success`/`--warning`/
+  `--danger`/`--info`) are the single source of truth; components consume roles,
+  never raw hues. Tints use `rgba(var(--<role>-rgb), a)` so one component rule
+  recolours across every theme. Legacy `--neon-*` / `--dark-bg` / `--text-*` names
+  are retained as aliases so existing markup keeps working.
+- **Three themes + System**: **dark** (operations console, default), **light**,
+  and **cyberpunk** (the legacy neon look, intact). A nav control cycles
+  System → Light → Dark → Cyberpunk; **System** carries no `data-theme` and
+  follows `prefers-color-scheme` live.
+- **Severity semantics**: colour is reserved for status — green = success, amber =
+  warning, red = danger, cyan/indigo = interactive — instead of decoration.
+
+### Accessibility (W3C / WCAG 2.1–2.2)
+- Every text and UI token verified to meet **AA contrast** (≥4.5:1 text, ≥3:1
+  form-control borders); fixes the previously-failing muted-text and border tokens.
+- `color-scheme` property + `<meta name="color-scheme">` so native controls,
+  scrollbars, and form fields render in the active scheme.
+- A single high-contrast **`:focus-visible`** keyboard indicator across
+  interactive elements (2.4.7 / 2.4.13).
+- **`prefers-reduced-motion`** block that disables the matrix rain, scanlines,
+  glitch layers, and cuts transitions (2.2.2 / 2.3.3).
+- Retro effects (matrix rain, scanlines, glitch) are now confined to the
+  cyberpunk theme; the matrix canvas also respects reduced-motion in JS.
+
+### Notes
+- No Python surface changed; 147 tests pass. Verified visually via Playwright
+  across dark / light / cyberpunk on the dashboard, scan form, and settings pages.
+
 ## [1.20.0] — 2026-07-11
 
 Auto-diff on scan completion + new-asset alerting — the second Phase 5 (ASM
