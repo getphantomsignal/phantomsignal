@@ -193,6 +193,7 @@ class PhantomEngine:
             scan = db.query(Scan).filter(Scan.id == scan_id).first()
             if not scan:
                 return
+            target = scan.target
             results = db.query(ScanResult).filter(ScanResult.scan_id == scan_id).all()
             shadow_score = self._compute_shadow_score(results)
             threat_level = self._classify_threat(shadow_score, results)
@@ -214,6 +215,61 @@ class PhantomEngine:
             "threat_level": threat_level.value,
             "result_count": len(results),
         }, scan_id)
+
+        # Phase 5b — continuous monitoring: diff this scan against the prior
+        # baseline and alert on new sensitive assets. Best-effort; never fails
+        # the ghost run.
+        await self._auto_diff(scan_id, target)
+
+    async def _auto_diff(self, scan_id: str, target: str) -> None:
+        """
+        Auto-diff a just-completed scan against the previous completed scan of
+        the same target. Stores the change findings against this scan, emits a
+        diff summary to the grid, and pushes a webhook alert when new sensitive
+        assets appear.
+        """
+        try:
+            from phantomsignal.intel.asm_diff import ASMDiffer
+            from phantomsignal.intel import asm_alert
+
+            findings = ASMDiffer(config).diff_target(target)
+            if not findings:
+                # First completed scan of this target — no baseline to diff yet.
+                return
+
+            await self._store_results(scan_id, "asm_diff", findings)
+
+            summary = asm_alert.diff_summary(findings)
+            new = summary.get("new_assets", 0)
+            changed = summary.get("changed_assets", 0)
+            removed = summary.get("removed_assets", 0)
+            new_sensitive = summary.get("new_sensitive", 0)
+
+            self._log(scan_id, "asm_diff",
+                      f"ASM diff vs baseline: {new} new · {changed} changed · "
+                      f"{removed} removed")
+            self.emit("asm_diff_complete", {"scan_id": scan_id, **summary}, scan_id)
+
+            if new_sensitive:
+                self._log(scan_id, "asm_diff",
+                          f"⚠ {new_sensitive} new sensitive asset(s) since last scan",
+                          level="warning")
+                self.emit("asm_alert", {
+                    "scan_id": scan_id,
+                    "target": target,
+                    "new_sensitive": new_sensitive,
+                }, scan_id)
+
+                webhook = config.get("notifications", "webhook_url")
+                if webhook:
+                    payload = asm_alert.build_alert_payload(target, findings)
+                    ok = await asm_alert.send_alert(webhook, payload)
+                    self._log(scan_id, "asm_diff",
+                              f"Webhook alert {'delivered' if ok else 'failed'}",
+                              level="info" if ok else "warning")
+        except Exception as e:
+            logger.exception(f"Auto-diff failed for scan {scan_id}")
+            self._log(scan_id, "asm_diff", f"Auto-diff error: {e}", level="warning")
 
     def _compute_shadow_score(self, results: List[ScanResult]) -> float:
         """
