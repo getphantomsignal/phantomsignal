@@ -4,10 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="PhantomSignal — Open Source OSINT Intelligence Framework">
+  <meta name="color-scheme" content="dark light">
   <title>{% block title %}PhantomSignal{% endblock %} // PHANTOM SIGNAL</title>
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/phantom-ascii-transparent.png') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/phantomsignal.css') }}">
-  <script>(function(){var t=localStorage.getItem('phantomsignal-theme');if(t)document.documentElement.setAttribute('data-theme',t);})();</script>
+  <!-- Apply saved theme before first paint (no flash). 'system'/unset falls through to prefers-color-scheme. -->
+  <script>(function(){try{var t=localStorage.getItem('phantomsignal-theme');if(t&&t!=='system')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
   {% block head_extra %}{% endblock %}
 </head>
 <body>
@@ -43,8 +45,8 @@
         <span class="nav-icon">⚙</span> GHOST KEYS
       </a>
     </div>
-    <button class="theme-toggle" id="theme-toggle" title="Toggle light/dark theme" aria-label="Toggle theme">
-      <span id="theme-icon">☀</span>
+    <button class="theme-toggle" id="theme-toggle" title="Theme: System" aria-label="Change theme (System, Light, Dark, Cyberpunk)">
+      <span id="theme-icon" aria-hidden="true">🖥</span>
     </button>
     <div class="nav-status">
       <span class="status-dot" id="connection-dot"></span>

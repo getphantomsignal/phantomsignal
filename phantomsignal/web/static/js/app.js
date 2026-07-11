@@ -158,11 +158,47 @@ function timeAgo(dateStr) {
 }
 
 // ── Theme Management ─────────────────────────────────────────
-function applyTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme);
-  localStorage.setItem('phantomsignal-theme', theme);
+// Four modes cycled from one control. 'system' carries no data-theme
+// attribute, so the CSS prefers-color-scheme fallback governs and the
+// UI tracks the OS live.
+const THEME_ORDER = ['system', 'light', 'dark', 'cyberpunk'];
+const THEME_META = {
+  system:    { icon: '🖥', label: 'System' },
+  light:     { icon: '☀',  label: 'Light' },
+  dark:      { icon: '☾',  label: 'Dark' },
+  cyberpunk: { icon: '⌁',  label: 'Cyberpunk' },
+};
+
+function currentThemeMode() {
+  return localStorage.getItem('phantomsignal-theme') || 'system';
+}
+
+function applyTheme(mode) {
+  if (!THEME_META[mode]) mode = 'system';
+  if (mode === 'system') {
+    document.documentElement.removeAttribute('data-theme');
+  } else {
+    document.documentElement.setAttribute('data-theme', mode);
+  }
+  localStorage.setItem('phantomsignal-theme', mode);
+
+  const meta = THEME_META[mode];
   const icon = document.getElementById('theme-icon');
-  if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀';
+  const btn = document.getElementById('theme-toggle');
+  if (icon) icon.textContent = meta.icon;
+  if (btn) {
+    let label = meta.label;
+    if (mode === 'system') {
+      const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      label += ` — ${dark ? 'dark' : 'light'}`;
+    }
+    btn.title = `Theme: ${label} (click to change)`;
+  }
+}
+
+function cycleTheme() {
+  const i = THEME_ORDER.indexOf(currentThemeMode());
+  applyTheme(THEME_ORDER[(i + 1) % THEME_ORDER.length]);
 }
 
 // ── Boot Sequence ─────────────────────────────────────────────
@@ -173,16 +209,17 @@ initSocket();
 document.addEventListener('DOMContentLoaded', () => {
   // initSocket() already called above; this is a no-op guard
 
-  // Apply saved theme and wire toggle
-  const savedTheme = localStorage.getItem('phantomsignal-theme') || 'dark';
-  applyTheme(savedTheme);
+  // Apply saved theme and wire the cycling control
+  applyTheme(currentThemeMode());
   const themeToggle = document.getElementById('theme-toggle');
   if (themeToggle) {
-    themeToggle.addEventListener('click', () => {
-      const current = document.documentElement.getAttribute('data-theme') || 'dark';
-      applyTheme(current === 'dark' ? 'light' : 'dark');
-    });
+    themeToggle.addEventListener('click', cycleTheme);
   }
+  // Keep the control in sync if the OS scheme flips while in System mode
+  const mql = window.matchMedia('(prefers-color-scheme: dark)');
+  const onSchemeChange = () => { if (currentThemeMode() === 'system') applyTheme('system'); };
+  if (mql.addEventListener) mql.addEventListener('change', onSchemeChange);
+  else if (mql.addListener) mql.addListener(onSchemeChange);
 
   // Auto-dismiss flashes after 6s
   document.querySelectorAll('.flash').forEach(el => {

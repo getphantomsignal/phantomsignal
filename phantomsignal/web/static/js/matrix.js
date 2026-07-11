@@ -55,13 +55,19 @@
   resize();
   window.addEventListener('resize', resize);
 
-  // Throttle to ~20fps for performance; skip when light theme is active
+  // The rain is a cyberpunk-only flourish, and never runs when the user
+  // has asked the OS to reduce motion (WCAG 2.3.3 / 2.2.2).
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  function matrixEnabled() {
+    return document.documentElement.getAttribute('data-theme') === 'cyberpunk'
+           && !reduceMotion.matches;
+  }
+
+  // Throttle to ~20fps for performance; only paint when enabled.
   let lastTime = 0;
   function loop(timestamp) {
     if (timestamp - lastTime > 50) {
-      if (document.documentElement.getAttribute('data-theme') !== 'light') {
-        draw();
-      }
+      if (matrixEnabled()) draw();
       lastTime = timestamp;
     }
     requestAnimationFrame(loop);
