@@ -11,6 +11,42 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.20.0] — 2026-07-11
+
+Auto-diff on scan completion + new-asset alerting — the second Phase 5 (ASM
+monitoring) module. Change detection now runs automatically at the end of every
+ghost run, and new sensitive assets are pushed to a notification webhook instead
+of waiting to be noticed in a report.
+
+### Added
+- **Auto-diff on scan completion** (`core/engine.py`): when a ghost run finalizes
+  (status → `COMPLETE`), the engine diffs it against the previous completed scan
+  of the same target, stores the resulting `asm_change` / `asm_diff_summary`
+  findings against the new scan, and emits an `asm_diff_complete` summary to the
+  live grid. The very first scan of a target has no baseline and is skipped.
+  Best-effort: an auto-diff failure never fails the scan.
+- **New-asset alerting** (`intel/asm_alert.py`): when new **sensitive** assets
+  appear (a fresh subdomain, open port, credential exposure, leak, …), the engine
+  emits an `asm_alert` event and delivers a webhook payload to
+  `notifications.webhook_url`. The payload carries both `text` (Slack
+  incoming-webhook shape) and `content` (Discord shape) plus a structured
+  `assets` list, so one generic POST works against Slack, Discord, or a custom
+  endpoint. No webhook configured → the event/log still fire, delivery is skipped.
+
+### Correctness & validation
+- The alert payload builder is pure and unit-tested (summary extraction,
+  new-sensitive filtering that excludes removed/non-sensitive assets, Slack +
+  Discord payload shapes, long-list truncation). 7 new tests
+  (`tests/test_asm_alert.py`); 147 tests pass.
+- End-to-end verified against a temp DB with an in-process webhook receiver:
+  two scans of a target → 2 new sensitive assets detected, findings stored,
+  `asm_diff_complete` + `asm_alert` emitted, webhook delivered with the correct
+  payload.
+
+Next in Phase 5: Playwright visual recon / screenshots of discovered web assets.
+
+---
+
 ## [1.19.0] — 2026-07-10
 
 Attack-surface diff engine — the first Phase 5 (ASM monitoring) module. Turns
