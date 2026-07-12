@@ -6,9 +6,9 @@
      single source of truth; components consume roles, never raw hues.
    - Tints are expressed as rgba(var(--<role>-rgb), a) so one component
      rule recolours automatically from the tokens below.
-   - Two dark themes: "dark" (default) — a deep-slate federal console with
-     blue/gold accents and restrained glow; and "neon" (opt-in) — deep navy
-     with a warm neon-coral hero, cyan links, hot-pink, and glow bloom.
+   - Two themes: "dark" (default) — a deep-slate federal console with
+     blue/gold accents and restrained glow; and "light" (opt-in) — clean,
+     print-friendly white surfaces with federal-blue accents and no glow.
    - All text/UI tokens are verified to meet WCAG 2.1 AA contrast.
    Legacy --neon, --dark-bg and --text alias names are kept so the
    existing component styles keep working while resolving to roles.
@@ -85,33 +85,6 @@
   --glow-cyan:   var(--glow-accent2);
   --glow-purple: var(--glow-accentalt);
   --glow-red:    var(--glow-danger);
-}
-
-/* ── NEON — neon-glow futuristic console (opt-in) ──
-   Deep blue-navy, warm neon-coral hero, cyan links, hot-pink tertiary,
-   moderated glow bloom. All text/UI tokens verified to WCAG AA. */
-:root[data-theme="neon"] {
-  --surface-0: #070d1a; --surface-1: #0c1630; --surface-2: #101d3a;
-  --surface-3: #182a4e; --surface-sunken: #04080f;
-  --border: #21335a; --border-control: #697aa6;
-
-  --ink: #d3ddf0; --ink-strong: #f4f8ff; --ink-dim: #93a6c8; --ink-muted: #8193b6;
-
-  --accent: #ff7a45; --accent-2: #35d0ff; --accent-alt: #ff4d94;
-  --success: #33e0a3; --warning: #ffc24d; --danger: #ff5064; --info: #35d0ff;
-
-  --surface0-rgb: 7,13,26; --surface1-rgb: 12,22,48; --ink-dim-rgb: 147,166,200;
-  --accent-rgb: 255,122,69; --accent2-rgb: 53,208,255; --accentalt-rgb: 255,77,148;
-  --success-rgb: 51,224,163; --warning-rgb: 255,194,77; --danger-rgb: 255,80,100; --info-rgb: 53,208,255;
-
-  /* Neon bloom — present but moderated (premium console, not glow-stick) */
-  --glow-accent:    0 0 10px rgba(var(--accent-rgb),0.45),  0 0 22px rgba(var(--accent-rgb),0.18);
-  --glow-accent2:   0 0 10px rgba(var(--accent2-rgb),0.45), 0 0 22px rgba(var(--accent2-rgb),0.18);
-  --glow-accentalt: 0 0 10px rgba(var(--accentalt-rgb),0.45);
-  --glow-danger:    0 0 10px rgba(var(--danger-rgb),0.45);
-  --glow-success:   0 0 10px rgba(var(--success-rgb),0.45);
-  --vignette-a: 0.12;
-  color-scheme: dark;
 }
 
 /* ── LIGHT — clean daytime / print-friendly theme (opt-in) ──
@@ -1134,7 +1107,7 @@ a.stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0
 .action-link:hover { color: var(--neon-green); }
 .action-link-btn { background: none; border: none; padding: 0; cursor: pointer; font-family: var(--font-ui); letter-spacing: inherit; }
 
-/* ── Theme Segmented Switch (Light / Dark / Neon) ───────────── */
+/* ── Theme Segmented Switch (Light / Dark) ──────────────────── */
 .theme-seg {
   display: inline-flex; align-items: center; gap: 2px;
   padding: 2px; flex-shrink: 0;

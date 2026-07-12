@@ -14,8 +14,6 @@
   <link rel="stylesheet" href="site.css">
 </head>
 <body>
-  <canvas id="matrix-canvas"></canvas>
-  <div class="scanlines"></div>
 
   <!-- NAV -->
   <nav class="site-nav">
@@ -52,7 +50,7 @@
 /____/___/\____/_/ |_/_/  |_/_____/</pre>
       </div>
       <div class="hero-text">
-        <div class="hero-eyebrow">// PHANTOM SIGNAL v1.23.0</div>
+        <div class="hero-eyebrow">// PHANTOM SIGNAL v1.24.0</div>
         <h1 class="hero-title">PHANTOM<span class="accent">SIGNAL</span></h1>
         <p class="hero-tagline">"Map the surface. Own the signal."</p>
         <p class="hero-sub">Open-source OSINT intelligence framework for security researchers,<br>penetration testers, and digital investigators.</p>
@@ -85,9 +83,9 @@
   <!-- DEMO -->
   <section class="section section-demo" id="demo">
     <div class="section-inner">
-      <div class="section-label">◉ LIVE DEMO</div>
-      <h2 class="section-title">PhantomSignal in Action</h2>
-      <p class="section-sub">Full-spectrum recon against example.com — DNS, ports, tech stack, APIs, and web crawl in one command.</p>
+      <div class="section-label">◉ A SCAN IN ACTION</div>
+      <h2 class="section-title">One Command, Full-Spectrum Recon</h2>
+      <p class="section-sub">A single <code>phantomsignal scan</code> orchestrates the entire pipeline — resolving DNS and WHOIS, mapping open ports and services, fingerprinting the technology stack, correlating threat intelligence across dozens of API sources, and crawling the public web surface — then rolls every finding into a single Risk Score and writes a shareable HTML report.</p>
       <div class="demo-wrap">
         <div class="demo-bar">
           <span class="demo-dot red"></span>
@@ -95,7 +93,29 @@
           <span class="demo-dot green"></span>
           <span class="demo-title">phantomsignal — scan example.com</span>
         </div>
-        <img src="assets/demo.gif" class="demo-gif" alt="PhantomSignal CLI demo">
+        <pre class="code-block"><span class="c-green">$</span> phantomsignal scan example.com --profile standard --format html
+
+<span class="c-cyan">◈  Target </span>  : example.com  <span class="c-dim">(domain)</span>
+<span class="c-cyan">◈  Profile</span>  : standard     <span class="c-dim">(~2–5 min)</span>
+<span class="c-cyan">◈  Modules</span>  : dns_recon port_scan tech_detect api_hunt web_crawl intel
+
+<span class="c-dim">[1/6]</span> DNS &amp; WHOIS ......... <span class="c-green">42 records · 7 subdomains</span>
+<span class="c-dim">[2/6]</span> Port scan .......... <span class="c-green">6 open · 22 80 443 8080 …</span>
+<span class="c-dim">[3/6]</span> Tech fingerprint ... <span class="c-green">nginx · Cloudflare · React · WordPress</span>
+<span class="c-dim">[4/6]</span> Threat intel ....... <span class="c-green">31 sources queried · 0 malicious</span>
+<span class="c-dim">[5/6]</span> Web crawl .......... <span class="c-green">128 URLs · 3 exposed endpoints</span>
+<span class="c-dim">[6/6]</span> Scoring ............ <span class="c-green">Risk Score 34 / 100 (MEDIUM)</span>
+
+<span class="c-green">✓</span>  Report written → <span class="c-cyan">./reports/example.com.html</span></pre>
+      </div>
+
+      <div class="demo-stages">
+        <div class="demo-stage"><span class="demo-stage-k">DNS &amp; WHOIS</span><span class="demo-stage-v">A/AAAA/MX/NS/TXT records, registrar and nameserver data, and passive subdomain discovery to map the full domain footprint.</span></div>
+        <div class="demo-stage"><span class="demo-stage-k">Port &amp; Service Scan</span><span class="demo-stage-v">nmap-driven open-port enumeration with service version and OS detection, plus optional stealth decoy and idle-scan modes.</span></div>
+        <div class="demo-stage"><span class="demo-stage-k">Tech Fingerprint</span><span class="demo-stage-v">Server, CDN, framework, CMS and JavaScript-library detection from headers, response bodies, and favicon / JARM hashes.</span></div>
+        <div class="demo-stage"><span class="demo-stage-k">Threat Intelligence</span><span class="demo-stage-v">Concurrent correlation across 45+ sources — Shodan, VirusTotal, AbuseIPDB, AlienVault OTX, and breach / reputation feeds.</span></div>
+        <div class="demo-stage"><span class="demo-stage-k">Web Crawl</span><span class="demo-stage-v">Surface mapping of links, forms and exposed endpoints, with secret and API-key mining across every discovered asset.</span></div>
+        <div class="demo-stage"><span class="demo-stage-k">Risk Scoring &amp; Report</span><span class="demo-stage-v">Findings roll into a 0–100 Risk Score on a true green → amber → red gradient, exported as a shareable HTML report.</span></div>
       </div>
     </div>
   </section>
@@ -104,13 +124,13 @@
   <section class="section section-whatsnew" id="whatsnew">
     <div class="section-inner">
       <div class="section-label">🆕 WHAT'S NEW</div>
-      <h2 class="section-title">v1.23.0 — PHANTOM SIGNAL</h2>
-      <p class="section-sub">A redesigned web console: three switchable themes, clearer plain-language UI, clickable dashboards, and one-click re-scans.</p>
+      <h2 class="section-title">v1.24.0 — PHANTOM SIGNAL</h2>
+      <p class="section-sub">A streamlined web console: two carefully tuned themes, clearer plain-language UI, clickable dashboards, and one-click re-scans.</p>
       <div class="whatsnew-grid">
         <div class="whatsnew-card">
           <div class="whatsnew-icon">🎨</div>
-          <h3 class="whatsnew-title">Three Switchable Themes</h3>
-          <p class="whatsnew-desc">A new theming system built on semantic role tokens: <strong>Dark</strong> (a deep-slate federal console, default), <strong>Neon</strong> (deep-navy with a warm coral glow), and <strong>Light</strong> (clean and print-friendly). Flip between them from a segmented switch in the nav — the choice persists and applies before first paint. Every token in every theme is validated to WCAG AA contrast.</p>
+          <h3 class="whatsnew-title">Two Tuned Themes</h3>
+          <p class="whatsnew-desc">A theming system built on semantic role tokens: <strong>Dark</strong> (a deep-slate federal console, default) and <strong>Light</strong> (clean and print-friendly). Flip between them from the ☀ / ☾ segmented switch in the nav — the choice persists and applies before first paint, so there's no flash on reload. Every token in both themes is validated to WCAG AA contrast.</p>
         </div>
         <div class="whatsnew-card">
           <div class="whatsnew-icon">📝</div>
@@ -501,43 +521,6 @@
   </footer>
 
   <script>
-    // Matrix rain
-    (function(){
-      const canvas = document.getElementById('matrix-canvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()アイウエオカキクケコサシスセソ';
-      let cols, drops, fontSize = 13;
-      function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        cols = Math.floor(canvas.width / fontSize);
-        drops = new Float32Array(cols).fill(0);
-        for (let i = 0; i < cols; i++) drops[i] = Math.random() * -canvas.height / fontSize;
-      }
-      function draw() {
-        ctx.fillStyle = 'rgba(7,13,26,0.06)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        for (let i = 0; i < cols; i++) {
-          const char = CHARS[Math.floor(Math.random() * CHARS.length)];
-          const bright = Math.random() > 0.97;
-          ctx.fillStyle = bright ? 'rgba(255,255,255,0.9)' : 'rgba(255,122,69,0.28)';
-          ctx.font = `${fontSize}px monospace`;
-          ctx.fillText(char, i * fontSize, drops[i] * fontSize);
-          if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-          drops[i] += 0.5;
-        }
-      }
-      resize();
-      window.addEventListener('resize', resize);
-      let last = 0;
-      function loop(t) {
-        if (t - last > 50) { draw(); last = t; }
-        requestAnimationFrame(loop);
-      }
-      requestAnimationFrame(loop);
-    })();
-
     // Copy install command
     function copyInstall() {
       navigator.clipboard.writeText(document.getElementById('install-cmd').textContent);

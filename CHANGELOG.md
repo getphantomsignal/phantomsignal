@@ -11,6 +11,36 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.24.0] — 2026-07-12
+
+Simplified the web console to two themes and removed the pre-rendered demo /
+screenshot assets in favour of richer written descriptions.
+
+### Changed
+- **Themes cut to two**: the opt-in **Neon** theme was removed; the console now
+  ships **Dark** (default) and **Light** only. The `:root[data-theme="neon"]`
+  token block, the third nav toggle, and the now-dead `cycleTheme()` helper were
+  deleted. Legacy `--neon-*` colour-utility aliases are unaffected — they resolve
+  to the active theme's role tokens.
+- **README banner**: replaced the ASCII-art logo block with the project name and
+  tagline.
+- **README + landing page**: the "Demo" / "Live Demo" sections no longer embed a
+  screenshot GIF or asciinema recording. They now show a plain-text terminal
+  transcript plus a written breakdown of each scan stage, and the functional
+  copy was expanded throughout.
+- **De-cyberpunk pass**: removed "cyberpunk" / "Phantom Dawn" flavour wording from
+  the README, `USAGE.md`, `web/app.py`, and the About page, and dropped the
+  landing page's animated matrix-rain canvas and CRT scanline overlay (elements,
+  CSS, and JS).
+
+### Removed
+- `docs/assets/demo.gif`, `docs/assets/demo.cast`, `docs/assets/screenshot_cli.svg`,
+  and the `scripts/gen_assets.py` generator (its only outputs were the removed
+  demo / screenshot assets).
+- The asciinema embed and "play it locally" instructions from the README.
+
+---
+
 ## [1.21.0] — 2026-07-11
 
 Operations-console theme system — a ground-up redesign of the web UI's theming

@@ -1,6 +1,6 @@
 """
-PhantomSignal Web Interface — The Shadow Grid Control Panel
-Flask + SocketIO powered cyberpunk OSINT dashboard.
+PhantomSignal Web Interface — Control Panel
+Flask + SocketIO powered OSINT dashboard.
 
 Author:  the-clipper
 AI:      Claude (Anthropic)

@@ -77,13 +77,13 @@ Open **http://localhost:5000**.
 | People Intel | **SHADOW PROFILER** | Person/email/username lookup |
 | Settings | **GHOST KEYS** | API key management |
 
-### Theme Toggle
+### Theme Switch
 
-Click the **☀ / 🌙** button in the top-right corner to switch between:
-- **Dark** — cyberpunk aesthetic, matrix rain, neon glow (default)
-- **Light** — "Phantom Dawn" clean light theme, matrix rain disabled
+Use the **☀ / ☾** segmented control in the top navigation to switch between:
+- **Dark** — deep-slate federal console with federal-blue hero, gold accents, and restrained glow (default)
+- **Light** — clean, print-friendly theme with white surfaces, federal-blue accents, and no glow
 
-Your preference is saved in the browser and persists across sessions.
+Both themes are built on the same semantic role tokens and validated to WCAG AA contrast. Your preference is saved in the browser, persists across sessions, and is applied before first paint so there's no flash on reload.
 
 ### Live Feed
 
@@ -345,7 +345,7 @@ From any scan results page, click **↓ EXPORT INTEL** and choose a format:
 | Format | Best For |
 |--------|----------|
 | **JSON** | Programmatic processing, importing to other tools |
-| **HTML** | Shareable self-contained report with cyberpunk styling |
+| **HTML** | Shareable self-contained styled report |
 | **PDF** | Formal client deliverable |
 | **CSV** | Spreadsheet analysis in Excel / Google Sheets |
 | **XLSX** | Excel workbook with multiple sheets per module |

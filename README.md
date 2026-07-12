@@ -1,21 +1,6 @@
 # PhantomSignal
 
-```
-    ____  __  _____    _   ____________  __  ___
-   / __ \/ / / /   |  / | / /_  __/ __ \/  |/  /
-  / /_/ / /_/ / /| | /  |/ / / / / / / / /|_/ /
- / ____/ __  / ___ |/ /|  / / / / /_/ / /  / /
-/_/   /_/ /_/_/  |_/_/ |_/ /_/  \____/_/  /_/
-
-   _____ ___________   _____    __
-  / ___//  _/ ____/ | / /   |  / /
-  \__ \ / // / __/  |/ / /| | / /
- ___/ // // /_/ / /|  / ___ |/ /___
-/____/___/\____/_/ |_/_/  |_/_____/
-
-         >> OPEN-SOURCE OSINT INTELLIGENCE FRAMEWORK <<
-                 "Map the surface. Own the signal."
-```
+> **Open-source OSINT intelligence framework** — _"Map the surface. Own the signal."_
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-00ff41?style=flat-square&logo=python)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-00f3ff?style=flat-square)](LICENSE)
@@ -31,10 +16,10 @@
 
 ---
 
-## ⚡ What's New in v1.23.0
+## ⚡ What's New in v1.24.0
 
-### Three switchable themes
-A redesigned theming system built on semantic role tokens: **Dark** (a deep-slate federal console, default), **Neon** (deep-navy with a warm coral glow), and **Light** (clean and print-friendly). Switch from a segmented control in the nav — your choice persists and applies before first paint. Every token in every theme is validated to **WCAG AA** contrast.
+### Streamlined to two themes
+The web console now ships **two** carefully tuned themes built on semantic role tokens — **Dark** (a deep-slate federal console, the default) and **Light** (clean and print-friendly). Switch from the ☀ / ☾ segmented control in the nav; your choice persists in the browser and is applied before first paint, so there's no flash on reload. Every token in both themes is validated to **WCAG AA** contrast.
 
 ### Plain-language interface
 The web UI was rewritten from codenames to clear, function-first labels — **Dashboard, New Scan, Scans, Profiler, Integrations** — so a first-time user can tell what everything does. Findings, Risk Score, Data Sources, and consistent severity language throughout.
@@ -50,30 +35,44 @@ The Risk Score meter now runs a true green → amber → red ramp, so a low scor
 
 ---
 
-## 🎬 Demo
+## 🎬 A Scan in Action
 
-### CLI — a scan in action
+A single command runs the full pipeline — DNS and WHOIS resolution, port and
+service scanning, technology fingerprinting, threat-intelligence correlation
+across 45+ sources, and a web-surface crawl — then rolls every finding into a
+single Risk Score and writes a shareable HTML report.
 
-![CLI scan demo](https://raw.githubusercontent.com/getphantomsignal/phantomsignal/main/docs/assets/demo.gif)
+```text
+$ phantomsignal scan example.com --profile standard --format html
 
+◈  Target   : example.com  (domain)
+◈  Profile  : standard     (~2–5 min)
+◈  Modules  : dns_recon port_scan tech_detect api_hunt web_crawl intel
+
+[1/6] DNS & WHOIS ......... 42 records · 7 subdomains
+[2/6] Port scan .......... 6 open · 22 80 443 8080 …
+[3/6] Tech fingerprint ... nginx · Cloudflare · React · WordPress
+[4/6] Threat intel ....... 31 sources queried · 0 malicious
+[5/6] Web crawl .......... 128 URLs · 3 exposed endpoints
+[6/6] Scoring ............ Risk Score 34 / 100 (MEDIUM)
+
+✓  Report written → ./reports/example.com.html
+```
+
+Stages run concurrently where possible and degrade gracefully — a module
+without a configured API key returns empty rather than failing the scan.
 
 ### Web UI — Theme Options
 
-PhantomSignal ships with three built-in UI themes, selectable via the **segmented switch** (☀ / ☾ / ◈) in the top navigation bar. Your preference is saved automatically and persists across sessions. Every token in every theme is validated to WCAG AA contrast.
+The web console ships with two built-in themes, selectable from the **segmented
+switch** (☀ / ☾) in the top navigation bar. Your preference is saved
+automatically and applied before first paint, so there's no flash on reload.
+Every token in every theme is validated to WCAG AA contrast.
 
 | Theme | Description |
 |-------|-------------|
 | **Dark** *(default)* | Deep-slate federal console — federal-blue hero, gold accents, restrained glow |
-| **Neon** | Deep-navy futuristic console — warm neon-coral hero, cyan links, hot-pink, glow bloom |
 | **Light** | Clean daytime / print-friendly — white surfaces, federal-blue accents, flat (no glow) |
-
-> **Asciinema recording:** Watch the full interactive demo on asciinema.org, or play it locally:
-> ```bash
-> pip install asciinema
-> asciinema play https://raw.githubusercontent.com/getphantomsignal/phantomsignal/main/docs/assets/demo.cast
-> ```
-
-[![asciicast](https://asciinema.org/a/1190779.svg)](https://asciinema.org/a/1190779)
 
 ---
 
@@ -130,7 +129,7 @@ LexisNexis-style identity aggregation from public records:
 |--------|-------------|
 | **JSON** | Raw machine-readable data |
 | **CSV** | Spreadsheet-compatible |
-| **HTML** | Self-contained cyberpunk-styled report |
+| **HTML** | Self-contained styled report |
 | **PDF** | Professional dossier via ReportLab |
 | **XML** | Structured data |
 | **XLSX** | Excel workbook |
@@ -150,7 +149,7 @@ All formats support **ZIP compression** and **AES-256-GCM encryption**.
 - **Risk Score** — composite risk/exposure scoring
 - **Scheduled Phantoms** — recurring automated scans
 - **API health monitor** — dashboard showing configured APIs and rate limits
-- **Light/Dark theme** — toggle between cyberpunk Dark mode and "Phantom Dawn" Light mode via the ☀/🌙 button; preference persisted in localStorage
+- **Light / Dark themes** — switch between the default Dark console and a clean Light mode from the ☀ / ☾ segmented control in the nav; preference persisted in localStorage and applied before first paint
 - **Full REST API** — integrate PhantomSignal into your own toolchain
 - **CLI interface** — `phantomsignal scan`, `phantomsignal profile`, `phantomsignal export`
 - **Docker** — single-command deployment
@@ -255,8 +254,8 @@ phantomsignal/
 ├── exporters/          — JSON/CSV/PDF/HTML/XML/XLSX/STIX + crypto wrapper
 └── web/
     ├── routes/         — Flask blueprints (dashboard, scans, intel, settings, export, REST API)
-    ├── templates/      — Cyberpunk Jinja2 templates
-    └── static/         — CSS (cyberpunk), JS (matrix, terminal, app)
+    ├── templates/      — Jinja2 templates
+    └── static/         — CSS (role-token themes), JS (terminal, app)
 ```
 
 ---

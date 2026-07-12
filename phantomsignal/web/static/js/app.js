@@ -157,12 +157,11 @@ function timeAgo(dateStr) {
   return `${Math.floor(h/24)}d ago`;
 }
 
-// ── Theme (Dark default; Light + Neon opt-in) ─────────────────
-// 'dark' carries no data-theme attribute (base :root); others set it.
+// ── Theme (Dark default; Light opt-in) ────────────────────────
+// 'dark' carries no data-theme attribute (base :root); 'light' sets it.
 const THEME_META = {
   light: { label: 'Light' },
   dark:  { label: 'Dark' },
-  neon:  { label: 'Neon' },
 };
 
 function currentTheme() {
@@ -178,11 +177,6 @@ function applyTheme(name) {
   document.querySelectorAll('.theme-seg-btn').forEach((btn) => {
     btn.setAttribute('aria-checked', btn.dataset.themeVal === name ? 'true' : 'false');
   });
-}
-
-function cycleTheme() {
-  const i = THEMES.indexOf(currentTheme());
-  applyTheme(THEMES[(i + 1) % THEMES.length]);
 }
 
 // ── Boot Sequence ─────────────────────────────────────────────
