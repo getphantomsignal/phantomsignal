@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#070d1a">
   <meta name="description" content="PhantomSignal — Open-source OSINT intelligence framework for security researchers, penetration testers, and digital investigators.">
   <meta property="og:title" content="PhantomSignal — Open-Source OSINT Intelligence Framework">
   <meta property="og:description" content="Open-source OSINT intelligence framework. Map the surface. Own the signal.">
@@ -51,7 +52,7 @@
 /____/___/\____/_/ |_/_/  |_/_____/</pre>
       </div>
       <div class="hero-text">
-        <div class="hero-eyebrow">// PHANTOM SIGNAL v1.4.3</div>
+        <div class="hero-eyebrow">// PHANTOM SIGNAL v1.23.0</div>
         <h1 class="hero-title">PHANTOM<span class="accent">SIGNAL</span></h1>
         <p class="hero-tagline">"Map the surface. Own the signal."</p>
         <p class="hero-sub">Open-source OSINT intelligence framework for security researchers,<br>penetration testers, and digital investigators.</p>
@@ -69,12 +70,12 @@
           </div>
         </div>
         <div class="hero-badges">
-          <img src="https://img.shields.io/badge/python-3.10+-00ff41?style=flat-square&logo=python" alt="Python">
-          <img src="https://img.shields.io/badge/license-MIT-00f3ff?style=flat-square" alt="MIT License">
-          <img src="https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows%20%7C%20Docker-b026ff?style=flat-square" alt="Platform">
-          <a href="https://github.com/getphantomsignal/phantomsignal" target="_blank" rel="noopener"><img src="https://img.shields.io/github/stars/getphantomsignal/phantomsignal?style=flat-square&color=00ff41" alt="Stars"></a>
-          <a href="https://github.com/getphantomsignal/phantomsignal" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/github-phantomsignal-00f3ff?style=flat-square&logo=github" alt="GitHub Repo"></a>
-          <a href="https://pypi.org/project/phantomsignal/" target="_blank" rel="noopener"><img src="https://img.shields.io/pypi/v/phantomsignal?style=flat-square&logo=pypi&color=b026ff" alt="PyPI"></a>
+          <img src="https://img.shields.io/badge/python-3.10+-ff7a45?style=flat-square&logo=python" alt="Python">
+          <img src="https://img.shields.io/badge/license-MIT-35d0ff?style=flat-square" alt="MIT License">
+          <img src="https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows%20%7C%20Docker-a78bfa?style=flat-square" alt="Platform">
+          <a href="https://github.com/getphantomsignal/phantomsignal" target="_blank" rel="noopener"><img src="https://img.shields.io/github/stars/getphantomsignal/phantomsignal?style=flat-square&color=ff7a45" alt="Stars"></a>
+          <a href="https://github.com/getphantomsignal/phantomsignal" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/github-phantomsignal-35d0ff?style=flat-square&logo=github" alt="GitHub Repo"></a>
+          <a href="https://pypi.org/project/phantomsignal/" target="_blank" rel="noopener"><img src="https://img.shields.io/pypi/v/phantomsignal?style=flat-square&logo=pypi&color=ff7a45" alt="PyPI"></a>
         </div>
       </div>
     </div>
@@ -85,7 +86,7 @@
   <section class="section section-demo" id="demo">
     <div class="section-inner">
       <div class="section-label">◉ LIVE DEMO</div>
-      <h2 class="section-title">Ghost Run in Action</h2>
+      <h2 class="section-title">PhantomSignal in Action</h2>
       <p class="section-sub">Full-spectrum recon against example.com — DNS, ports, tech stack, APIs, and web crawl in one command.</p>
       <div class="demo-wrap">
         <div class="demo-bar">
@@ -103,38 +104,38 @@
   <section class="section section-whatsnew" id="whatsnew">
     <div class="section-inner">
       <div class="section-label">🆕 WHAT'S NEW</div>
-      <h2 class="section-title">v1.4.3 — PHANTOM SIGNAL</h2>
-      <p class="section-sub">Full intel API coverage for all target types, 16 new intelligence sources, smarter key validation, and a rock-solid async pipeline.</p>
+      <h2 class="section-title">v1.23.0 — PHANTOM SIGNAL</h2>
+      <p class="section-sub">A redesigned web console: three switchable themes, clearer plain-language UI, clickable dashboards, and one-click re-scans.</p>
       <div class="whatsnew-grid">
         <div class="whatsnew-card">
-          <div class="whatsnew-icon">🎯</div>
-          <h3 class="whatsnew-title">Quick Probe Full Intel Coverage</h3>
-          <p class="whatsnew-desc">The intel orchestrator now correctly routes every target type to all relevant APIs. Username targets now trigger all social and people-intel sources. Email targets include threat-intel and breach APIs. Domain targets include email-discovery sources (Hunter.io). IP targets include dark-web sources (Intelligence X). Previously these were silently skipped.</p>
+          <div class="whatsnew-icon">🎨</div>
+          <h3 class="whatsnew-title">Three Switchable Themes</h3>
+          <p class="whatsnew-desc">A new theming system built on semantic role tokens: <strong>Dark</strong> (a deep-slate federal console, default), <strong>Neon</strong> (deep-navy with a warm coral glow), and <strong>Light</strong> (clean and print-friendly). Flip between them from a segmented switch in the nav — the choice persists and applies before first paint. Every token in every theme is validated to WCAG AA contrast.</p>
         </div>
         <div class="whatsnew-card">
-          <div class="whatsnew-icon">📡</div>
-          <h3 class="whatsnew-title">16 New Intelligence APIs</h3>
-          <p class="whatsnew-desc">Social, identity, and threat intel now spans Twitch, Mastodon, Keybase, Gravatar, HackerNews, Tumblr, Flickr, Spotify, Steam, VK, Telegram public channels, Discord, Facebook Graph, EmailRep, Intelligence X (dark web / pastes / breaches), and Abstract Phone validation. Total: 46+ integrations.</p>
+          <div class="whatsnew-icon">📝</div>
+          <h3 class="whatsnew-title">Plain-Language Interface</h3>
+          <p class="whatsnew-desc">The UI was rewritten from codenames to clear, function-first labels — Dashboard, New Scan, Scans, Profiler, Integrations — so a first-time user can tell what everything does. Findings, Risk Score, Data Sources, and consistent severity language throughout.</p>
         </div>
         <div class="whatsnew-card">
-          <div class="whatsnew-icon">🔑</div>
-          <h3 class="whatsnew-title">Ghost Key Invalid-Key Detection</h3>
-          <p class="whatsnew-desc">The Ghost Key Vault TEST button now distinguishes a rejected key (HTTP 401/403) from a working-but-empty result. Invalid keys surface an amber <code>⚠ INVALID</code> badge and targeted toast — no more false <code>✓ OK</code> on dead credentials.</p>
+          <div class="whatsnew-icon">🔤</div>
+          <h3 class="whatsnew-title">Roboto Type + Signal Mark</h3>
+          <p class="whatsnew-desc">Roboto for UI text (tables, terminal, and code stay monospace for alignment), a font-based <code>∿</code> signal glyph replacing the old ASCII logo, and a PS-monogram favicon.</p>
         </div>
         <div class="whatsnew-card">
-          <div class="whatsnew-icon">⚡</div>
-          <h3 class="whatsnew-title">AlienVault OTX Fix</h3>
-          <p class="whatsnew-desc">Section requests (<code>general</code>, <code>reputation</code>, <code>geo</code>, <code>malware</code>, <code>passive_dns</code>) now run concurrently via <code>asyncio.gather</code> with an 8-second per-section cap. Eliminates the consistent 30 s timeout caused by the notoriously slow <code>reputation</code> endpoint.</p>
+          <div class="whatsnew-icon">🖱️</div>
+          <h3 class="whatsnew-title">Clickable Dashboard</h3>
+          <p class="whatsnew-desc">The dashboard stat cards — Total Scans, Findings, Connected Sources — are now links that drop you straight into the matching view. Small quality-of-life, big time saver.</p>
         </div>
         <div class="whatsnew-card">
           <div class="whatsnew-icon">🔄</div>
-          <h3 class="whatsnew-title">WebSocket Sync Improvements</h3>
-          <p class="whatsnew-desc">Server now emits current scan progress to clients that join mid-run, eliminating the stuck-at-0% progress bar on direct URL navigation. A polling fallback keeps results accurate even when SocketIO events are missed on slow connections.</p>
+          <h3 class="whatsnew-title">One-Click Re-scan</h3>
+          <p class="whatsnew-desc">Re-run any completed scan against the same target with its original profile, modules, and options — straight from the results page or any row of the Scans list.</p>
         </div>
         <div class="whatsnew-card">
-          <div class="whatsnew-icon">📦</div>
-          <h3 class="whatsnew-title">Export Works Out of the Box</h3>
-          <p class="whatsnew-desc">Export output now defaults to <code>/tmp</code> — no config required. Any user can run <code>phantomsignal export</code> immediately after install without hitting a permission error. Override anytime with <code>PHANTOMSIGNAL_EXPORT_DIR</code> or <code>--output</code>.</p>
+          <div class="whatsnew-icon">📊</div>
+          <h3 class="whatsnew-title">Honest Risk Gradient</h3>
+          <p class="whatsnew-desc">The Risk Score meter now runs a true green → amber → red ramp, so a low score reads green (safe) at a glance in every theme.</p>
         </div>
       </div>
       <div style="text-align:center;margin-top:2rem;">
@@ -189,10 +190,10 @@
 
         <div class="feature-card">
           <div class="feature-icon" style="color:var(--green)">👤</div>
-          <h3 class="feature-title">Shadow Profiler</h3>
-          <p class="feature-desc">People intelligence aggregation from public records. Cross-correlates emails, phones, social accounts, breach data, and aliases. Outputs a Shadow Score — digital exposure quantified.</p>
+          <h3 class="feature-title">Profiler</h3>
+          <p class="feature-desc">People intelligence aggregation from public records. Cross-correlates emails, phones, social accounts, breach data, and aliases. Outputs a Risk Score — digital exposure quantified.</p>
           <div class="feature-tags">
-            <span class="tag">HIBP</span><span class="tag">Pipl</span><span class="tag">Shadow Score</span>
+            <span class="tag">HIBP</span><span class="tag">Pipl</span><span class="tag">Risk Score</span>
           </div>
         </div>
 
@@ -237,29 +238,29 @@
     </div>
   </section>
 
-  <!-- SHADOW SCORE -->
+  <!-- RISK SCORE -->
   <section class="section" id="shadow-score">
     <div class="section-inner">
-      <div class="section-label">⬡ SHADOW SCORE</div>
+      <div class="section-label">⬡ RISK SCORE</div>
       <h2 class="section-title">Exposure. Quantified.</h2>
-      <p class="section-sub">Every scan produces a Shadow Score (0–100) — a weighted composite of open ports, vulnerability findings, missing security controls, and threat intelligence flags.</p>
+      <p class="section-sub">Every scan produces a Risk Score (0–100) — a weighted composite of open ports, vulnerability findings, missing security controls, and threat intelligence flags.</p>
       <div class="score-grid">
-        <div class="score-band" style="--band-color:#00ff41">
+        <div class="score-band" style="--band-color:#33e0a3">
           <div class="score-range">0–25</div>
           <div class="score-label">CLEAN</div>
           <div class="score-desc">Minimal exposure. Good security posture.</div>
         </div>
-        <div class="score-band" style="--band-color:#ffff00">
+        <div class="score-band" style="--band-color:#ffc24d">
           <div class="score-range">26–50</div>
           <div class="score-label">ELEVATED</div>
           <div class="score-desc">Some findings worth reviewing and tracking.</div>
         </div>
-        <div class="score-band" style="--band-color:#ff6b35">
+        <div class="score-band" style="--band-color:#ffb454">
           <div class="score-range">51–75</div>
           <div class="score-label">HIGH</div>
           <div class="score-desc">Significant issues. Remediation recommended.</div>
         </div>
-        <div class="score-band" style="--band-color:#ff1744">
+        <div class="score-band" style="--band-color:#ff5064">
           <div class="score-range">76–100</div>
           <div class="score-label">CRITICAL</div>
           <div class="score-desc">Urgent issues. Active risk. Act immediately.</div>
@@ -272,36 +273,36 @@
   <section class="section" id="screenshots">
     <div class="section-inner">
       <div class="section-label">◫ WEB INTERFACE</div>
-      <h2 class="section-title">Two Themes. One Grid.</h2>
-      <p class="section-sub">Dark mode cyberpunk aesthetic or clean Phantom Dawn light mode — toggle with a single click. Both themes cover every page and component.</p>
-      <div class="theme-row-label">🌙 Dark — Shadow Grid</div>
+      <h2 class="section-title">Three Themes. One Console.</h2>
+      <p class="section-sub">Dark (default), a neon-glow Neon mode, and a clean Light mode — switch instantly from the nav. Every page and component recolours from one set of semantic tokens, all validated to WCAG AA.</p>
+      <div class="theme-row-label">🎇 Neon</div>
       <div class="screenshots-grid">
         <div class="screenshot-card">
-          <div class="screenshot-label">SHADOW GRID — Dashboard</div>
-          <img src="assets/screenshot_dashboard.svg" class="screenshot-img" alt="Dashboard dark theme">
+          <div class="screenshot-label">Dashboard</div>
+          <img src="assets/screenshot_dashboard.png" class="screenshot-img" alt="PhantomSignal dashboard, neon theme">
         </div>
         <div class="screenshot-card">
-          <div class="screenshot-label">LAUNCH GHOST RUN — New Mission</div>
-          <img src="assets/screenshot_launch.svg" class="screenshot-img" alt="New Mission dark theme">
+          <div class="screenshot-label">New Scan</div>
+          <img src="assets/screenshot_launch.png" class="screenshot-img" alt="New scan configuration, neon theme">
         </div>
         <div class="screenshot-card">
-          <div class="screenshot-label">CAPTURED SIGNALS — Scan Results</div>
-          <img src="assets/screenshot_results.svg" class="screenshot-img" alt="Scan Results dark theme">
+          <div class="screenshot-label">Scan Results</div>
+          <img src="assets/screenshot_results.png" class="screenshot-img" alt="Scan results, neon theme">
         </div>
       </div>
-      <div class="theme-row-label" style="margin-top:2.5rem;">☀ Light — Phantom Dawn</div>
+      <div class="theme-row-label" style="margin-top:2.5rem;">☀ Light</div>
       <div class="screenshots-grid">
         <div class="screenshot-card">
-          <div class="screenshot-label">SHADOW GRID — Dashboard</div>
-          <img src="assets/screenshot_dashboard_light.svg" class="screenshot-img" alt="Dashboard light theme">
+          <div class="screenshot-label">Dashboard</div>
+          <img src="assets/screenshot_dashboard_light.png" class="screenshot-img" alt="PhantomSignal dashboard, light theme">
         </div>
         <div class="screenshot-card">
-          <div class="screenshot-label">LAUNCH GHOST RUN — New Mission</div>
-          <img src="assets/screenshot_launch_light.svg" class="screenshot-img" alt="New Mission light theme">
+          <div class="screenshot-label">New Scan</div>
+          <img src="assets/screenshot_launch_light.png" class="screenshot-img" alt="New scan configuration, light theme">
         </div>
         <div class="screenshot-card">
-          <div class="screenshot-label">CAPTURED SIGNALS — Scan Results</div>
-          <img src="assets/screenshot_results_light.svg" class="screenshot-img" alt="Scan Results light theme">
+          <div class="screenshot-label">Scan Results</div>
+          <img src="assets/screenshot_results_light.png" class="screenshot-img" alt="Scan results, light theme">
         </div>
       </div>
     </div>
@@ -395,7 +396,7 @@
     <div class="section-inner">
       <div class="section-label">🔌 INTELLIGENCE GRID</div>
       <h2 class="section-title">46+ API Integrations</h2>
-      <p class="section-sub">Configure your own keys in Ghost Keys — every API has a free tier to get started.</p>
+      <p class="section-sub">Configure your own keys in Integrations — every API has a free tier to get started.</p>
       <div class="api-chips">
         <span class="api-chip green">Shodan</span>
         <span class="api-chip cyan">VirusTotal</span>
@@ -445,7 +446,7 @@
   / /_/ / /_/ / /| | /  |/ / / / / / / / /|_/ /
  / ____/ __  / ___ |/ /|  / / / / /_/ / /  / /
 /_/   /_/ /_/_/  |_/_/ |_/ /_/  \____/_/  /_/</pre>
-      <h2 class="section-title">Ready for a Ghost Run?</h2>
+      <h2 class="section-title">Ready to run a scan?</h2>
       <p class="section-sub">Open-source. MIT licensed. No telemetry. No phone-home. Your recon stays on your machine.</p>
       <div class="hero-btns">
         <a href="#quickstart" class="btn btn-primary">⚡ INSTALL NOW</a>
@@ -552,12 +553,12 @@
         for (let i = 0; i < cols; i++) drops[i] = Math.random() * -canvas.height / fontSize;
       }
       function draw() {
-        ctx.fillStyle = 'rgba(10,10,15,0.05)';
+        ctx.fillStyle = 'rgba(7,13,26,0.06)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         for (let i = 0; i < cols; i++) {
           const char = CHARS[Math.floor(Math.random() * CHARS.length)];
           const bright = Math.random() > 0.97;
-          ctx.fillStyle = bright ? 'rgba(255,255,255,0.9)' : 'rgba(0,255,65,0.3)';
+          ctx.fillStyle = bright ? 'rgba(255,255,255,0.9)' : 'rgba(255,122,69,0.28)';
           ctx.font = `${fontSize}px monospace`;
           ctx.fillText(char, i * fontSize, drops[i] * fontSize);
           if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
@@ -578,7 +579,7 @@
     function copyInstall() {
       navigator.clipboard.writeText(document.getElementById('install-cmd').textContent);
       const btn = document.querySelector('.copy-btn');
-      btn.style.color = '#00ff41';
+      btn.style.color = '#ff7a45';
       setTimeout(() => btn.style.color = '', 1500);
     }
 

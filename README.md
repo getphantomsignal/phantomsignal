@@ -31,53 +31,52 @@
 
 ---
 
-## ⚡ What's New in v1.4.3
+## ⚡ What's New in v1.23.0
 
-### Quick probe full intel coverage
-The intel orchestrator now correctly routes every target type to all relevant APIs. **Username targets** now trigger all social and people-intel sources (GitHub, Reddit, HackerNews, Keybase, Mastodon, Twitter, LinkedIn, Telegram, Discord, Steam, and more). **Email targets** now include threat-intel and breach APIs (AlienVaultOTX, HIBP, IntelX, Gravatar, FullContact). **Domain targets** now include email-discovery sources (Hunter.io). **IP targets** now include dark-web sources (Intelligence X). Previously all of these were silently skipped.
+### Three switchable themes
+A redesigned theming system built on semantic role tokens: **Dark** (a deep-slate federal console, default), **Neon** (deep-navy with a warm coral glow), and **Light** (clean and print-friendly). Switch from a segmented control in the nav — your choice persists and applies before first paint. Every token in every theme is validated to **WCAG AA** contrast.
 
-### 16 new intelligence API integrations
-Twitch, Mastodon (4 federated instances), Keybase, Gravatar, HackerNews, Tumblr, Flickr, Spotify, Steam, VK, Telegram (public channels), Discord (user + server lookup), Facebook/Meta Graph, EmailRep, Intelligence X (dark web / paste / breach search), and Abstract API phone validation. Total: **46+ intel sources**.
+### Plain-language interface
+The web UI was rewritten from codenames to clear, function-first labels — **Dashboard, New Scan, Scans, Profiler, Integrations** — so a first-time user can tell what everything does. Findings, Risk Score, Data Sources, and consistent severity language throughout.
 
-### Ghost Key invalid-key detection
-The Ghost Key Vault TEST button now distinguishes a **rejected key** (HTTP 401/403) from a working key with no results. Invalid keys surface an amber `⚠ INVALID` badge directly on the key row — no more false `✓ OK` on a dead credential.
+### Roboto type + signal mark
+Roboto for UI text (tables, terminal, and code stay monospace for alignment), a font-based `∿` signal glyph replacing the old ASCII logo, and a PS-monogram favicon.
 
-### AlienVault OTX timeout fix
-OTX section requests (`general`, `reputation`, `geo`, `malware`, `passive_dns`) now run **concurrently** with an 8-second per-section cap instead of sequentially. Eliminates the consistent 30s timeout caused by OTX's slow `reputation` endpoint on IP scans.
+### Clickable dashboard + one-click re-scan
+Dashboard stat cards are now links into the matching view, and any completed scan can be **re-run** against the same target with its original profile, modules, and options — from the results page or any Scans-list row.
 
-### WebSocket live feed improvements
-- Server syncs current scan progress to browsers that connect **after** a run has started — no more stuck-at-0% progress bar on direct URL navigation
-- Polling fallback keeps the progress bar accurate even when SocketIO events are missed
-- 1-second engine start delay eliminates the race condition where events fire before the browser joins the scan room
+### Honest risk gradient
+The Risk Score meter now runs a true green → amber → red ramp, so a low score reads green (safe) at a glance in every theme.
 
 ---
 
 ## 🎬 Demo
 
-### CLI — Ghost Run in action
+### CLI — a scan in action
 
 ![CLI scan demo](https://raw.githubusercontent.com/getphantomsignal/phantomsignal/main/docs/assets/demo.gif)
 
-### Web UI — Shadow Grid (Dashboard)
+### Web UI — Dashboard
 
-![Dashboard](https://raw.githubusercontent.com/getphantomsignal/phantomsignal/main/docs/assets/screenshot_dashboard.svg)
+![Dashboard](https://raw.githubusercontent.com/getphantomsignal/phantomsignal/main/docs/assets/screenshot_dashboard.png)
 
-### Web UI — Launch Ghost Run
+### Web UI — New Scan
 
-![Launch Ghost Run](https://raw.githubusercontent.com/getphantomsignal/phantomsignal/main/docs/assets/screenshot_launch.svg)
+![New Scan](https://raw.githubusercontent.com/getphantomsignal/phantomsignal/main/docs/assets/screenshot_launch.png)
 
 ### Web UI — Scan Results
 
-![Scan results](https://raw.githubusercontent.com/getphantomsignal/phantomsignal/main/docs/assets/screenshot_results.svg)
+![Scan results](https://raw.githubusercontent.com/getphantomsignal/phantomsignal/main/docs/assets/screenshot_results.png)
 
 ### Web UI — Theme Options
 
-PhantomSignal ships with two built-in UI themes, selectable via the **☀/🌙 toggle** in the top navigation bar. Your preference is saved automatically and persists across sessions.
+PhantomSignal ships with three built-in UI themes, selectable via the **segmented switch** (☀ / ☾ / ◈) in the top navigation bar. Your preference is saved automatically and persists across sessions. Every token in every theme is validated to WCAG AA contrast.
 
 | Theme | Description |
 |-------|-------------|
-| **Dark** *(default)* | Cyberpunk aesthetic — deep charcoal background, neon green/cyan/purple accents, matrix rain canvas, glowing phantom logo |
-| **Light** | "Phantom Dawn" — soft blue-grey background, muted accent palette, clean black ASCII logo, matrix rain disabled |
+| **Dark** *(default)* | Deep-slate federal console — federal-blue hero, gold accents, restrained glow |
+| **Neon** | Deep-navy futuristic console — warm neon-coral hero, cyan links, hot-pink, glow bloom |
+| **Light** | Clean daytime / print-friendly — white surfaces, federal-blue accents, flat (no glow) |
 
 > **Asciinema recording:** Watch the full interactive demo on asciinema.org, or play it locally:
 > ```bash
@@ -128,13 +127,13 @@ PhantomSignal is a **community-powered, open-source OSINT intelligence framework
 | **Social** | GitHub, Twitter/X, Reddit, Mastodon, Keybase, Gravatar, HackerNews, Twitch, YouTube, Instagram, TikTok, LinkedIn, Tumblr, Flickr, Spotify, Steam, VK, Telegram, Discord, Facebook |
 | **Custom** | Bring your own API via plugin architecture |
 
-### 👤 Shadow Profiler (People Intelligence)
+### 👤 Profiler (People Intelligence)
 LexisNexis-style identity aggregation from public records:
 - Cross-correlates data from multiple people-search APIs
 - Discovers emails, phones, addresses, relatives, employers
 - Breach data correlation via HIBP and other sources
 - Social media profile linking
-- **Shadow Score** — digital exposure quantification (0-100)
+- **Risk Score** — digital exposure quantification (0-100)
 - Social graph building and timeline reconstruction
 
 ### 📦 Export Formats
@@ -159,8 +158,8 @@ All formats support **ZIP compression** and **AES-256-GCM encryption**.
 
 ### 🔔 Additional Features
 - **Real-time live feed** — WebSocket-powered terminal during scans
-- **Shadow Score** — composite risk/exposure scoring
-- **Scheduled Phantoms** — recurring automated ghost runs
+- **Risk Score** — composite risk/exposure scoring
+- **Scheduled Phantoms** — recurring automated scans
 - **API health monitor** — dashboard showing configured APIs and rate limits
 - **Light/Dark theme** — toggle between cyberpunk Dark mode and "Phantom Dawn" Light mode via the ☀/🌙 button; preference persisted in localStorage
 - **Full REST API** — integrate PhantomSignal into your own toolchain
@@ -191,7 +190,7 @@ phantomsignal web --open-browser
 
 ### Option 3: CLI Scan
 ```bash
-# Quick probe
+# Quick scan
 phantomsignal scan example.com --profile quick
 
 # Full spectrum with export
