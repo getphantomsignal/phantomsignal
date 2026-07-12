@@ -53,60 +53,60 @@ TOP_1000_PORTS = sorted(set(list(range(1, 1025)) + [
 ]))
 
 SERVICE_NAMES: Dict[int, str] = {
-    20: "FTP-DATA",   21: "FTP",          22: "SSH",        23: "TELNET",
-    25: "SMTP",       53: "DNS",          67: "DHCP",       68: "DHCP",
-    69: "TFTP",       79: "FINGER",       80: "HTTP",       88: "KERBEROS",
-    110: "POP3",      111: "RPCBIND",     113: "IDENT",     119: "NNTP",
-    123: "NTP",       135: "MSRPC",       137: "NETBIOS-NS",
+    20: "FTP-DATA", 21: "FTP", 22: "SSH", 23: "TELNET",
+    25: "SMTP", 53: "DNS", 67: "DHCP", 68: "DHCP",
+    69: "TFTP", 79: "FINGER", 80: "HTTP", 88: "KERBEROS",
+    110: "POP3", 111: "RPCBIND", 113: "IDENT", 119: "NNTP",
+    123: "NTP", 135: "MSRPC", 137: "NETBIOS-NS",
     138: "NETBIOS-DGM", 139: "NETBIOS-SSN", 143: "IMAP",
-    161: "SNMP",      162: "SNMP-TRAP",   179: "BGP",       194: "IRC",
-    389: "LDAP",      443: "HTTPS",       445: "SMB",       465: "SMTPS",
-    512: "REXEC",     513: "RLOGIN",      514: "SYSLOG",    515: "LPD",
-    587: "SMTP-SUB",  631: "IPP",         636: "LDAPS",     993: "IMAPS",
-    995: "POP3S",     1080: "SOCKS",      1194: "OPENVPN",  1433: "MSSQL",
-    1521: "ORACLE",   1723: "PPTP",       1883: "MQTT",     2049: "NFS",
+    161: "SNMP", 162: "SNMP-TRAP", 179: "BGP", 194: "IRC",
+    389: "LDAP", 443: "HTTPS", 445: "SMB", 465: "SMTPS",
+    512: "REXEC", 513: "RLOGIN", 514: "SYSLOG", 515: "LPD",
+    587: "SMTP-SUB", 631: "IPP", 636: "LDAPS", 993: "IMAPS",
+    995: "POP3S", 1080: "SOCKS", 1194: "OPENVPN", 1433: "MSSQL",
+    1521: "ORACLE", 1723: "PPTP", 1883: "MQTT", 2049: "NFS",
     2181: "ZOOKEEPER", 2375: "DOCKER-API", 2376: "DOCKER-TLS",
-    3000: "HTTP-ALT", 3128: "PROXY",      3306: "MYSQL",    3389: "RDP",
+    3000: "HTTP-ALT", 3128: "PROXY", 3306: "MYSQL", 3389: "RDP",
     4000: "HTTP-ALT", 4444: "METASPLOIT", 4848: "GLASSFISH",
-    4899: "RADMIN",   5000: "HTTP-ALT",   5432: "POSTGRESQL",
-    5601: "KIBANA",   5672: "AMQP",       5900: "VNC",      5984: "COUCHDB",
-    5985: "WINRM",    5986: "WINRM-TLS",  6379: "REDIS",    6443: "KUBERNETES",
-    7001: "WEBLOGIC", 7474: "NEO4J",      8008: "HTTP-ALT", 8080: "HTTP-PROXY",
-    8082: "HTTP-ALT", 8083: "HTTP-ALT",   8086: "INFLUXDB", 8088: "HTTP-ALT",
-    8443: "HTTPS-ALT", 8888: "HTTP-ALT",  8889: "HTTP-ALT", 8983: "SOLR",
-    9000: "HTTP-ALT", 9001: "HTTP-ALT",   9090: "PROMETHEUS",
+    4899: "RADMIN", 5000: "HTTP-ALT", 5432: "POSTGRESQL",
+    5601: "KIBANA", 5672: "AMQP", 5900: "VNC", 5984: "COUCHDB",
+    5985: "WINRM", 5986: "WINRM-TLS", 6379: "REDIS", 6443: "KUBERNETES",
+    7001: "WEBLOGIC", 7474: "NEO4J", 8008: "HTTP-ALT", 8080: "HTTP-PROXY",
+    8082: "HTTP-ALT", 8083: "HTTP-ALT", 8086: "INFLUXDB", 8088: "HTTP-ALT",
+    8443: "HTTPS-ALT", 8888: "HTTP-ALT", 8889: "HTTP-ALT", 8983: "SOLR",
+    9000: "HTTP-ALT", 9001: "HTTP-ALT", 9090: "PROMETHEUS",
     9200: "ELASTICSEARCH", 9300: "ES-CLUSTER",
-    9418: "GIT",      10000: "WEBMIN",    11211: "MEMCACHED",
+    9418: "GIT", 10000: "WEBMIN", 11211: "MEMCACHED",
     15672: "RABBITMQ-MGMT", 27017: "MONGODB", 27018: "MONGODB",
     28017: "MONGODB-WEB", 49152: "MSRPC-DYN", 50070: "HADOOP-NN",
 }
 
 BANNER_PROBES: Dict[int, bytes] = {
-    21:    b"",
-    22:    b"",
-    23:    b"\r\n",
-    25:    b"EHLO phantomsignal.local\r\n",
-    79:    b"root\r\n",
-    80:    b"HEAD / HTTP/1.0\r\nHost: target\r\n\r\n",
-    110:   b"",
-    143:   b"",
-    443:   b"",
-    465:   b"",
-    587:   b"EHLO phantomsignal.local\r\n",
-    993:   b"",
-    995:   b"",
-    1433:  b"",
-    3306:  b"",
-    5432:  b"",
-    5900:  b"",
-    5984:  b"GET / HTTP/1.0\r\n\r\n",
-    6379:  b"PING\r\n",
-    7474:  b"GET / HTTP/1.0\r\n\r\n",
-    8080:  b"HEAD / HTTP/1.0\r\nHost: target\r\n\r\n",
-    8443:  b"HEAD / HTTP/1.0\r\nHost: target\r\n\r\n",
-    9000:  b"GET / HTTP/1.0\r\n\r\n",
-    9090:  b"GET / HTTP/1.0\r\n\r\n",
-    9200:  b"GET / HTTP/1.0\r\n\r\n",
+    21: b"",
+    22: b"",
+    23: b"\r\n",
+    25: b"EHLO phantomsignal.local\r\n",
+    79: b"root\r\n",
+    80: b"HEAD / HTTP/1.0\r\nHost: target\r\n\r\n",
+    110: b"",
+    143: b"",
+    443: b"",
+    465: b"",
+    587: b"EHLO phantomsignal.local\r\n",
+    993: b"",
+    995: b"",
+    1433: b"",
+    3306: b"",
+    5432: b"",
+    5900: b"",
+    5984: b"GET / HTTP/1.0\r\n\r\n",
+    6379: b"PING\r\n",
+    7474: b"GET / HTTP/1.0\r\n\r\n",
+    8080: b"HEAD / HTTP/1.0\r\nHost: target\r\n\r\n",
+    8443: b"HEAD / HTTP/1.0\r\nHost: target\r\n\r\n",
+    9000: b"GET / HTTP/1.0\r\n\r\n",
+    9090: b"GET / HTTP/1.0\r\n\r\n",
+    9200: b"GET / HTTP/1.0\r\n\r\n",
     10000: b"GET / HTTP/1.0\r\n\r\n",
     11211: b"stats\r\n",
     15672: b"GET / HTTP/1.0\r\n\r\n",
@@ -118,28 +118,28 @@ BANNER_PROBES: Dict[int, bytes] = {
 }
 
 DANGEROUS_PORTS: Dict[int, str] = {
-    21:    "FTP — anonymous login risk",
-    23:    "TELNET — unencrypted remote access",
-    79:    "FINGER — user enumeration",
-    111:   "RPCBIND — RPC portmapper exposure",
-    135:   "MSRPC — Windows attack surface",
-    139:   "NETBIOS — SMB/Windows sharing",
-    445:   "SMB — critical Windows attack vector",
-    512:   "REXEC — unencrypted remote execution",
-    513:   "RLOGIN — unencrypted remote login",
-    1433:  "MSSQL — database exposure",
-    1521:  "Oracle DB — database exposure",
-    2375:  "Docker API — CRITICAL: container escape",
-    3306:  "MySQL — database exposure",
-    3389:  "RDP — remote desktop exposure",
-    4444:  "Metasploit default — possible backdoor",
-    4899:  "Radmin — remote admin tool",
-    5432:  "PostgreSQL — database exposure",
-    5900:  "VNC — remote desktop exposure",
-    5985:  "WinRM HTTP — remote management",
-    5986:  "WinRM HTTPS — remote management",
-    6379:  "Redis — often unauthenticated",
-    9200:  "Elasticsearch — often unauthenticated",
+    21: "FTP — anonymous login risk",
+    23: "TELNET — unencrypted remote access",
+    79: "FINGER — user enumeration",
+    111: "RPCBIND — RPC portmapper exposure",
+    135: "MSRPC — Windows attack surface",
+    139: "NETBIOS — SMB/Windows sharing",
+    445: "SMB — critical Windows attack vector",
+    512: "REXEC — unencrypted remote execution",
+    513: "RLOGIN — unencrypted remote login",
+    1433: "MSSQL — database exposure",
+    1521: "Oracle DB — database exposure",
+    2375: "Docker API — CRITICAL: container escape",
+    3306: "MySQL — database exposure",
+    3389: "RDP — remote desktop exposure",
+    4444: "Metasploit default — possible backdoor",
+    4899: "Radmin — remote admin tool",
+    5432: "PostgreSQL — database exposure",
+    5900: "VNC — remote desktop exposure",
+    5985: "WinRM HTTP — remote management",
+    5986: "WinRM HTTPS — remote management",
+    6379: "Redis — often unauthenticated",
+    9200: "Elasticsearch — often unauthenticated",
     10000: "Webmin — admin interface exposure",
     11211: "Memcached — DDoS amplification risk",
     27017: "MongoDB — often unauthenticated",
@@ -164,8 +164,8 @@ MAX_PLAUSIBLE_HOPS = 32
 # Initial TTL → OS family. Coarse but reliable at the family level; version-level
 # claims from TTL alone would be false precision, so we don't make them.
 TTL_OS_FAMILY: Dict[int, tuple] = {
-    64:  ("Linux / macOS / BSD / Android",
-          ["Linux", "macOS", "FreeBSD", "OpenBSD", "Android", "iOS"]),
+    64: ("Linux / macOS / BSD / Android",
+         ["Linux", "macOS", "FreeBSD", "OpenBSD", "Android", "iOS"]),
     128: ("Windows", ["Windows"]),
     255: ("Network device / Solaris / AIX",
           ["Cisco IOS", "Solaris", "AIX", "router/firewall"]),
@@ -197,11 +197,11 @@ def parse_ip_header(pkt: bytes) -> Optional[Dict]:
     if ihl < 20 or len(pkt) < ihl:
         return None
     return {
-        "ihl":      ihl,
-        "ttl":      pkt[8],
+        "ihl": ihl,
+        "ttl": pkt[8],
         "protocol": pkt[9],
-        "src":      ".".join(str(b) for b in pkt[12:16]),
-        "dst":      ".".join(str(b) for b in pkt[16:20]),
+        "src": ".".join(str(b) for b in pkt[12:16]),
+        "dst": ".".join(str(b) for b in pkt[16:20]),
     }
 
 
@@ -215,12 +215,12 @@ def parse_tcp_header(seg: bytes) -> Optional[Dict]:
     # Options may be truncated by a short capture; slice tolerates that.
     options = seg[20:data_offset] if data_offset > 20 else b""
     return {
-        "src_port":    int.from_bytes(seg[0:2], "big"),
-        "dst_port":    int.from_bytes(seg[2:4], "big"),
+        "src_port": int.from_bytes(seg[0:2], "big"),
+        "dst_port": int.from_bytes(seg[2:4], "big"),
         "data_offset": data_offset,
-        "flags":       seg[13],
-        "window":      int.from_bytes(seg[14:16], "big"),
-        "options":     options,
+        "flags": seg[13],
+        "window": int.from_bytes(seg[14:16], "big"),
+        "options": options,
     }
 
 
@@ -302,19 +302,19 @@ def fingerprint_os(sig: Dict) -> Optional[Dict]:
         confidence = min(confidence + 0.05, 0.80)
 
     return {
-        "os_family":      family,
-        "candidates":     candidates,
-        "observed_ttl":   ttl,
-        "initial_ttl":    initial,
-        "hop_count":      hops,
-        "tcp_window":     win,
-        "mss":            mss,
-        "window_scale":   sig.get("window_scale"),
+        "os_family": family,
+        "candidates": candidates,
+        "observed_ttl": ttl,
+        "initial_ttl": initial,
+        "hop_count": hops,
+        "tcp_window": win,
+        "mss": mss,
+        "window_scale": sig.get("window_scale"),
         "sack_permitted": sig.get("sack_permitted"),
-        "timestamps":     sig.get("timestamps"),
-        "tcp_options":    sig.get("options_order"),
-        "confidence":     round(confidence, 2),
-        "evidence":       evidence,
+        "timestamps": sig.get("timestamps"),
+        "tcp_options": sig.get("options_order"),
+        "confidence": round(confidence, 2),
+        "evidence": evidence,
     }
 
 
@@ -380,12 +380,12 @@ class PortScanner:
     """Port scanner: nmap (version + OS detection) with async-TCP fallback."""
 
     def __init__(self, config):
-        self.config          = config
-        self.timeout         = config.get("port_scanner", "timeout",         default=3)
-        self.max_concurrent  = config.get("port_scanner", "max_concurrent",  default=300)
+        self.config = config
+        self.timeout = config.get("port_scanner", "timeout", default=3)
+        self.max_concurrent = config.get("port_scanner", "max_concurrent", default=300)
         self.service_detection = config.get("port_scanner", "service_detection", default=True)
-        self.os_fingerprint  = config.get("port_scanner", "os_fingerprint",     default=True)
-        self._nmap           = shutil.which("nmap")
+        self.os_fingerprint = config.get("port_scanner", "os_fingerprint", default=True)
+        self._nmap = shutil.which("nmap")
 
     # ── Public ──────────────────────────────────────────────────────────────
 
@@ -422,41 +422,41 @@ class PortScanner:
 
         logger.info(f"Scanning {host} — {len(ports)} ports, profile={scan_profile}, nmap={'yes' if self._nmap else 'no'}")
 
-        open_ports:  List[Dict] = []
-        os_info:     Optional[Dict] = None
+        open_ports: List[Dict] = []
+        os_info: Optional[Dict] = None
         scan_engine: str = "python"
 
         if self._nmap:
             nmap_result = await self._try_nmap(host, ports)
             if nmap_result is not None:
-                open_ports  = nmap_result["ports"]
-                os_info     = nmap_result.get("os")
+                open_ports = nmap_result["ports"]
+                os_info = nmap_result.get("os")
                 scan_engine = "nmap"
                 logger.info(f"nmap: {len(open_ports)} open ports found")
 
         if not open_ports and scan_engine == "python":
             semaphore = asyncio.Semaphore(self.max_concurrent)
-            tasks     = [self._probe_port(host, p, semaphore) for p in ports]
-            raw       = await asyncio.gather(*tasks, return_exceptions=True)
+            tasks = [self._probe_port(host, p, semaphore) for p in ports]
+            raw = await asyncio.gather(*tasks, return_exceptions=True)
             open_ports = [r for r in raw if isinstance(r, dict) and r.get("state") == "open"]
 
         results: List[Dict] = self._open_port_findings(open_ports, scan_engine)
 
         if os_info:
             results.append({
-                "type":           "os_detection",
-                "source":         "port_scanner",
+                "type": "os_detection",
+                "source": "port_scanner",
                 "data": {
-                    "target":    host,
-                    "os_name":   os_info.get("name"),
+                    "target": host,
+                    "os_name": os_info.get("name"),
                     "os_family": os_info.get("osfamily"),
-                    "os_gen":    os_info.get("osgen"),
-                    "accuracy":  os_info.get("accuracy", 0),
-                    "cpe":       os_info.get("cpe"),
+                    "os_gen": os_info.get("osgen"),
+                    "accuracy": os_info.get("accuracy", 0),
+                    "cpe": os_info.get("cpe"),
                 },
-                "confidence":     (os_info.get("accuracy", 0) / 100),
+                "confidence": (os_info.get("accuracy", 0) / 100),
                 "relevance_score": 0.9,
-                "tags":           ["os", "fingerprint", "nmap"],
+                "tags": ["os", "fingerprint", "nmap"],
             })
 
         # Passive OS fingerprint from the SYN-ACK — complements nmap and is the
@@ -465,14 +465,14 @@ class PortScanner:
             passive = await self._passive_os_fingerprint(host, open_ports)
             if passive:
                 results.append({
-                    "type":           "passive_os",
-                    "source":         "port_scanner",
-                    "data":           {"target": host,
-                                       "method": "passive SYN-ACK (p0f-style)",
+                    "type": "passive_os",
+                    "source": "port_scanner",
+                    "data": {"target": host,
+                             "method": "passive SYN-ACK (p0f-style)",
                                        **passive},
-                    "confidence":     passive["confidence"],
+                    "confidence": passive["confidence"],
                     "relevance_score": 0.75,
-                    "tags":           ["os", "fingerprint", "passive", "p0f"],
+                    "tags": ["os", "fingerprint", "passive", "p0f"],
                 })
 
         if open_ports:
@@ -502,7 +502,7 @@ class PortScanner:
                 target, host, stealth,
                 "nmap stealth scan could not run — it typically needs root/CAP_NET_RAW",
                 detail=f"{stealth} scan crafts raw packets; grant nmap CAP_NET_RAW "
-                       f"or run as root")]
+                f"or run as root")]
 
         # Honesty guard: without raw-packet privileges nmap can silently downgrade
         # -sS to a plain connect scan (real IP, no decoys). Its XML records the
@@ -530,57 +530,57 @@ class PortScanner:
             port_info["scan_engine"] = scan_engine
             is_dangerous = port_info["port"] in DANGEROUS_PORTS
             results.append({
-                "type":           "open_port",
-                "source":         "port_scanner",
-                "data":           port_info,
-                "confidence":     1.0,
+                "type": "open_port",
+                "source": "port_scanner",
+                "data": port_info,
+                "confidence": 1.0,
                 "relevance_score": 0.9 if is_dangerous else 0.6,
-                "tags":           ["port", "network"] + (["dangerous", "high_risk"] if is_dangerous else []),
-                "is_anomaly":     is_dangerous,
+                "tags": ["port", "network"] + (["dangerous", "high_risk"] if is_dangerous else []),
+                "is_anomaly": is_dangerous,
             })
         return results
 
     def _summary_finding(self, target: str, host: str, ports: List[int],
                          open_ports: List[Dict], scan_engine: str) -> Dict:
         return {
-            "type":   "port_scan_summary",
+            "type": "port_scan_summary",
             "source": "port_scanner",
             "data": {
-                "target":        target,
-                "host":          host,
+                "target": target,
+                "host": host,
                 "total_scanned": len(ports),
-                "open_count":    len(open_ports),
-                "scan_engine":   scan_engine,
-                "open_ports":    sorted(p["port"] for p in open_ports),
+                "open_count": len(open_ports),
+                "scan_engine": scan_engine,
+                "open_ports": sorted(p["port"] for p in open_ports),
                 "dangerous_ports": [
                     {"port": p["port"], "warning": DANGEROUS_PORTS[p["port"]]}
                     for p in open_ports if p["port"] in DANGEROUS_PORTS
                 ],
                 "risk_assessment": self._assess_risk(open_ports),
             },
-            "confidence":     1.0,
+            "confidence": 1.0,
             "relevance_score": 1.0,
-            "tags":           ["summary", "port_scan"],
+            "tags": ["summary", "port_scan"],
         }
 
     def _stealth_unavailable(self, target: str, host: str, stealth: str,
                              reason: str, detail: Optional[str] = None) -> Dict:
         data = {
-            "target":  target,
-            "host":    host,
+            "target": target,
+            "host": host,
             "profile": stealth,
-            "reason":  reason,
-            "note":    "no scan was performed",
+            "reason": reason,
+            "note": "no scan was performed",
         }
         if detail:
             data["detail"] = detail
         return {
-            "type":            "stealth_unavailable",
-            "source":          "port_scanner",
-            "data":            data,
-            "confidence":      1.0,
+            "type": "stealth_unavailable",
+            "source": "port_scanner",
+            "data": data,
+            "confidence": 1.0,
             "relevance_score": 0.3,
-            "tags":            ["port", "stealth", stealth, "unavailable"],
+            "tags": ["port", "stealth", stealth, "unavailable"],
         }
 
     # ── nmap ────────────────────────────────────────────────────────────────
@@ -619,28 +619,28 @@ class PortScanner:
         # The actual scan technique nmap ran ("syn"/"connect"/"idle"/…). Lets the
         # stealth path detect a silent downgrade to a connect scan (which happens
         # when -sS is requested without raw-packet privileges).
-        scaninfo  = root.find("scaninfo")
+        scaninfo = root.find("scaninfo")
         scan_type = scaninfo.get("type") if scaninfo is not None else None
 
-        ports:   List[Dict]     = []
+        ports: List[Dict] = []
         os_info: Optional[Dict] = None
 
         for host_elem in root.findall("host"):
             # OS detection — take the highest-accuracy match
-            best_os    = None
-            best_acc   = -1
+            best_os = None
+            best_acc = -1
             for osmatch in host_elem.findall(".//osmatch"):
                 acc = int(osmatch.get("accuracy", 0))
                 if acc > best_acc:
                     best_acc = acc
-                    osclass  = osmatch.find("osclass")
+                    osclass = osmatch.find("osclass")
                     cpe_elem = osclass.find("cpe") if osclass is not None else None
-                    best_os  = {
-                        "name":     osmatch.get("name"),
+                    best_os = {
+                        "name": osmatch.get("name"),
                         "accuracy": acc,
                         "osfamily": osclass.get("osfamily") if osclass is not None else None,
-                        "osgen":    osclass.get("osgen")    if osclass is not None else None,
-                        "cpe":      cpe_elem.text           if cpe_elem is not None else None,
+                        "osgen": osclass.get("osgen") if osclass is not None else None,
+                        "cpe": cpe_elem.text if cpe_elem is not None else None,
                     }
             if best_os and os_info is None:
                 os_info = best_os
@@ -655,20 +655,20 @@ class PortScanner:
                 svc_elem = port_elem.find("service")
 
                 service_name = SERVICE_NAMES.get(port_num, "UNKNOWN")
-                version      = ""
-                banner       = ""
+                version = ""
+                banner = ""
 
                 if svc_elem is not None:
-                    raw_svc   = svc_elem.get("name", "")
-                    product   = svc_elem.get("product", "")
-                    ver       = svc_elem.get("version", "")
+                    raw_svc = svc_elem.get("name", "")
+                    product = svc_elem.get("product", "")
+                    ver = svc_elem.get("version", "")
                     extrainfo = svc_elem.get("extrainfo", "")
-                    tunnel    = svc_elem.get("tunnel", "")
+                    tunnel = svc_elem.get("tunnel", "")
                     if raw_svc:
-                        label        = f"{raw_svc}/{tunnel}" if tunnel else raw_svc
+                        label = f"{raw_svc}/{tunnel}" if tunnel else raw_svc
                         service_name = label.upper()
                     ver_parts = [p for p in [product, ver, extrainfo] if p]
-                    version   = " ".join(ver_parts)[:60]
+                    version = " ".join(ver_parts)[:60]
 
                 # Banner from nmap script output
                 for script in port_elem.findall("script"):
@@ -678,11 +678,11 @@ class PortScanner:
                         break
 
                 port_data: Dict = {
-                    "port":          port_num,
-                    "state":         "open",
-                    "service":       service_name,
-                    "banner":        banner,
-                    "protocol":      protocol,
+                    "port": port_num,
+                    "state": "open",
+                    "service": service_name,
+                    "banner": banner,
+                    "protocol": protocol,
                     "danger_warning": DANGEROUS_PORTS.get(port_num),
                 }
                 if version:
@@ -746,13 +746,13 @@ class PortScanner:
                     continue
                 opts = parse_tcp_options(tcp["options"])
                 return {
-                    "observed_ttl":   ip["ttl"],
-                    "window":         tcp["window"],
-                    "mss":            opts["mss"],
-                    "window_scale":   opts["window_scale"],
+                    "observed_ttl": ip["ttl"],
+                    "window": tcp["window"],
+                    "mss": opts["mss"],
+                    "window_scale": opts["window_scale"],
                     "sack_permitted": opts["sack_permitted"],
-                    "timestamps":     opts["timestamps"],
-                    "options_order":  opts["order"],
+                    "timestamps": opts["timestamps"],
+                    "options_order": opts["order"],
                 }
             return None
         finally:
@@ -772,7 +772,7 @@ class PortScanner:
                 reader, writer = await asyncio.wait_for(
                     asyncio.open_connection(host, port), timeout=self.timeout
                 )
-                banner  = ""
+                banner = ""
                 service = SERVICE_NAMES.get(port, "UNKNOWN")
 
                 if self.service_detection and port in BANNER_PROBES:
@@ -781,7 +781,7 @@ class PortScanner:
                         if probe:
                             writer.write(probe)
                             await writer.drain()
-                        data   = await asyncio.wait_for(reader.read(1024), timeout=2)
+                        data = await asyncio.wait_for(reader.read(1024), timeout=2)
                         banner = data.decode("utf-8", errors="replace").strip()
                     except Exception:
                         pass
@@ -793,11 +793,11 @@ class PortScanner:
                     pass
 
                 port_data: Dict = {
-                    "port":          port,
-                    "state":         "open",
-                    "service":       service,
-                    "banner":        banner[:200] if banner else "",
-                    "protocol":      "tcp",
+                    "port": port,
+                    "state": "open",
+                    "service": service,
+                    "banner": banner[:200] if banner else "",
+                    "protocol": "tcp",
                     "danger_warning": DANGEROUS_PORTS.get(port),
                 }
                 if banner:
@@ -832,19 +832,19 @@ class PortScanner:
         return None
 
     def _assess_risk(self, open_ports: List[Dict]) -> Dict:
-        dangerous  = [p for p in open_ports if p["port"] in DANGEROUS_PORTS]
+        dangerous = [p for p in open_ports if p["port"] in DANGEROUS_PORTS]
         risk_score = min(len(dangerous) * 15 + len(open_ports) * 2, 100)
         level = (
             "CRITICAL" if risk_score >= 75 else
-            "HIGH"     if risk_score >= 50 else
-            "MEDIUM"   if risk_score >= 25 else
+            "HIGH" if risk_score >= 50 else
+            "MEDIUM" if risk_score >= 25 else
             "LOW"
         )
         return {
-            "level":          level,
-            "score":          risk_score,
+            "level": level,
+            "score": risk_score,
             "dangerous_count": len(dangerous),
-            "total_open":     len(open_ports),
-            "summary":        (f"{len(dangerous)} high-risk service(s) exposed"
-                               if dangerous else "No critical exposures detected"),
+            "total_open": len(open_ports),
+            "summary": (f"{len(dangerous)} high-risk service(s) exposed"
+                        if dangerous else "No critical exposures detected"),
         }

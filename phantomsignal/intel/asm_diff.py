@@ -26,25 +26,25 @@ logger = logging.getLogger("phantomsignal.intel.asm_diff")
 # Per result_type, the data fields that identify the *same asset* across scans.
 # Anything not listed falls back to a hash of its whole data payload.
 IDENTITY_FIELDS: Dict[str, Tuple[str, ...]] = {
-    "open_port":            ("port",),
-    "subdomain":            ("subdomain",),
-    "ip_address":           ("ip", "value"),
-    "technology":           ("name",),
-    "cert_transparency":    ("value",),
-    "ransomware_exposure":  ("victim", "group"),
-    "credential_exposure":  ("identity", "host"),
-    "username_account":     ("site", "username"),
-    "email_account":        ("service",),
+    "open_port": ("port",),
+    "subdomain": ("subdomain",),
+    "ip_address": ("ip", "value"),
+    "technology": ("name",),
+    "cert_transparency": ("value",),
+    "ransomware_exposure": ("victim", "group"),
+    "credential_exposure": ("identity", "host"),
+    "username_account": ("site", "username"),
+    "email_account": ("service",),
     "email_linked_account": ("service", "handle"),
-    "linked_identity":      ("kind", "value"),
-    "document_metadata":    ("url",),
-    "nsec_zone_walk":       ("domain",),
-    "dns_cache_snoop":      ("nameserver",),
-    "smtp_users":           ("host",),
-    "snmp_community":       ("community",),
-    "os_detection":         ("os_name",),
-    "passive_os":           ("os_family",),
-    "tls_certificate":      ("sha256",),
+    "linked_identity": ("kind", "value"),
+    "document_metadata": ("url",),
+    "nsec_zone_walk": ("domain",),
+    "dns_cache_snoop": ("nameserver",),
+    "smtp_users": ("host",),
+    "snmp_community": ("community",),
+    "os_detection": ("os_name",),
+    "passive_os": ("os_family",),
+    "tls_certificate": ("sha256",),
 }
 
 
@@ -147,15 +147,15 @@ def build_diff_findings(target: str, diff: AsmDiff,
         rt = _rtype(res)
         alert = kind == "new" and (rt in SENSITIVE_TYPES or res.get("is_anomaly"))
         return {
-            "type":   "asm_change",
+            "type": "asm_change",
             "source": "asm_diff",
             "data": {"target": target, "change": kind, "asset_type": rt,
                      "key": (result_key(res) or (rt, ""))[1],
                      "asset": res.get("data", {}), **(extra or {})},
-            "confidence":      1.0,
+            "confidence": 1.0,
             "relevance_score": 0.9 if alert else 0.5,
-            "tags":            ["asm", "diff", kind, rt],
-            "is_anomaly":      bool(alert),
+            "tags": ["asm", "diff", kind, rt],
+            "is_anomaly": bool(alert),
         }
 
     for r in diff.added:
@@ -166,21 +166,21 @@ def build_diff_findings(target: str, diff: AsmDiff,
         results.append(change("changed", new, {"changed_fields": changed_fields(old, new)}))
 
     results.append({
-        "type":   "asm_diff_summary",
+        "type": "asm_diff_summary",
         "source": "asm_diff",
         "data": {
-            "target":        target,
-            "new_assets":    len(diff.added),
+            "target": target,
+            "new_assets": len(diff.added),
             "removed_assets": len(diff.removed),
             "changed_assets": len(diff.modified),
             "new_sensitive": sum(1 for r in diff.added if _rtype(r) in SENSITIVE_TYPES),
             "baseline_scan": (baseline or {}).get("id"),
-            "current_scan":  (current or {}).get("id"),
+            "current_scan": (current or {}).get("id"),
         },
-        "confidence":      1.0,
+        "confidence": 1.0,
         "relevance_score": 0.9 if not diff.is_empty else 0.4,
-        "tags":            ["asm", "diff", "summary"],
-        "is_anomaly":      any(_rtype(r) in SENSITIVE_TYPES for r in diff.added),
+        "tags": ["asm", "diff", "summary"],
+        "is_anomaly": any(_rtype(r) in SENSITIVE_TYPES for r in diff.added),
     })
     return results
 

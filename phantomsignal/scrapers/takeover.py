@@ -208,7 +208,7 @@ class TakeoverDetector:
             "confidence": verdict["confidence"],
             "relevance_score": 0.95 if vulnerable else 0.7,
             "tags": ["takeover", "dns", entry["service"].lower().replace(" ", "-")]
-                    + (["vulnerable"] if vulnerable else ["candidate"]),
+            + (["vulnerable"] if vulnerable else ["candidate"]),
             "is_anomaly": vulnerable,
         }
 

@@ -58,7 +58,7 @@ _SOFTWARE_MARKERS = (
     "google", "wkhtmltopdf", "tcpdf", "itext", "reportlab", "latex", "pdftex",
 )
 
-_PERSON_KEYS   = ("author", "last_modified_by", "manager", "artist")
+_PERSON_KEYS = ("author", "last_modified_by", "manager", "artist")
 _SOFTWARE_KEYS = ("creator_tool", "producer", "exif_software", "exif_make", "exif_model")
 
 
@@ -83,10 +83,10 @@ def is_parseable_doc_url(url: str) -> bool:
 # ── OOXML (docx/xlsx/pptx) ──────────────────────────────────────────────────
 
 _OOXML_NS = {
-    "cp":      "http://schemas.openxmlformats.org/package/2006/metadata/core-properties",
-    "dc":      "http://purl.org/dc/elements/1.1/",
+    "cp": "http://schemas.openxmlformats.org/package/2006/metadata/core-properties",
+    "dc": "http://purl.org/dc/elements/1.1/",
     "dcterms": "http://purl.org/dc/terms/",
-    "ep":      "http://schemas.openxmlformats.org/officeDocument/2006/extended-properties",
+    "ep": "http://schemas.openxmlformats.org/officeDocument/2006/extended-properties",
 }
 _CORE_FIELDS = {
     "author": "dc:creator", "last_modified_by": "cp:lastModifiedBy",
@@ -181,23 +181,29 @@ def _read_literal_string(raw: bytes, i: int) -> Optional[str]:
         if c == 0x5c:                                   # backslash escape
             nxt = raw[j + 1] if j + 1 < n else -1
             if nxt in _PDF_ESCAPES:
-                out.append(_PDF_ESCAPES[nxt]); j += 2
+                out.append(_PDF_ESCAPES[nxt])
+                j += 2
             elif 0x30 <= nxt <= 0x37:                   # octal (up to 3 digits)
                 k, digits = j + 1, bytearray()
                 while k < n and len(digits) < 3 and 0x30 <= raw[k] <= 0x37:
-                    digits.append(raw[k]); k += 1
-                out.append(int(bytes(digits), 8) & 0xFF); j = k
+                    digits.append(raw[k])
+                    k += 1
+                out.append(int(bytes(digits), 8) & 0xFF)
+                j = k
             else:
                 j += 2                                  # ignore (incl line continuation)
         elif c == 0x28:                                 # nested (
-            depth += 1; out.append(c); j += 1
+            depth += 1
+            out.append(c)
+            j += 1
         elif c == 0x29:                                 # )
             depth -= 1
             if depth > 0:
                 out.append(c)
             j += 1
         else:
-            out.append(c); j += 1
+            out.append(c)
+            j += 1
     if depth != 0:                                      # unterminated
         return None
     return _decode_pdf_bytes(bytes(out))
@@ -236,7 +242,7 @@ def _extract_pdf_value(raw: bytes, key: bytes) -> Optional[str]:
 
 
 _XMP_NS = {
-    "dc":  "http://purl.org/dc/elements/1.1/",
+    "dc": "http://purl.org/dc/elements/1.1/",
     "xmp": "http://ns.adobe.com/xap/1.0/",
     "pdf": "http://ns.adobe.com/pdf/1.3/",
     "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -382,10 +388,10 @@ class DocMetadataExtractor:
     """Discover public documents for a domain and mine their metadata."""
 
     def __init__(self, config):
-        self.config    = config
-        self.max_docs  = config.get("doc_metadata", "max_docs",  default=40)
+        self.config = config
+        self.max_docs = config.get("doc_metadata", "max_docs", default=40)
         self.max_bytes = config.get("doc_metadata", "max_bytes", default=20 * 1024 * 1024)
-        self.timeout   = config.get("doc_metadata", "timeout",   default=20)
+        self.timeout = config.get("doc_metadata", "timeout", default=20)
 
     async def run(self, target: str) -> List[Dict]:
         # A direct link to a parseable document → just that file.
@@ -478,32 +484,32 @@ class DocMetadataExtractor:
             all_paths |= paths
 
             results.append({
-                "type":   "document_metadata",
+                "type": "document_metadata",
                 "source": "doc_metadata",
                 "data": {
-                    "url":      d["url"],
+                    "url": d["url"],
                     "doc_type": d["doc_type"],
-                    "authors":  sorted(users),
+                    "authors": sorted(users),
                     "software": sorted(software),
-                    "emails":   sorted(emails),
-                    "paths":    sorted(paths),
-                    "fields":   m,
+                    "emails": sorted(emails),
+                    "paths": sorted(paths),
+                    "fields": m,
                 },
-                "confidence":      1.0,
+                "confidence": 1.0,
                 "relevance_score": 0.7 if (users or paths) else 0.5,
-                "tags":            ["document", "metadata", d["doc_type"]],
-                "is_anomaly":      bool(paths),
+                "tags": ["document", "metadata", d["doc_type"]],
+                "is_anomaly": bool(paths),
             })
 
             if m.get("gps"):
                 results.append({
-                    "type":   "document_geolocation",
+                    "type": "document_geolocation",
                     "source": "doc_metadata",
-                    "data":   {"url": d["url"], **m["gps"]},
-                    "confidence":      0.9,
+                    "data": {"url": d["url"], **m["gps"]},
+                    "confidence": 0.9,
                     "relevance_score": 0.9,
-                    "tags":            ["document", "metadata", "geolocation", "exif"],
-                    "is_anomaly":      True,
+                    "tags": ["document", "metadata", "geolocation", "exif"],
+                    "is_anomaly": True,
                 })
 
         results.extend(self._summaries(scope, candidates, docs,

@@ -83,12 +83,12 @@ class UsernameEnumerator:
     """Check a username's presence across the vendored WhatsMyName site set."""
 
     def __init__(self, config):
-        self.config      = config
-        self.timeout     = config.get("username_enum", "timeout",     default=10)
+        self.config = config
+        self.timeout = config.get("username_enum", "timeout", default=10)
         self.concurrency = config.get("username_enum", "concurrency", default=25)
-        self.fp_check    = config.get("username_enum", "fp_check",    default=True)
-        self.categories  = config.get("username_enum", "categories",  default=None)
-        self._sites      = self._load_sites()
+        self.fp_check = config.get("username_enum", "fp_check", default=True)
+        self.categories = config.get("username_enum", "categories", default=None)
+        self._sites = self._load_sites()
 
     def _load_sites(self) -> List[Dict]:
         try:
@@ -170,30 +170,30 @@ class UsernameEnumerator:
             cat = site.get("cat", "misc")
             by_category[cat] = by_category.get(cat, 0) + 1
             results.append({
-                "type":   "username_account",
+                "type": "username_account",
                 "source": "username_enum",
-                "data":   {"username": username, "site": site.get("name"),
+                "data": {"username": username, "site": site.get("name"),
                            "category": cat, "url": url},
-                "confidence":      0.9,
+                "confidence": 0.9,
                 "relevance_score": 0.7,
-                "tags":            ["username", "account", "identity", cat],
+                "tags": ["username", "account", "identity", cat],
             })
 
         results.append({
-            "type":   "username_enum_summary",
+            "type": "username_enum_summary",
             "source": "username_enum",
             "data": {
-                "username":       username,
-                "sites_checked":  len(self._sites),
+                "username": username,
+                "sites_checked": len(self._sites),
                 "accounts_found": len(hits),
-                "by_category":    by_category,
-                "profiles":       sorted(u for _, u in hits),
+                "by_category": by_category,
+                "profiles": sorted(u for _, u in hits),
             },
-            "confidence":      1.0,
+            "confidence": 1.0,
             "relevance_score": 0.85,
-            "tags":            ["username", "summary", "identity"],
+            "tags": ["username", "summary", "identity"],
             # Finding accounts is the normal success case; only a broadly-exposed
             # handle (present on many sites) is a notable highlight.
-            "is_anomaly":      len(hits) >= _BROAD_EXPOSURE_THRESHOLD,
+            "is_anomaly": len(hits) >= _BROAD_EXPOSURE_THRESHOLD,
         })
         return results
