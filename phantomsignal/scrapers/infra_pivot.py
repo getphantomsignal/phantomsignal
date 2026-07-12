@@ -139,22 +139,22 @@ class InfraPivot:
 
         if favicon is not None:
             results.append(self._fingerprint("favicon_hash", host, str(favicon),
-                                              f"http.favicon.hash:{favicon}"))
+                                             f"http.favicon.hash:{favicon}"))
             results += await self._shodan_pivot(f"http.favicon.hash:{favicon}", "favicon")
 
         if jarm and set(jarm) != {"0"}:
             results.append(self._fingerprint("jarm_fingerprint", host, jarm,
-                                              f"ssl.jarm:{jarm}"))
+                                             f"ssl.jarm:{jarm}"))
             results += await self._shodan_pivot(f"ssl.jarm:{jarm}", "jarm")
 
         if cert_info:
             fp = cert_info["sha256"]
             results.append(self._fingerprint("tls_cert_fingerprint", host, fp,
-                                              f"ssl.cert.fingerprint:{fp}",
-                                              extra={"subject_cn": cert_info.get("cn"),
-                                                     "serial": cert_info.get("serial"),
-                                                     "issuer": cert_info.get("issuer"),
-                                                     "san_count": len(cert_info["sans"])}))
+                                             f"ssl.cert.fingerprint:{fp}",
+                                             extra={"subject_cn": cert_info.get("cn"),
+                                                    "serial": cert_info.get("serial"),
+                                                    "issuer": cert_info.get("issuer"),
+                                                    "san_count": len(cert_info["sans"])}))
             # SAN hostnames are pivotable siblings — emit as subdomains for the graph.
             root = self._registered(host)
             for san in sorted(cert_info["sans"]):

@@ -80,15 +80,15 @@ def parse_ransomware_victims(payload) -> List[Dict]:
         if not isinstance(rec, dict):
             continue
         out.append({
-            "victim":      (rec.get("victim") or "").strip(),
-            "group":       (rec.get("group") or "").strip(),
-            "domain":      (rec.get("domain") or "").strip().lower(),
+            "victim": (rec.get("victim") or "").strip(),
+            "group": (rec.get("group") or "").strip(),
+            "domain": (rec.get("domain") or "").strip().lower(),
             "attack_date": rec.get("attackdate") or "",
-            "discovered":  rec.get("discovered") or "",
-            "country":     rec.get("country") or "",
-            "activity":    rec.get("activity") or "",
-            "claim_url":   rec.get("claim_url") or "",
-            "record_url":  rec.get("url") or "",
+            "discovered": rec.get("discovered") or "",
+            "country": rec.get("country") or "",
+            "activity": rec.get("activity") or "",
+            "claim_url": rec.get("claim_url") or "",
+            "record_url": rec.get("url") or "",
             "infostealer": bool(rec.get("infostealer")),
         })
     return out
@@ -195,15 +195,15 @@ class DarkWebMonitor:
     """Keyless, clearnet leak-exposure monitoring for an authorized target."""
 
     def __init__(self, config):
-        self.config      = config
-        self.timeout     = config.get("darkweb", "timeout",     default=20)
+        self.config = config
+        self.timeout = config.get("darkweb", "timeout", default=20)
         self.max_results = config.get("darkweb", "max_results", default=50)
         # Stealer-log / combolist correlation: caller-supplied dump files.
-        self.combolist_paths   = config.get("darkweb", "combolist_paths", default=None) or []
-        self.max_combolist_mb  = config.get("darkweb", "max_combolist_mb", default=200)
+        self.combolist_paths = config.get("darkweb", "combolist_paths", default=None) or []
+        self.max_combolist_mb = config.get("darkweb", "max_combolist_mb", default=200)
         # Tor .onion enrichment of ransomware claim URLs (opt-in, degrades if no Tor).
-        self.tor_enrich  = config.get("darkweb", "tor_enrich", default=False)
-        self.tor_proxy   = config.get("darkweb", "tor_proxy",  default="socks5://127.0.0.1:9050")
+        self.tor_enrich = config.get("darkweb", "tor_enrich", default=False)
+        self.tor_proxy = config.get("darkweb", "tor_proxy", default="socks5://127.0.0.1:9050")
 
     async def run(self, target: str) -> List[Dict]:
         domain = extract_domain(target)
@@ -233,21 +233,21 @@ class DarkWebMonitor:
                 continue
             for rec in parse_combolist(text, domain):
                 results.append({
-                    "type":   "credential_exposure",
+                    "type": "credential_exposure",
                     "source": "darkweb",
                     "data": {
-                        "target":   domain,
-                        "kind":     rec["kind"],       # corporate_ or service_credential
+                        "target": domain,
+                        "kind": rec["kind"],       # corporate_ or service_credential
                         "identity": rec["identity"],
-                        "host":     rec["host"],
-                        "url":      rec["url"],
+                        "host": rec["host"],
+                        "url": rec["url"],
                         "password": rec["password"],   # already "[redacted:N]"
-                        "dump":     p.name,
+                        "dump": p.name,
                     },
-                    "confidence":      0.9,
+                    "confidence": 0.9,
                     "relevance_score": 0.95,
-                    "tags":            ["darkweb", "stealer", "credential", "exposure"],
-                    "is_anomaly":      True,
+                    "tags": ["darkweb", "stealer", "credential", "exposure"],
+                    "is_anomaly": True,
                 })
         return results
 
@@ -315,46 +315,46 @@ class DarkWebMonitor:
         results: List[Dict] = []
         for rec in matches:
             results.append({
-                "type":   "ransomware_exposure",
+                "type": "ransomware_exposure",
                 "source": "darkweb",
                 "data": {
-                    "target":      domain,
-                    "victim":      rec["victim"],
-                    "group":       rec["group"],
+                    "target": domain,
+                    "victim": rec["victim"],
+                    "group": rec["group"],
                     "attack_date": rec["attack_date"],
-                    "discovered":  rec["discovered"],
-                    "country":     rec["country"],
-                    "activity":    rec["activity"],
-                    "claim_url":   rec["claim_url"],
-                    "record_url":  rec["record_url"],
+                    "discovered": rec["discovered"],
+                    "country": rec["country"],
+                    "activity": rec["activity"],
+                    "claim_url": rec["claim_url"],
+                    "record_url": rec["record_url"],
                     "has_infostealer_data": rec["infostealer"],
-                    "match":       rec["match"],
+                    "match": rec["match"],
                 },
                 # a domain-confirmed leak is near-certain; a name match is weaker
-                "confidence":      0.95 if rec["match"] == "domain" else 0.6,
+                "confidence": 0.95 if rec["match"] == "domain" else 0.6,
                 "relevance_score": 1.0 if rec["match"] == "domain" else 0.7,
-                "tags":            ["darkweb", "ransomware", "leak", "breach"],
+                "tags": ["darkweb", "ransomware", "leak", "breach"],
                 # only a domain-confirmed hit is a real alert; a fuzzy name match
                 # is advisory and must not raise a false anomaly.
-                "is_anomaly":      rec["match"] == "domain",
+                "is_anomaly": rec["match"] == "domain",
             })
 
         results.append({
-            "type":   "darkweb_summary",
+            "type": "darkweb_summary",
             "source": "darkweb",
             "data": {
-                "target":            domain,
-                "ransomware_hits":   len(matches),
-                "domain_confirmed":  sum(1 for m in matches if m["match"] == "domain"),
-                "name_matches":      sum(1 for m in matches if m["match"] == "name"),
-                "groups":            sorted({m["group"] for m in matches if m["group"]}),
-                "sources_checked":   ["ransomware.live"]
-                                     + (["combolists"] if self.combolist_paths else []),
+                "target": domain,
+                "ransomware_hits": len(matches),
+                "domain_confirmed": sum(1 for m in matches if m["match"] == "domain"),
+                "name_matches": sum(1 for m in matches if m["match"] == "name"),
+                "groups": sorted({m["group"] for m in matches if m["group"]}),
+                "sources_checked": ["ransomware.live"]
+                + (["combolists"] if self.combolist_paths else []),
             },
-            "confidence":      1.0,
+            "confidence": 1.0,
             "relevance_score": 0.8 if matches else 0.4,
-            "tags":            ["darkweb", "summary"],
+            "tags": ["darkweb", "summary"],
             # a confirmed leak is the alert; name-only fuzzy hits don't raise one
-            "is_anomaly":      any(m["match"] == "domain" for m in matches),
+            "is_anomaly": any(m["match"] == "domain" for m in matches),
         })
         return results
