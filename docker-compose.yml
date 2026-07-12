@@ -34,7 +34,7 @@ services:
       timeout: 10s
       retries: 3
 
-  # Optional: Tor proxy for Ghost Mode
+  # Optional: Tor proxy for covert scans
   tor:
     image: dperson/torproxy:latest
     container_name: phantomsignal-tor
@@ -42,7 +42,7 @@ services:
       - "9050:9050"
       - "8118:8118"
     restart: unless-stopped
-    profiles: ["ghost"]
+    profiles: ["covert"]
 
 volumes:
   phantomsignal-data:

@@ -14,8 +14,6 @@
   <link rel="stylesheet" href="site.css">
 </head>
 <body>
-  <canvas id="matrix-canvas"></canvas>
-  <div class="scanlines"></div>
 
   <!-- NAV -->
   <nav class="site-nav">
@@ -27,7 +25,6 @@
       <a href="#features" class="nav-link">FEATURES</a>
       <a href="#quickstart" class="nav-link">INSTALL</a>
       <a href="https://github.com/getphantomsignal/phantomsignal/blob/main/docs/USAGE.md" class="nav-link">DOCS</a>
-      <a href="https://github.com/sponsors/getphantomsignal" target="_blank" class="nav-link" style="color:var(--purple);">♥ SPONSOR</a>
       <a href="https://github.com/getphantomsignal/phantomsignal" target="_blank" class="nav-link nav-gh">
         <svg class="gh-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
         GITHUB
@@ -52,7 +49,7 @@
 /____/___/\____/_/ |_/_/  |_/_____/</pre>
       </div>
       <div class="hero-text">
-        <div class="hero-eyebrow">// PHANTOM SIGNAL v1.23.0</div>
+        <div class="hero-eyebrow">// PHANTOM SIGNAL v1.24.0</div>
         <h1 class="hero-title">PHANTOM<span class="accent">SIGNAL</span></h1>
         <p class="hero-tagline">"Map the surface. Own the signal."</p>
         <p class="hero-sub">Open-source OSINT intelligence framework for security researchers,<br>penetration testers, and digital investigators.</p>
@@ -70,12 +67,12 @@
           </div>
         </div>
         <div class="hero-badges">
-          <img src="https://img.shields.io/badge/python-3.10+-ff7a45?style=flat-square&logo=python" alt="Python">
-          <img src="https://img.shields.io/badge/license-MIT-35d0ff?style=flat-square" alt="MIT License">
-          <img src="https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows%20%7C%20Docker-a78bfa?style=flat-square" alt="Platform">
-          <a href="https://github.com/getphantomsignal/phantomsignal" target="_blank" rel="noopener"><img src="https://img.shields.io/github/stars/getphantomsignal/phantomsignal?style=flat-square&color=ff7a45" alt="Stars"></a>
-          <a href="https://github.com/getphantomsignal/phantomsignal" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/github-phantomsignal-35d0ff?style=flat-square&logo=github" alt="GitHub Repo"></a>
-          <a href="https://pypi.org/project/phantomsignal/" target="_blank" rel="noopener"><img src="https://img.shields.io/pypi/v/phantomsignal?style=flat-square&logo=pypi&color=ff7a45" alt="PyPI"></a>
+          <img src="https://img.shields.io/badge/python-3.10+-4d9fd6?style=flat-square&logo=python" alt="Python">
+          <img src="https://img.shields.io/badge/license-MIT-7fb8dd?style=flat-square" alt="MIT License">
+          <img src="https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows%20%7C%20Docker-c9a24a?style=flat-square" alt="Platform">
+          <a href="https://github.com/getphantomsignal/phantomsignal" target="_blank" rel="noopener"><img src="https://img.shields.io/github/stars/getphantomsignal/phantomsignal?style=flat-square&color=4d9fd6" alt="Stars"></a>
+          <a href="https://github.com/getphantomsignal/phantomsignal" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/github-phantomsignal-7fb8dd?style=flat-square&logo=github" alt="GitHub Repo"></a>
+          <a href="https://pypi.org/project/phantomsignal/" target="_blank" rel="noopener"><img src="https://img.shields.io/pypi/v/phantomsignal?style=flat-square&logo=pypi&color=4d9fd6" alt="PyPI"></a>
         </div>
       </div>
     </div>
@@ -85,9 +82,9 @@
   <!-- DEMO -->
   <section class="section section-demo" id="demo">
     <div class="section-inner">
-      <div class="section-label">◉ LIVE DEMO</div>
-      <h2 class="section-title">PhantomSignal in Action</h2>
-      <p class="section-sub">Full-spectrum recon against example.com — DNS, ports, tech stack, APIs, and web crawl in one command.</p>
+      <div class="section-label">◉ A SCAN IN ACTION</div>
+      <h2 class="section-title">One Command, Full-Spectrum Recon</h2>
+      <p class="section-sub">A single <code>phantomsignal scan</code> orchestrates the entire pipeline — resolving DNS and WHOIS, mapping open ports and services, fingerprinting the technology stack, correlating threat intelligence across dozens of API sources, and crawling the public web surface — then rolls every finding into a single Risk Score and writes a shareable HTML report.</p>
       <div class="demo-wrap">
         <div class="demo-bar">
           <span class="demo-dot red"></span>
@@ -95,7 +92,29 @@
           <span class="demo-dot green"></span>
           <span class="demo-title">phantomsignal — scan example.com</span>
         </div>
-        <img src="assets/demo.gif" class="demo-gif" alt="PhantomSignal CLI demo">
+        <pre class="code-block"><span class="c-green">$</span> phantomsignal scan example.com --profile standard --format html
+
+<span class="c-cyan">◈  Target </span>  : example.com  <span class="c-dim">(domain)</span>
+<span class="c-cyan">◈  Profile</span>  : standard     <span class="c-dim">(~2–5 min)</span>
+<span class="c-cyan">◈  Modules</span>  : dns_recon port_scan tech_detect api_hunt web_crawl intel
+
+<span class="c-dim">[1/6]</span> DNS &amp; WHOIS ......... <span class="c-green">42 records · 7 subdomains</span>
+<span class="c-dim">[2/6]</span> Port scan .......... <span class="c-green">6 open · 22 80 443 8080 …</span>
+<span class="c-dim">[3/6]</span> Tech fingerprint ... <span class="c-green">nginx · Cloudflare · React · WordPress</span>
+<span class="c-dim">[4/6]</span> Threat intel ....... <span class="c-green">31 sources queried · 0 malicious</span>
+<span class="c-dim">[5/6]</span> Web crawl .......... <span class="c-green">128 URLs · 3 exposed endpoints</span>
+<span class="c-dim">[6/6]</span> Scoring ............ <span class="c-green">Risk Score 34 / 100 (MEDIUM)</span>
+
+<span class="c-green">✓</span>  Report written → <span class="c-cyan">./reports/example.com.html</span></pre>
+      </div>
+
+      <div class="demo-stages">
+        <div class="demo-stage"><span class="demo-stage-k">DNS &amp; WHOIS</span><span class="demo-stage-v">A/AAAA/MX/NS/TXT records, registrar and nameserver data, and passive subdomain discovery to map the full domain footprint.</span></div>
+        <div class="demo-stage"><span class="demo-stage-k">Port &amp; Service Scan</span><span class="demo-stage-v">nmap-driven open-port enumeration with service version and OS detection, plus optional stealth decoy and idle-scan modes.</span></div>
+        <div class="demo-stage"><span class="demo-stage-k">Tech Fingerprint</span><span class="demo-stage-v">Server, CDN, framework, CMS and JavaScript-library detection from headers, response bodies, and favicon / JARM hashes.</span></div>
+        <div class="demo-stage"><span class="demo-stage-k">Threat Intelligence</span><span class="demo-stage-v">Concurrent correlation across 45+ sources — Shodan, VirusTotal, AbuseIPDB, AlienVault OTX, and breach / reputation feeds.</span></div>
+        <div class="demo-stage"><span class="demo-stage-k">Web Crawl</span><span class="demo-stage-v">Surface mapping of links, forms and exposed endpoints, with secret and API-key mining across every discovered asset.</span></div>
+        <div class="demo-stage"><span class="demo-stage-k">Risk Scoring &amp; Report</span><span class="demo-stage-v">Findings roll into a 0–100 Risk Score on a true green → amber → red gradient, exported as a shareable HTML report.</span></div>
       </div>
     </div>
   </section>
@@ -104,13 +123,13 @@
   <section class="section section-whatsnew" id="whatsnew">
     <div class="section-inner">
       <div class="section-label">🆕 WHAT'S NEW</div>
-      <h2 class="section-title">v1.23.0 — PHANTOM SIGNAL</h2>
-      <p class="section-sub">A redesigned web console: three switchable themes, clearer plain-language UI, clickable dashboards, and one-click re-scans.</p>
+      <h2 class="section-title">v1.24.0 — PHANTOM SIGNAL</h2>
+      <p class="section-sub">A streamlined web console: two carefully tuned themes, clearer plain-language UI, clickable dashboards, and one-click re-scans.</p>
       <div class="whatsnew-grid">
         <div class="whatsnew-card">
           <div class="whatsnew-icon">🎨</div>
-          <h3 class="whatsnew-title">Three Switchable Themes</h3>
-          <p class="whatsnew-desc">A new theming system built on semantic role tokens: <strong>Dark</strong> (a deep-slate federal console, default), <strong>Neon</strong> (deep-navy with a warm coral glow), and <strong>Light</strong> (clean and print-friendly). Flip between them from a segmented switch in the nav — the choice persists and applies before first paint. Every token in every theme is validated to WCAG AA contrast.</p>
+          <h3 class="whatsnew-title">Two Tuned Themes</h3>
+          <p class="whatsnew-desc">A theming system built on semantic role tokens: <strong>Dark</strong> (a deep-slate federal console, default) and <strong>Light</strong> (clean and print-friendly). Flip between them from the ☀ / ☾ segmented switch in the nav — the choice persists and applies before first paint, so there's no flash on reload. Every token in both themes is validated to WCAG AA contrast.</p>
         </div>
         <div class="whatsnew-card">
           <div class="whatsnew-icon">📝</div>
@@ -209,31 +228,31 @@
     </div>
   </section>
 
-  <!-- GHOST MODE CALLOUT -->
+  <!-- COVERT RECON CALLOUT -->
   <section class="section section-ghost">
     <div class="section-inner ghost-inner">
       <div class="ghost-text">
-        <div class="section-label">👻 GHOST MODE</div>
+        <div class="section-label">◈ COVERT RECON</div>
         <h2 class="section-title">Low-and-Slow. Minimum Footprint.</h2>
-        <p class="section-sub">Identity rotation, request jitter, user-agent spoofing, and optional Tor routing keep your recon beneath the noise floor. Purpose-built for engagements where detection is not an option.</p>
-        <a href="#quickstart" class="btn btn-primary" style="margin-top:1.5rem;">DEPLOY GHOST MODE</a>
+        <p class="section-sub">Identity rotation, request jitter, user-agent spoofing, and optional Tor routing keep your recon beneath the noise floor. Purpose-built for engagements where staying under the radar matters.</p>
+        <a href="#quickstart" class="btn btn-primary" style="margin-top:1.5rem;">RUN A COVERT SCAN</a>
       </div>
       <div class="ghost-code">
         <div class="demo-bar">
           <span class="demo-dot red"></span><span class="demo-dot yellow"></span><span class="demo-dot green"></span>
-          <span class="demo-title">ghost mode + tor</span>
+          <span class="demo-title">covert scan + tor</span>
         </div>
-        <pre class="code-block"><span class="c-dim"># Docker — Ghost Mode with Tor routing</span>
-<span class="c-green">docker-compose</span> --profile ghost up -d
+        <pre class="code-block"><span class="c-dim"># Docker — covert scan with Tor routing</span>
+<span class="c-green">docker-compose</span> --profile covert up -d
 
-<span class="c-dim"># CLI — Ghost Mode scan</span>
+<span class="c-dim"># CLI — covert scan</span>
 <span class="c-green">phantomsignal</span> scan target.com \
-  --profile ghost \
+  --profile covert \
   --modules dns,tech \
   --format json
 
-<span class="c-dim"># Web UI — toggle Ghost Mode</span>
-<span class="c-cyan">Advanced Config</span> → Ghost Mode (low &amp; slow) ✓</pre>
+<span class="c-dim"># Web UI — enable Evasive mode</span>
+<span class="c-cyan">Advanced Config</span> → Evasive (low &amp; slow) ✓</pre>
       </div>
     </div>
   </section>
@@ -245,22 +264,22 @@
       <h2 class="section-title">Exposure. Quantified.</h2>
       <p class="section-sub">Every scan produces a Risk Score (0–100) — a weighted composite of open ports, vulnerability findings, missing security controls, and threat intelligence flags.</p>
       <div class="score-grid">
-        <div class="score-band" style="--band-color:#33e0a3">
+        <div class="score-band" style="--band-color:#5cb874">
           <div class="score-range">0–25</div>
           <div class="score-label">CLEAN</div>
           <div class="score-desc">Minimal exposure. Good security posture.</div>
         </div>
-        <div class="score-band" style="--band-color:#ffc24d">
+        <div class="score-band" style="--band-color:#e0a63a">
           <div class="score-range">26–50</div>
           <div class="score-label">ELEVATED</div>
           <div class="score-desc">Some findings worth reviewing and tracking.</div>
         </div>
-        <div class="score-band" style="--band-color:#ffb454">
+        <div class="score-band" style="--band-color:#d97b3a">
           <div class="score-range">51–75</div>
           <div class="score-label">HIGH</div>
           <div class="score-desc">Significant issues. Remediation recommended.</div>
         </div>
-        <div class="score-band" style="--band-color:#ff5064">
+        <div class="score-band" style="--band-color:#e26d6d">
           <div class="score-range">76–100</div>
           <div class="score-label">CRITICAL</div>
           <div class="score-desc">Urgent issues. Active risk. Act immediately.</div>
@@ -448,38 +467,6 @@
     </div>
   </section>
 
-  <!-- SPONSORS -->
-  <section class="section section-sponsors">
-    <div class="section-inner" style="text-align:center;max-width:680px;">
-      <div class="section-label">💜 SUPPORT THE GRID</div>
-      <h2 class="section-title">Sponsor PhantomSignal</h2>
-      <p class="section-sub">PhantomSignal is free, open-source, and built on personal time. Sponsorships fund domain renewals, infrastructure, trademark filing, and new module development.</p>
-      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin:2rem 0;">
-        <div class="sponsor-tier">
-          <div class="sponsor-tier-name">Ghost Operative</div>
-          <div class="sponsor-tier-price">$5 <span>/mo</span></div>
-          <div class="sponsor-tier-desc">Infrastructure &amp; domains</div>
-        </div>
-        <div class="sponsor-tier">
-          <div class="sponsor-tier-name">Shadow Agent</div>
-          <div class="sponsor-tier-price">$15 <span>/mo</span></div>
-          <div class="sponsor-tier-desc">API integrations &amp; updates</div>
-        </div>
-        <div class="sponsor-tier sponsor-tier-featured">
-          <div class="sponsor-tier-name">Signal Sponsor</div>
-          <div class="sponsor-tier-price">$50 <span>/mo</span></div>
-          <div class="sponsor-tier-desc">Trademark filing &amp; new modules · listed in README</div>
-        </div>
-        <div class="sponsor-tier">
-          <div class="sponsor-tier-name">Grid Patron</div>
-          <div class="sponsor-tier-price">$200 <span>/mo</span></div>
-          <div class="sponsor-tier-desc">Development sprints · roadmap input · prominent listing</div>
-        </div>
-      </div>
-      <a href="https://github.com/sponsors/getphantomsignal" target="_blank" class="btn-primary" style="display:inline-block;padding:0.75rem 2rem;font-weight:700;letter-spacing:0.1em;">♥ SPONSOR ON GITHUB</a>
-    </div>
-  </section>
-
   <!-- FOOTER -->
   <footer class="site-footer">
     <div class="footer-inner">
@@ -494,55 +481,16 @@
         <a href="https://github.com/getphantomsignal/phantomsignal" target="_blank" class="footer-link">GITHUB</a>
         <span>·</span>
         <a href="https://github.com/getphantomsignal/phantomsignal/blob/main/docs/USAGE.md" class="footer-link">DOCS</a>
-        <span>·</span>
-        <a href="https://github.com/sponsors/getphantomsignal" target="_blank" class="footer-link" style="color:var(--purple);">♥ SPONSOR</a>
       </div>
     </div>
   </footer>
 
   <script>
-    // Matrix rain
-    (function(){
-      const canvas = document.getElementById('matrix-canvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()アイウエオカキクケコサシスセソ';
-      let cols, drops, fontSize = 13;
-      function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        cols = Math.floor(canvas.width / fontSize);
-        drops = new Float32Array(cols).fill(0);
-        for (let i = 0; i < cols; i++) drops[i] = Math.random() * -canvas.height / fontSize;
-      }
-      function draw() {
-        ctx.fillStyle = 'rgba(7,13,26,0.06)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        for (let i = 0; i < cols; i++) {
-          const char = CHARS[Math.floor(Math.random() * CHARS.length)];
-          const bright = Math.random() > 0.97;
-          ctx.fillStyle = bright ? 'rgba(255,255,255,0.9)' : 'rgba(255,122,69,0.28)';
-          ctx.font = `${fontSize}px monospace`;
-          ctx.fillText(char, i * fontSize, drops[i] * fontSize);
-          if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-          drops[i] += 0.5;
-        }
-      }
-      resize();
-      window.addEventListener('resize', resize);
-      let last = 0;
-      function loop(t) {
-        if (t - last > 50) { draw(); last = t; }
-        requestAnimationFrame(loop);
-      }
-      requestAnimationFrame(loop);
-    })();
-
     // Copy install command
     function copyInstall() {
       navigator.clipboard.writeText(document.getElementById('install-cmd').textContent);
       const btn = document.querySelector('.copy-btn');
-      btn.style.color = '#ff7a45';
+      btn.style.color = '#4d9fd6';
       setTimeout(() => btn.style.color = '', 1500);
     }
 

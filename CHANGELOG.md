@@ -11,6 +11,56 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.24.0] — 2026-07-12
+
+Simplified the web console to two themes and removed the pre-rendered demo /
+screenshot assets in favour of richer written descriptions.
+
+### Changed
+- **Themes cut to two**: the opt-in **Neon** theme was removed; the console now
+  ships **Dark** (default) and **Light** only. The `:root[data-theme="neon"]`
+  token block, the third nav toggle, and the now-dead `cycleTheme()` helper were
+  deleted. Legacy `--neon-*` colour-utility aliases are unaffected — they resolve
+  to the active theme's role tokens.
+- **README banner**: replaced the ASCII-art logo block with the project name and
+  tagline.
+- **README + landing page**: the "Demo" / "Live Demo" sections no longer embed a
+  screenshot GIF or asciinema recording. They now show a plain-text terminal
+  transcript plus a written breakdown of each scan stage, and the functional
+  copy was expanded throughout.
+- **De-cyberpunk pass**: removed "cyberpunk" / "Phantom Dawn" flavour wording from
+  the README, `USAGE.md`, `web/app.py`, and the About page, and dropped the
+  landing page's animated matrix-rain canvas and CRT scanline overlay (elements,
+  CSS, and JS).
+- **"Ghost Mode" → Covert / Evasive**: brought the public docs in line with the
+  app's plain-language terminology. The README feature, landing-page callout, and
+  `USAGE.md` now describe the **Covert** scan profile and **Evasive (low & slow)**
+  toggle instead of "Ghost Mode"; corrected the CLI reference (`--profile covert`,
+  not `ghost`; dropped the non-existent `--ghost` flag). The Docker Tor sidecar
+  compose profile was renamed `ghost` → `covert` (`docker-compose --profile covert`).
+- **USAGE.md nav-terminology sync**: brought the full user guide in line with the
+  app's current plain-language UI — "Ghost Run(s)" → **Scans**, "New Mission" →
+  **New Scan**, "Ghost Keys" → **Integrations**, "Quick Probe" → **Quick Scan** /
+  the **Quick** profile, "Shadow Grid" → **Dashboard**, "Shadow Profiler" →
+  **Profiler**, "Shadow Score" → **Risk Score**, profile names Standard/Deep, and
+  the "Start Scan" button — including the nav map, section headings, and TOC anchors.
+- **GitHub Pages retheme**: the landing site (`docs/index.html`, `docs/site.css`)
+  was recoloured from the coral/neon marketing palette to the app's default Dark
+  theme — deep-slate surfaces, federal-blue hero, steel-blue links, gold accents,
+  restrained glow, and an app-aligned green → amber → red risk-score ramp. README
+  and landing-page shield badges were updated to the same blue / steel / gold.
+
+### Removed
+- `docs/assets/demo.gif`, `docs/assets/demo.cast`, `docs/assets/screenshot_cli.svg`,
+  and the `scripts/gen_assets.py` generator (its only outputs were the removed
+  demo / screenshot assets).
+- The asciinema embed and "play it locally" instructions from the README.
+- **All sponsorship / funding solicitation**: the GitHub Sponsors badge and
+  "Sponsors" tier section in the README, the landing page's nav / footer sponsor
+  links and sponsor-tier section (plus its CSS), and `.github/FUNDING.yml`.
+
+---
+
 ## [1.21.0] — 2026-07-11
 
 Operations-console theme system — a ground-up redesign of the web UI's theming

@@ -1,40 +1,24 @@
 # PhantomSignal
 
-```
-    ____  __  _____    _   ____________  __  ___
-   / __ \/ / / /   |  / | / /_  __/ __ \/  |/  /
-  / /_/ / /_/ / /| | /  |/ / / / / / / / /|_/ /
- / ____/ __  / ___ |/ /|  / / / / /_/ / /  / /
-/_/   /_/ /_/_/  |_/_/ |_/ /_/  \____/_/  /_/
+> **Open-source OSINT intelligence framework** — _"Map the surface. Own the signal."_
 
-   _____ ___________   _____    __
-  / ___//  _/ ____/ | / /   |  / /
-  \__ \ / // / __/  |/ / /| | / /
- ___/ // // /_/ / /|  / ___ |/ /___
-/____/___/\____/_/ |_/_/  |_/_____/
-
-         >> OPEN-SOURCE OSINT INTELLIGENCE FRAMEWORK <<
-                 "Map the surface. Own the signal."
-```
-
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-00ff41?style=flat-square&logo=python)](https://python.org)
-[![License: MIT](https://img.shields.io/badge/license-MIT-00f3ff?style=flat-square)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows%20%7C%20Docker-b026ff?style=flat-square)]()
-[![GitHub Stars](https://img.shields.io/github/stars/getphantomsignal/phantomsignal?style=flat-square&color=00ff41)](https://github.com/getphantomsignal/phantomsignal/stargazers)
-[![Open Issues](https://img.shields.io/github/issues/getphantomsignal/phantomsignal?style=flat-square&color=b026ff)](https://github.com/getphantomsignal/phantomsignal/issues)
-[![CI](https://img.shields.io/github/actions/workflow/status/getphantomsignal/phantomsignal/ci.yml?branch=main&style=flat-square&label=CI&color=00ff41)](https://github.com/getphantomsignal/phantomsignal/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/phantomsignal?style=flat-square&color=b026ff&logo=pypi&logoColor=white)](https://pypi.org/project/phantomsignal/)
-[![Project Site](https://img.shields.io/badge/site-phantomsignal.sh-00f3ff?style=flat-square&logo=github)](https://phantomsignal.sh)
-[![Changelog](https://img.shields.io/badge/changelog-view-00ff41?style=flat-square)](CHANGELOG.md)
-[![Sponsors](https://img.shields.io/github/sponsors/getphantomsignal?style=flat-square&color=b026ff&label=sponsors)](https://github.com/sponsors/getphantomsignal)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-4d9fd6?style=flat-square&logo=python)](https://python.org)
+[![License: MIT](https://img.shields.io/badge/license-MIT-7fb8dd?style=flat-square)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows%20%7C%20Docker-c9a24a?style=flat-square)]()
+[![GitHub Stars](https://img.shields.io/github/stars/getphantomsignal/phantomsignal?style=flat-square&color=4d9fd6)](https://github.com/getphantomsignal/phantomsignal/stargazers)
+[![Open Issues](https://img.shields.io/github/issues/getphantomsignal/phantomsignal?style=flat-square&color=c9a24a)](https://github.com/getphantomsignal/phantomsignal/issues)
+[![CI](https://img.shields.io/github/actions/workflow/status/getphantomsignal/phantomsignal/ci.yml?branch=main&style=flat-square&label=CI&color=4d9fd6)](https://github.com/getphantomsignal/phantomsignal/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/phantomsignal?style=flat-square&color=c9a24a&logo=pypi&logoColor=white)](https://pypi.org/project/phantomsignal/)
+[![Project Site](https://img.shields.io/badge/site-phantomsignal.sh-7fb8dd?style=flat-square&logo=github)](https://phantomsignal.sh)
+[![Changelog](https://img.shields.io/badge/changelog-view-4d9fd6?style=flat-square)](CHANGELOG.md)
 
 
 ---
 
-## ⚡ What's New in v1.23.0
+## ⚡ What's New in v1.24.0
 
-### Three switchable themes
-A redesigned theming system built on semantic role tokens: **Dark** (a deep-slate federal console, default), **Neon** (deep-navy with a warm coral glow), and **Light** (clean and print-friendly). Switch from a segmented control in the nav — your choice persists and applies before first paint. Every token in every theme is validated to **WCAG AA** contrast.
+### Streamlined to two themes
+The web console now ships **two** carefully tuned themes built on semantic role tokens — **Dark** (a deep-slate federal console, the default) and **Light** (clean and print-friendly). Switch from the ☀ / ☾ segmented control in the nav; your choice persists in the browser and is applied before first paint, so there's no flash on reload. Every token in both themes is validated to **WCAG AA** contrast.
 
 ### Plain-language interface
 The web UI was rewritten from codenames to clear, function-first labels — **Dashboard, New Scan, Scans, Profiler, Integrations** — so a first-time user can tell what everything does. Findings, Risk Score, Data Sources, and consistent severity language throughout.
@@ -50,30 +34,44 @@ The Risk Score meter now runs a true green → amber → red ramp, so a low scor
 
 ---
 
-## 🎬 Demo
+## 🎬 A Scan in Action
 
-### CLI — a scan in action
+A single command runs the full pipeline — DNS and WHOIS resolution, port and
+service scanning, technology fingerprinting, threat-intelligence correlation
+across 45+ sources, and a web-surface crawl — then rolls every finding into a
+single Risk Score and writes a shareable HTML report.
 
-![CLI scan demo](https://raw.githubusercontent.com/getphantomsignal/phantomsignal/main/docs/assets/demo.gif)
+```text
+$ phantomsignal scan example.com --profile standard --format html
 
+◈  Target   : example.com  (domain)
+◈  Profile  : standard     (~2–5 min)
+◈  Modules  : dns_recon port_scan tech_detect api_hunt web_crawl intel
+
+[1/6] DNS & WHOIS ......... 42 records · 7 subdomains
+[2/6] Port scan .......... 6 open · 22 80 443 8080 …
+[3/6] Tech fingerprint ... nginx · Cloudflare · React · WordPress
+[4/6] Threat intel ....... 31 sources queried · 0 malicious
+[5/6] Web crawl .......... 128 URLs · 3 exposed endpoints
+[6/6] Scoring ............ Risk Score 34 / 100 (MEDIUM)
+
+✓  Report written → ./reports/example.com.html
+```
+
+Stages run concurrently where possible and degrade gracefully — a module
+without a configured API key returns empty rather than failing the scan.
 
 ### Web UI — Theme Options
 
-PhantomSignal ships with three built-in UI themes, selectable via the **segmented switch** (☀ / ☾ / ◈) in the top navigation bar. Your preference is saved automatically and persists across sessions. Every token in every theme is validated to WCAG AA contrast.
+The web console ships with two built-in themes, selectable from the **segmented
+switch** (☀ / ☾) in the top navigation bar. Your preference is saved
+automatically and applied before first paint, so there's no flash on reload.
+Every token in every theme is validated to WCAG AA contrast.
 
 | Theme | Description |
 |-------|-------------|
 | **Dark** *(default)* | Deep-slate federal console — federal-blue hero, gold accents, restrained glow |
-| **Neon** | Deep-navy futuristic console — warm neon-coral hero, cyan links, hot-pink, glow bloom |
 | **Light** | Clean daytime / print-friendly — white surfaces, federal-blue accents, flat (no glow) |
-
-> **Asciinema recording:** Watch the full interactive demo on asciinema.org, or play it locally:
-> ```bash
-> pip install asciinema
-> asciinema play https://raw.githubusercontent.com/getphantomsignal/phantomsignal/main/docs/assets/demo.cast
-> ```
-
-[![asciicast](https://asciinema.org/a/1190779.svg)](https://asciinema.org/a/1190779)
 
 ---
 
@@ -130,7 +128,7 @@ LexisNexis-style identity aggregation from public records:
 |--------|-------------|
 | **JSON** | Raw machine-readable data |
 | **CSV** | Spreadsheet-compatible |
-| **HTML** | Self-contained cyberpunk-styled report |
+| **HTML** | Self-contained styled report |
 | **PDF** | Professional dossier via ReportLab |
 | **XML** | Structured data |
 | **XLSX** | Excel workbook |
@@ -139,18 +137,18 @@ LexisNexis-style identity aggregation from public records:
 
 All formats support **ZIP compression** and **AES-256-GCM encryption**.
 
-### 🌑 Ghost Mode
-- Low-and-slow scanning profiles to minimize detection
+### 🌑 Covert Recon
+- Low-and-slow **Covert** scan profile to minimize noise
 - Identity rotation via user-agent spoofing
-- Tor proxy integration (Docker compose profile: `ghost`)
-- Configurable request jitter and delays
+- Tor proxy integration (Docker compose profile: `covert`)
+- Configurable request jitter and delays, toggled via **Evasive** mode
 
 ### 🔔 Additional Features
 - **Real-time live feed** — WebSocket-powered terminal during scans
 - **Risk Score** — composite risk/exposure scoring
 - **Scheduled Phantoms** — recurring automated scans
 - **API health monitor** — dashboard showing configured APIs and rate limits
-- **Light/Dark theme** — toggle between cyberpunk Dark mode and "Phantom Dawn" Light mode via the ☀/🌙 button; preference persisted in localStorage
+- **Light / Dark themes** — switch between the default Dark console and a clean Light mode from the ☀ / ☾ segmented control in the nav; preference persisted in localStorage and applied before first paint
 - **Full REST API** — integrate PhantomSignal into your own toolchain
 - **CLI interface** — `phantomsignal scan`, `phantomsignal profile`, `phantomsignal export`
 - **Docker** — single-command deployment
@@ -255,8 +253,8 @@ phantomsignal/
 ├── exporters/          — JSON/CSV/PDF/HTML/XML/XLSX/STIX + crypto wrapper
 └── web/
     ├── routes/         — Flask blueprints (dashboard, scans, intel, settings, export, REST API)
-    ├── templates/      — Cyberpunk Jinja2 templates
-    └── static/         — CSS (cyberpunk), JS (matrix, terminal, app)
+    ├── templates/      — Jinja2 templates
+    └── static/         — CSS (role-token themes), JS (terminal, app)
 ```
 
 ---
@@ -301,27 +299,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. Please also review our [C
 
 ---
 
-## 💜 Sponsors
-
-PhantomSignal is free, open-source, and built on personal time. If it's useful to you, consider sponsoring to help cover infrastructure costs, domain renewals, trademark filing, and ongoing development.
-
-**[→ Sponsor PhantomSignal on GitHub](https://github.com/sponsors/getphantomsignal)**
-
-| Tier | $/mo | What it covers |
-|---|---|---|
-| Ghost Operative | $5 | Domain renewals & infrastructure |
-| Shadow Agent | $15 | API integrations & dependency updates |
-| Signal Sponsor | $50 | Trademark filing, new modules — listed in README |
-| Grid Patron | $200 | Development sprints, roadmap input — prominent listing |
-
-> Signal Sponsors ($50+) and Grid Patrons ($200+) are listed below.
-
-<!-- SPONSORS -->
-<!-- This section is updated when sponsors join -->
-<!-- END SPONSORS -->
-
----
-
 ## ⚠️ Legal & Ethics
 
 PhantomSignal is a dual-use tool. Operators are responsible for:
@@ -336,26 +313,26 @@ PhantomSignal is a dual-use tool. Operators are responsible for:
 
 ## 🏷 Topics
 
-[![osint](https://img.shields.io/badge/osint-00ff41?style=flat-square)](https://github.com/topics/osint)
-[![security](https://img.shields.io/badge/security-00f3ff?style=flat-square)](https://github.com/topics/security)
-[![python](https://img.shields.io/badge/python-00f3ff?style=flat-square)](https://github.com/topics/python)
-[![hacking](https://img.shields.io/badge/hacking-00ff41?style=flat-square)](https://github.com/topics/hacking)
-[![cybersecurity](https://img.shields.io/badge/cybersecurity-b026ff?style=flat-square)](https://github.com/topics/cybersecurity)
-[![reconnaissance](https://img.shields.io/badge/reconnaissance-00ff41?style=flat-square)](https://github.com/topics/reconnaissance)
-[![recon](https://img.shields.io/badge/recon-00f3ff?style=flat-square)](https://github.com/topics/recon)
-[![penetration-testing](https://img.shields.io/badge/penetration--testing-b026ff?style=flat-square)](https://github.com/topics/penetration-testing)
-[![ethical-hacking](https://img.shields.io/badge/ethical--hacking-00ff41?style=flat-square)](https://github.com/topics/ethical-hacking)
-[![bug-bounty](https://img.shields.io/badge/bug--bounty-00f3ff?style=flat-square)](https://github.com/topics/bug-bounty)
-[![information-gathering](https://img.shields.io/badge/information--gathering-b026ff?style=flat-square)](https://github.com/topics/information-gathering)
-[![threat-intelligence](https://img.shields.io/badge/threat--intelligence-00ff41?style=flat-square)](https://github.com/topics/threat-intelligence)
-[![security-tools](https://img.shields.io/badge/security--tools-00f3ff?style=flat-square)](https://github.com/topics/security-tools)
-[![network-scanner](https://img.shields.io/badge/network--scanner-b026ff?style=flat-square)](https://github.com/topics/network-scanner)
-[![dns-recon](https://img.shields.io/badge/dns--recon-00ff41?style=flat-square)](https://github.com/topics/dns-recon)
-[![infosec](https://img.shields.io/badge/infosec-00f3ff?style=flat-square)](https://github.com/topics/infosec)
-[![flask](https://img.shields.io/badge/flask-b026ff?style=flat-square)](https://github.com/topics/flask)
-[![security-research](https://img.shields.io/badge/security--research-00ff41?style=flat-square)](https://github.com/topics/security-research)
-[![footprinting](https://img.shields.io/badge/footprinting-00f3ff?style=flat-square)](https://github.com/topics/footprinting)
-[![automation](https://img.shields.io/badge/automation-b026ff?style=flat-square)](https://github.com/topics/automation)
+[![osint](https://img.shields.io/badge/osint-4d9fd6?style=flat-square)](https://github.com/topics/osint)
+[![security](https://img.shields.io/badge/security-7fb8dd?style=flat-square)](https://github.com/topics/security)
+[![python](https://img.shields.io/badge/python-7fb8dd?style=flat-square)](https://github.com/topics/python)
+[![hacking](https://img.shields.io/badge/hacking-4d9fd6?style=flat-square)](https://github.com/topics/hacking)
+[![cybersecurity](https://img.shields.io/badge/cybersecurity-c9a24a?style=flat-square)](https://github.com/topics/cybersecurity)
+[![reconnaissance](https://img.shields.io/badge/reconnaissance-4d9fd6?style=flat-square)](https://github.com/topics/reconnaissance)
+[![recon](https://img.shields.io/badge/recon-7fb8dd?style=flat-square)](https://github.com/topics/recon)
+[![penetration-testing](https://img.shields.io/badge/penetration--testing-c9a24a?style=flat-square)](https://github.com/topics/penetration-testing)
+[![ethical-hacking](https://img.shields.io/badge/ethical--hacking-4d9fd6?style=flat-square)](https://github.com/topics/ethical-hacking)
+[![bug-bounty](https://img.shields.io/badge/bug--bounty-7fb8dd?style=flat-square)](https://github.com/topics/bug-bounty)
+[![information-gathering](https://img.shields.io/badge/information--gathering-c9a24a?style=flat-square)](https://github.com/topics/information-gathering)
+[![threat-intelligence](https://img.shields.io/badge/threat--intelligence-4d9fd6?style=flat-square)](https://github.com/topics/threat-intelligence)
+[![security-tools](https://img.shields.io/badge/security--tools-7fb8dd?style=flat-square)](https://github.com/topics/security-tools)
+[![network-scanner](https://img.shields.io/badge/network--scanner-c9a24a?style=flat-square)](https://github.com/topics/network-scanner)
+[![dns-recon](https://img.shields.io/badge/dns--recon-4d9fd6?style=flat-square)](https://github.com/topics/dns-recon)
+[![infosec](https://img.shields.io/badge/infosec-7fb8dd?style=flat-square)](https://github.com/topics/infosec)
+[![flask](https://img.shields.io/badge/flask-c9a24a?style=flat-square)](https://github.com/topics/flask)
+[![security-research](https://img.shields.io/badge/security--research-4d9fd6?style=flat-square)](https://github.com/topics/security-research)
+[![footprinting](https://img.shields.io/badge/footprinting-7fb8dd?style=flat-square)](https://github.com/topics/footprinting)
+[![automation](https://img.shields.io/badge/automation-c9a24a?style=flat-square)](https://github.com/topics/automation)
 
 ---
 

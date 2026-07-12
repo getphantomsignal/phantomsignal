@@ -8,14 +8,14 @@
 
 1. [Getting Started](#1-getting-started)
 2. [The Web Interface](#2-the-web-interface)
-3. [Launching a Ghost Run](#3-launching-a-ghost-run)
+3. [Launching a Scan](#3-launching-a-scan)
 4. [Usage Scenarios](#4-usage-scenarios)
    - [Scenario A — Website Security Audit](#scenario-a--website-security-audit)
    - [Scenario B — IP / Server Reconnaissance](#scenario-b--ip--server-reconnaissance)
    - [Scenario C — Domain Intelligence](#scenario-c--domain-intelligence)
-   - [Scenario D — People Intelligence (Shadow Profiler)](#scenario-d--people-intelligence-shadow-profiler)
+   - [Scenario D — People Intelligence (Profiler)](#scenario-d--people-intelligence-profiler)
    - [Scenario E — Bug Bounty Recon](#scenario-e--bug-bounty-recon)
-   - [Scenario F — Ghost Mode (Low-and-Slow)](#scenario-f--ghost-mode-low-and-slow)
+   - [Scenario F — Covert Recon (Low-and-Slow)](#scenario-f--covert-recon-low-and-slow)
 5. [Configuring API Keys](#5-configuring-api-keys)
 6. [Reading Results](#6-reading-results)
 7. [Exporting Intel](#7-exporting-intel)
@@ -59,9 +59,9 @@ Open **http://localhost:5000**.
 | Step | Action |
 |------|--------|
 | 1 | Open the web UI at `http://127.0.0.1:5000` |
-| 2 | Navigate to **Ghost Keys** (⚙ in nav bar) and add at least one API key |
-| 3 | Go back to the **Shadow Grid** dashboard |
-| 4 | Use **Quick Probe** or **Launch Ghost Run** to start your first scan |
+| 2 | Navigate to **Integrations** (⚙ in nav bar) and add at least one API key |
+| 3 | Go back to the **Dashboard** |
+| 4 | Use **Quick Scan** or **New Scan** to start your first scan |
 
 ---
 
@@ -69,21 +69,21 @@ Open **http://localhost:5000**.
 
 ### Navigation
 
-| Page | Nav Label | Description |
-|------|-----------|-------------|
-| Dashboard | **GRID** | Mission overview, live feed, API status, quick probe |
-| New Scan | **NEW MISSION** | Full scan configuration form |
-| Scan List | **GHOST RUNS** | All past and active missions |
-| People Intel | **SHADOW PROFILER** | Person/email/username lookup |
-| Settings | **GHOST KEYS** | API key management |
+| Nav | What it does |
+|-----|--------------|
+| **Dashboard** | Overview, live feed, data-source status, and a Quick Scan box |
+| **New Scan** | Full scan configuration form |
+| **Scans** | All past and active scans |
+| **Profiler** | Person / email / username lookup |
+| **Integrations** | API key management |
 
-### Theme Toggle
+### Theme Switch
 
-Click the **☀ / 🌙** button in the top-right corner to switch between:
-- **Dark** — cyberpunk aesthetic, matrix rain, neon glow (default)
-- **Light** — "Phantom Dawn" clean light theme, matrix rain disabled
+Use the **☀ / ☾** segmented control in the top navigation to switch between:
+- **Dark** — deep-slate federal console with federal-blue hero, gold accents, and restrained glow (default)
+- **Light** — clean, print-friendly theme with white surfaces, federal-blue accents, and no glow
 
-Your preference is saved in the browser and persists across sessions.
+Both themes are built on the same semantic role tokens and validated to WCAG AA contrast. Your preference is saved in the browser, persists across sessions, and is applied before first paint so there's no flash on reload.
 
 ### Live Feed
 
@@ -95,28 +95,28 @@ The **LIVE FEED** terminal on the dashboard streams real-time events from any ac
 
 ---
 
-## 3. Launching a Ghost Run
+## 3. Launching a Scan
 
-### Quick Probe (dashboard)
+### Quick Scan (dashboard)
 
-The fastest way to start — enter a target in the **QUICK PROBE** box on the dashboard. This runs all five default modules (`dns_recon`, `port_scan`, `tech_detect`, `api_hunt`, `intel`) with the quick profile. Results appear in Ghost Runs within seconds.
+The fastest way to start — enter a target in the **QUICK SCAN** box on the dashboard. This runs all five default modules (`dns_recon`, `port_scan`, `tech_detect`, `api_hunt`, `intel`) with the quick profile. Results appear under **Scans** within seconds.
 
-### Full Ghost Run (New Mission page)
+### Full Scan (New Scan page)
 
-1. Navigate to **NEW MISSION**
+1. Navigate to **New Scan**
 2. Enter your target (domain, IP, URL, email, or username)
-3. Choose a **Mission Profile**:
+3. Choose a **Scan Profile**:
 
 | Profile | Duration | Use Case |
 |---------|----------|----------|
-| **Quick Probe** | ~30 sec | Fast triage, live asset check |
-| **Standard Recon** | 2–5 min | Balanced — most common choice |
-| **Deep Dive** | 10–30 min | Full crawl, all ports, all APIs |
-| **Ghost Mode** | Variable | Low-and-slow, minimal footprint |
+| **Quick** | ~30 sec | Fast triage, live asset check |
+| **Standard** | 2–5 min | Balanced — most common choice |
+| **Deep** | 10–30 min | Full crawl, all ports, all APIs |
+| **Covert** | Variable | Low-and-slow, minimal footprint |
 
-4. Toggle individual **Recon Modules** on/off as needed
-5. Adjust **Advanced Config** (crawl depth, port profile, robots.txt respect)
-6. Click **INITIATE GHOST RUN**
+4. Toggle individual **Modules** on/off as needed
+5. Adjust **Advanced Options** (crawl depth, port profile, robots.txt respect)
+6. Click **Start Scan**
 
 You are redirected to the live results page where findings stream in as they're discovered.
 
@@ -130,9 +130,9 @@ You are redirected to the live results page where findings stream in as they're 
 
 **Recommended settings:**
 - Target: `https://yoursite.com`
-- Profile: **Standard Recon**
+- Profile: **Standard**
 - Modules: DNS Recon ✓, Port Scanner ✓, Tech Detector ✓, API Hunter ✓, Web Crawler ✓
-- Ghost Mode: off
+- Evasive mode: off
 
 **What PhantomSignal will find:**
 - Open ports and exposed services (admin panels, staging, APIs)
@@ -142,7 +142,7 @@ You are redirected to the live results page where findings stream in as they're 
 - Email addresses and internal links harvested from crawl
 - Threat intelligence from VirusTotal, Shodan, AbuseIPDB (if keys configured)
 
-**Interpreting the Shadow Score:**
+**Interpreting the Risk Score:**
 - **0–25 CLEAN** — minimal exposure, good security posture
 - **26–50 ELEVATED** — some findings worth reviewing
 - **51–75 HIGH** — significant issues, remediation recommended
@@ -156,7 +156,7 @@ You are redirected to the live results page where findings stream in as they're 
 
 **Recommended settings:**
 - Target: `192.168.1.100` (or public IP)
-- Profile: **Standard Recon** or **Deep Dive** (for full port scan)
+- Profile: **Standard** or **Deep** (for full port scan)
 - Modules: Port Scanner ✓, DNS Recon ✓, Intel APIs ✓
 - Port Profile: **Extended (1000 ports)** or **Full (65535)** for thorough coverage
 
@@ -180,7 +180,7 @@ You are redirected to the live results page where findings stream in as they're 
 
 **Recommended settings:**
 - Target: `example.com`
-- Profile: **Standard Recon** or **Deep Dive**
+- Profile: **Standard** or **Deep**
 - Modules: DNS Recon ✓, Tech Detector ✓, Intel APIs ✓, Web Crawler ✓
 - Crawl depth: 3
 
@@ -197,11 +197,11 @@ You are redirected to the live results page where findings stream in as they're 
 
 ---
 
-### Scenario D — People Intelligence (Shadow Profiler)
+### Scenario D — People Intelligence (Profiler)
 
 **Goal:** Aggregate publicly available information about a person, email address, or online identity.
 
-**Navigate to:** Shadow Grid → **SHADOW PROFILER**
+**Navigate to:** **Profiler** (◉ in the nav bar)
 
 **Input types supported:**
 - Full name + optional location/employer
@@ -216,7 +216,7 @@ You are redirected to the live results page where findings stream in as they're 
 - Email validity and domain reputation
 - Associated accounts and aliases
 
-**Privacy note:** The Shadow Profiler only queries publicly available data sources and licensed APIs. Configure only the APIs you have a legitimate subscription to. GDPR and CCPA restrictions apply — see [Legal & Ethics](../README.md#️-legal--ethics).
+**Privacy note:** The Profiler only queries publicly available data sources and licensed APIs. Configure only the APIs you have a legitimate subscription to. GDPR and CCPA restrictions apply — see [Legal & Ethics](../README.md#️-legal--ethics).
 
 ---
 
@@ -226,8 +226,8 @@ You are redirected to the live results page where findings stream in as they're 
 
 **Workflow:**
 
-1. **Quick Probe** each root domain to identify live assets
-2. For live targets, run **Standard Recon** with all modules enabled
+1. **Quick Scan** each root domain to identify live assets
+2. For live targets, run a **Standard** scan with all modules enabled
 3. Focus review on:
    - API Hunter results (`/api/`, `/graphql`, admin panels)
    - High/Critical severity findings
@@ -241,40 +241,40 @@ You are redirected to the live results page where findings stream in as they're 
 - **URLScan.io** — passive screenshot and DOM analysis
 - **VirusTotal** — passive DNS and URL history
 
-**Tip:** Use **Ghost Mode** if the programme's scope rules require low-noise recon. Enable **Respect robots.txt** to avoid accidental out-of-scope crawling.
+**Tip:** Use the **Covert** profile if the programme's scope rules require low-noise recon. Enable **Respect robots.txt** to avoid accidental out-of-scope crawling.
 
 ---
 
-### Scenario F — Ghost Mode (Low-and-Slow)
+### Scenario F — Covert Recon (Low-and-Slow)
 
 **Goal:** Perform recon with the lowest possible noise and detection footprint.
 
 **Settings:**
-- Profile: **Ghost Mode**
-- Enable **Ghost Mode (low & slow)** toggle in Advanced Config
+- Profile: **Covert**
+- Enable **Evasive (low & slow)** toggle in Advanced Config
 - Respect robots.txt: **on**
 - Crawl depth: **1** (surface only)
 
-**What Ghost Mode does:**
-- Adds random jitter (2–8 seconds) between requests
-- Rotates User-Agent strings to mimic different browsers
-- Reduces concurrent connections to 1
-- Skips aggressive techniques (zone transfers, brute-force subdomain)
-- Optionally routes traffic via Tor (Docker `ghost` profile only)
+**What the Covert profile and Evasive mode do:**
+- Add random jitter (2–8 seconds) between requests
+- Rotate User-Agent strings to mimic different browsers
+- Reduce concurrent connections to 1
+- Skip aggressive techniques (zone transfers, brute-force subdomain)
+- Optionally route traffic via Tor (Docker `covert` profile only)
 
 **Docker + Tor:**
 ```bash
-docker-compose --profile ghost up -d
+docker-compose --profile covert up -d
 ```
 This spins up a Tor sidecar and routes all PhantomSignal traffic through it automatically.
 
-**Tip:** Ghost Mode significantly increases scan duration. Plan for 30–90 minutes on a moderately sized target.
+**Tip:** Covert scanning significantly increases scan duration. Plan for 30–90 minutes on a moderately sized target.
 
 ---
 
 ## 5. Configuring API Keys
 
-Navigate to **Ghost Keys** (⚙ in the nav bar).
+Navigate to **Integrations** (⚙ in the nav bar).
 
 ### Priority keys (highest value, free tiers available)
 
@@ -290,7 +290,7 @@ Navigate to **Ghost Keys** (⚙ in the nav bar).
 
 ### Setting keys via environment variables
 
-Keys entered in the Ghost Keys UI are stored in the local SQLite database. For production or Docker deployments, prefer environment variables:
+Keys entered in the Integrations UI are stored in the local SQLite database. For production or Docker deployments, prefer environment variables:
 
 ```bash
 export SHODAN_API_KEY="your-key"
@@ -312,7 +312,7 @@ Or add them to a `.env` file in the project root (Docker Compose picks this up a
 
 After a scan completes, the results page shows:
 
-- **Meta strip** — target, profile, duration, result count, Shadow Score, threat level
+- **Meta strip** — target, profile, duration, result count, Risk Score, threat level
 - **Tabs** — ALL · per-module tabs · ANOMALIES (auto-filtered)
 - **Type-aware result cards** — each result type renders its key data as structured output rather than raw JSON: open ports show port/service/version/banner/risk in one row; DNS records display as a labelled table; email security shows SPF/DMARC/spoofable status; security posture shows grade A–F; IP geolocation shows city/ASN/TOR/VPN flags; and so on. Click any card to expand it.
 - **Export panel** — download in any supported format
@@ -327,9 +327,9 @@ After a scan completes, the results page shows:
 | **LOW** | Green | Informational, minor exposure |
 | **INFO** | Blue/Dim | Context data, no direct risk |
 
-### Shadow Score breakdown
+### Risk Score breakdown
 
-The Shadow Score (0–100) is a weighted composite:
+The Risk Score (0–100) is a weighted composite:
 - Open high-risk ports (admin panels, databases) — high weight
 - Critical/High severity findings — high weight
 - Missing security headers — medium weight
@@ -345,7 +345,7 @@ From any scan results page, click **↓ EXPORT INTEL** and choose a format:
 | Format | Best For |
 |--------|----------|
 | **JSON** | Programmatic processing, importing to other tools |
-| **HTML** | Shareable self-contained report with cyberpunk styling |
+| **HTML** | Shareable self-contained styled report |
 | **PDF** | Formal client deliverable |
 | **CSV** | Spreadsheet analysis in Excel / Google Sheets |
 | **XLSX** | Excel workbook with multiple sheets per module |
@@ -387,18 +387,17 @@ phantomsignal apis
 phantomsignal --version
 ```
 
-**CLI output (v1.3.0+):** After the scan completes, results are rendered as named Rich panels — one per active module — rather than a flat table. Each panel extracts the key fields from result data: the port panel shows PORT/SERVICE/PROTO/VERSION/BANNER/RISK with dangerous ports highlighted; the DNS panel shows resolved IPs, MX/NS/TXT records, subdomains, and SPF/DMARC status; the tech panel shows detected stack, security header grade, and TLS info; anomalies appear in a separate red-bordered callout. The footer shows Shadow Score, Threat Level, and a hint to configure API keys for deeper coverage.
+**CLI output (v1.3.0+):** After the scan completes, results are rendered as named Rich panels — one per active module — rather than a flat table. Each panel extracts the key fields from result data: the port panel shows PORT/SERVICE/PROTO/VERSION/BANNER/RISK with dangerous ports highlighted; the DNS panel shows resolved IPs, MX/NS/TXT records, subdomains, and SPF/DMARC status; the tech panel shows detected stack, security header grade, and TLS info; anomalies appear in a separate red-bordered callout. The footer shows Risk Score, Threat Level, and a hint to configure API keys for deeper coverage.
 
 ### Common flags
 
 | Flag | Description |
 |------|-------------|
-| `--profile quick\|standard\|deep\|ghost` | Scan profile |
+| `--profile quick\|standard\|deep\|covert` | Scan profile |
 | `--type web_recon\|ip_recon\|domain_recon\|full_spectrum` | Scan type (auto-detected if omitted) |
 | `--format json\|html\|pdf\|csv\|stix` | Output format |
 | `--output <path>` | Output directory (default: `./reports`) |
 | `--modules dns,port,tech` | Comma-separated module list |
-| `--ghost` | Enable Ghost Mode |
 | `--no-browser` | Skip web browser launch on completion |
 
 ---
@@ -585,9 +584,9 @@ services:
 
 Increase Docker Desktop memory allocation (Settings → Resources → Memory) to at least 2 GB. For very large targets, 4 GB recommended.
 
-**Tor (Ghost Mode) container not connecting**
+**Tor (Covert) container not connecting**
 ```bash
-docker-compose --profile ghost logs tor
+docker-compose --profile covert logs tor
 # Common fix — wait 30s for Tor circuit establishment, then retry the scan
 ```
 
