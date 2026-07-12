@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% block title %}New Mission{% endblock %}
+{% block title %}New Scan{% endblock %}
 
 {% block content %}
 <div class="page-header">
   <div class="page-title-block">
-    <h1 class="page-title glitch-text" data-text="LAUNCH GHOST RUN">LAUNCH GHOST RUN</h1>
-    <p class="page-subtitle">Configure your recon parameters, Operative</p>
+    <h1 class="page-title glitch-text" data-text="New Scan">New Scan</h1>
+    <p class="page-subtitle">Configure and start a scan</p>
   </div>
 </div>
 
@@ -19,19 +19,19 @@
       <div class="form-section">
         <div class="section-header">
           <span class="section-icon neon-green">◈</span>
-          <span class="section-title">MARK ACQUISITION</span>
+          <span class="section-title">TARGET</span>
         </div>
         <div class="target-input-wrap">
           <div class="target-label">TARGET IDENTIFIER</div>
           <input type="text" name="target" id="target-input"
                  class="target-input"
-                 placeholder="ENTER TARGET // IP · DOMAIN · URL · EMAIL · USERNAME"
+                 placeholder="Enter a target — IP · domain · URL · email · username"
                  required autocomplete="off" spellcheck="false">
           <div id="target-type-badge" class="target-type-badge"></div>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">MISSION NAME</label>
+            <label class="form-label">SCAN NAME</label>
             <input type="text" name="name" class="input-field"
                    placeholder="Auto-generated if blank">
           </div>
@@ -47,14 +47,14 @@
       <div class="form-section">
         <div class="section-header">
           <span class="section-icon neon-cyan">◉</span>
-          <span class="section-title">MISSION PROFILE</span>
+          <span class="section-title">SCAN PROFILE</span>
         </div>
         <div class="profile-grid">
           <label class="profile-card">
             <input type="radio" name="profile" value="quick" class="profile-radio">
             <div class="profile-content">
               <div class="profile-icon">⚡</div>
-              <div class="profile-name">QUICK PROBE</div>
+              <div class="profile-name">QUICK</div>
               <div class="profile-desc">Fast surface scan. DNS, top ports, tech stack.</div>
               <div class="profile-time">~30s</div>
             </div>
@@ -63,7 +63,7 @@
             <input type="radio" name="profile" value="standard" checked class="profile-radio">
             <div class="profile-content">
               <div class="profile-icon">◈</div>
-              <div class="profile-name">STANDARD RECON</div>
+              <div class="profile-name">STANDARD</div>
               <div class="profile-desc">Balanced depth. All modules, moderate crawl.</div>
               <div class="profile-time">~2-5min</div>
             </div>
@@ -72,17 +72,17 @@
             <input type="radio" name="profile" value="deep" class="profile-radio">
             <div class="profile-content">
               <div class="profile-icon">⬡</div>
-              <div class="profile-name">DEEP DIVE</div>
+              <div class="profile-name">DEEP</div>
               <div class="profile-desc">Thorough crawl, full port scan, all intel APIs.</div>
               <div class="profile-time">~10-30min</div>
             </div>
           </label>
           <label class="profile-card ghost-card">
-            <input type="radio" name="profile" value="ghost" class="profile-radio">
+            <input type="radio" name="profile" value="covert" class="profile-radio">
             <div class="profile-content">
-              <div class="profile-icon">👻</div>
-              <div class="profile-name">GHOST MODE</div>
-              <div class="profile-desc">Low-and-slow, identity rotation, minimal footprint.</div>
+              <div class="profile-icon">🕶</div>
+              <div class="profile-name">COVERT</div>
+              <div class="profile-desc">Low and slow — request throttling, identity rotation, minimal footprint.</div>
               <div class="profile-time">Variable</div>
             </div>
           </label>
@@ -93,7 +93,7 @@
       <div class="form-section">
         <div class="section-header">
           <span class="section-icon neon-purple">◫</span>
-          <span class="section-title">RECON MODULES</span>
+          <span class="section-title">MODULES</span>
           <button type="button" class="section-toggle" onclick="toggleAll()">TOGGLE ALL</button>
         </div>
         <div class="module-grid">
@@ -244,11 +244,11 @@
         </div>
         <div class="select-group">
           <select name="scan_type" class="input-field select-field">
-            <option value="web_recon">WEB RECON — Domain / URL</option>
-            <option value="ip_recon">IP RECON — Single IP address</option>
-            <option value="domain_recon">DOMAIN RECON — Full domain analysis</option>
-            <option value="people_intel">PEOPLE INTEL — Identity search</option>
-            <option value="full_spectrum">FULL SPECTRUM — All modules</option>
+            <option value="web_recon">Web — domain / URL</option>
+            <option value="ip_recon">IP — single IP address</option>
+            <option value="domain_recon">Domain — full domain analysis</option>
+            <option value="people_intel">People — identity search</option>
+            <option value="full_spectrum">Full — all modules</option>
           </select>
         </div>
       </div>
@@ -262,7 +262,7 @@
       <div class="form-section">
         <div class="section-header">
           <span class="section-icon neon-green">⚙</span>
-          <span class="section-title">ADVANCED CONFIG</span>
+          <span class="section-title">ADVANCED OPTIONS</span>
         </div>
         <div class="advanced-options">
           <div class="form-group">
@@ -290,9 +290,9 @@
           </div>
           <div class="toggle-row">
             <label class="toggle-label">
-              <input type="checkbox" name="ghost_mode" class="toggle-check">
+              <input type="checkbox" name="evasive" class="toggle-check">
               <span class="toggle-switch"></span>
-              <span class="toggle-text">GHOST MODE (low & slow)</span>
+              <span class="toggle-text">EVASIVE (low & slow)</span>
             </label>
           </div>
         </div>
@@ -348,7 +348,7 @@
       <div class="form-section">
         <div class="section-header">
           <span class="section-icon neon-cyan">◉</span>
-          <span class="section-title">API ARSENAL</span>
+          <span class="section-title">DATA SOURCES</span>
         </div>
         <div class="api-list-compact">
           {% for api in api_status %}
@@ -373,8 +373,8 @@
       <!-- Launch button -->
       <button type="submit" class="btn btn-launch btn-glow" id="launch-btn">
         <span class="launch-icon">◈</span>
-        <span class="launch-text">INITIATE GHOST RUN</span>
-        <span class="launch-loading" style="display:none">DEPLOYING...</span>
+        <span class="launch-text">Start Scan</span>
+        <span class="launch-loading" style="display:none">Starting...</span>
       </button>
 
     </div>

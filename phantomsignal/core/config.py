@@ -96,7 +96,7 @@ class PhantomSignalConfig:
                 "encryption": False,
                 "encryption_algorithm": "AES-256-GCM",
             },
-            "ghost_mode": {
+            "evasive": {
                 "enabled": False,
                 "rotate_identity": True,
                 "header_spoofing": True,
@@ -257,8 +257,8 @@ class PhantomSignalConfig:
         return self._config["export"]
 
     @property
-    def ghost_mode(self) -> Dict:
-        return self._config["ghost_mode"]
+    def evasive(self) -> Dict:
+        return self._config["evasive"]
 
 
 config = PhantomSignalConfig()

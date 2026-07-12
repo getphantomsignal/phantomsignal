@@ -25,7 +25,7 @@ function initSocket() {
     setConnectionStatus('connecting');
   });
 
-  socket.on('ghost_online', (data) => {
+  socket.on('server_ready', (data) => {
     appendTerminalLine('live-terminal', 'PHANTOMSIGNAL', data.message, 'system');
   });
 
@@ -37,24 +37,24 @@ function initSocket() {
 
   socket.on('scan_complete', (data) => {
     showToast(
-      `Mission complete. Shadow Score: ${data.shadow_score?.toFixed(0)}/100 — ${data.result_count} signals captured.`,
+      `Scan complete. Risk Score: ${data.shadow_score?.toFixed(0)}/100 — ${data.result_count} results found.`,
       'success'
     );
   });
 
   socket.on('scan_failed', (data) => {
-    showToast(`Ghost run failed: ${data.error}`, 'error');
+    showToast(`Scan failed: ${data.error}`, 'error');
   });
 
   socket.on('module_start', (data) => {
-    appendTerminalLine('live-terminal', data.module.toUpperCase(), `Module online — initiating scan...`, 'system');
+    appendTerminalLine('live-terminal', data.module.toUpperCase(), `Running...`, 'system');
   });
 
   socket.on('module_complete', (data) => {
     appendTerminalLine(
       'live-terminal',
       data.module.toUpperCase(),
-      `Signal captured: ${data.result_count} result(s)`,
+      `${data.result_count} result(s) found`,
       'success'
     );
     const fill = document.getElementById('progress-fill');
@@ -69,9 +69,9 @@ function setConnectionStatus(state) {
   const text = document.getElementById('connection-status');
   if (!dot || !text) return;
   const states = {
-    online:     { cls: 'online',  label: 'GRID ONLINE' },
-    offline:    { cls: '',        label: 'SIGNAL LOST' },
-    connecting: { cls: '',        label: 'RECONNECTING...' },
+    online:     { cls: 'online',  label: 'ONLINE' },
+    offline:    { cls: '',        label: 'OFFLINE' },
+    connecting: { cls: '',        label: 'CONNECTING...' },
   };
   const s = states[state] || states.offline;
   dot.className  = 'status-dot ' + s.cls;
@@ -157,48 +157,32 @@ function timeAgo(dateStr) {
   return `${Math.floor(h/24)}d ago`;
 }
 
-// ── Theme Management ─────────────────────────────────────────
-// Four modes cycled from one control. 'system' carries no data-theme
-// attribute, so the CSS prefers-color-scheme fallback governs and the
-// UI tracks the OS live.
-const THEME_ORDER = ['system', 'light', 'dark', 'cyberpunk'];
+// ── Theme (Dark default; Light + Neon opt-in) ─────────────────
+// 'dark' carries no data-theme attribute (base :root); others set it.
 const THEME_META = {
-  system:    { icon: '🖥', label: 'System' },
-  light:     { icon: '☀',  label: 'Light' },
-  dark:      { icon: '☾',  label: 'Dark' },
-  cyberpunk: { icon: '⌁',  label: 'Cyberpunk' },
+  light: { label: 'Light' },
+  dark:  { label: 'Dark' },
+  neon:  { label: 'Neon' },
 };
 
-function currentThemeMode() {
-  return localStorage.getItem('phantomsignal-theme') || 'system';
+function currentTheme() {
+  return localStorage.getItem('phantomsignal-theme') || 'dark';
 }
 
-function applyTheme(mode) {
-  if (!THEME_META[mode]) mode = 'system';
-  if (mode === 'system') {
-    document.documentElement.removeAttribute('data-theme');
-  } else {
-    document.documentElement.setAttribute('data-theme', mode);
-  }
-  localStorage.setItem('phantomsignal-theme', mode);
+function applyTheme(name) {
+  if (!THEME_META[name]) name = 'dark';
+  if (name === 'dark') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', name);
+  localStorage.setItem('phantomsignal-theme', name);
 
-  const meta = THEME_META[mode];
-  const icon = document.getElementById('theme-icon');
-  const btn = document.getElementById('theme-toggle');
-  if (icon) icon.textContent = meta.icon;
-  if (btn) {
-    let label = meta.label;
-    if (mode === 'system') {
-      const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      label += ` — ${dark ? 'dark' : 'light'}`;
-    }
-    btn.title = `Theme: ${label} (click to change)`;
-  }
+  document.querySelectorAll('.theme-seg-btn').forEach((btn) => {
+    btn.setAttribute('aria-checked', btn.dataset.themeVal === name ? 'true' : 'false');
+  });
 }
 
 function cycleTheme() {
-  const i = THEME_ORDER.indexOf(currentThemeMode());
-  applyTheme(THEME_ORDER[(i + 1) % THEME_ORDER.length]);
+  const i = THEMES.indexOf(currentTheme());
+  applyTheme(THEMES[(i + 1) % THEMES.length]);
 }
 
 // ── Boot Sequence ─────────────────────────────────────────────
@@ -209,17 +193,11 @@ initSocket();
 document.addEventListener('DOMContentLoaded', () => {
   // initSocket() already called above; this is a no-op guard
 
-  // Apply saved theme and wire the cycling control
-  applyTheme(currentThemeMode());
-  const themeToggle = document.getElementById('theme-toggle');
-  if (themeToggle) {
-    themeToggle.addEventListener('click', cycleTheme);
-  }
-  // Keep the control in sync if the OS scheme flips while in System mode
-  const mql = window.matchMedia('(prefers-color-scheme: dark)');
-  const onSchemeChange = () => { if (currentThemeMode() === 'system') applyTheme('system'); };
-  if (mql.addEventListener) mql.addEventListener('change', onSchemeChange);
-  else if (mql.addListener) mql.addListener(onSchemeChange);
+  // Apply saved theme and wire the segmented control
+  applyTheme(currentTheme());
+  document.querySelectorAll('.theme-seg-btn').forEach((btn) => {
+    btn.addEventListener('click', () => applyTheme(btn.dataset.themeVal));
+  });
 
   // Auto-dismiss flashes after 6s
   document.querySelectorAll('.flash').forEach(el => {
@@ -244,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Animate shadow score bars
+  // Animate risk score bars (.shadow-score-fill = legacy class name for the risk score)
   document.querySelectorAll('.shadow-score-fill').forEach(el => {
     const width = el.style.width;
     el.style.width = '0%';

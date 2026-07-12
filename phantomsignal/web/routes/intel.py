@@ -1,4 +1,4 @@
-"""PhantomSignal Intel Routes — People Search & Shadow Profiling"""
+"""PhantomSignal Intel Routes — people search and profiler."""
 from flask import Blueprint, render_template, request, jsonify
 from phantomsignal.intel.people.aggregator import ShadowProfileBuilder
 from phantomsignal.core.config import config

@@ -1,8 +1,8 @@
 {% extends "base.html" %}
-{% block title %}Shadow Profile — PhantomSignal{% endblock %}
+{% block title %}Profile — PhantomSignal{% endblock %}
 {% block content %}
 <div class="page-header">
-  <h1 class="glitch-text" data-text="SHADOW PROFILE">SHADOW PROFILE</h1>
+  <h1 class="glitch-text" data-text="Profile">Profile</h1>
   <p class="text-dim">Intelligence compiled from all configured sources</p>
 </div>
 
@@ -34,7 +34,7 @@
     <div class="stat-value" style="color:{% if profile.shadow_score > 70 %}var(--neon-pink){% elif profile.shadow_score > 40 %}#ffff00{% else %}var(--neon-green){% endif %};">
       {{ "%.0f"|format(profile.shadow_score or 0) }}<span style="font-size:1rem;">/100</span>
     </div>
-    <div class="stat-label">SHADOW SCORE</div>
+    <div class="stat-label">RISK SCORE</div>
   </div>
   <div class="stat-card">
     <div class="stat-value">{{ "%.0f"|format((profile.confidence or 0) * 100) }}%</div>

@@ -1,4 +1,4 @@
-"""PhantomSignal Settings Routes — Ghost Key Management & Grid Config"""
+"""PhantomSignal Settings Routes — API key and scan-settings management."""
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from phantomsignal.core.config import config
 from phantomsignal.intel.orchestrator import IntelOrchestrator
@@ -23,7 +23,7 @@ def save_api_keys():
         if name and key and key != "***REDACTED***":
             config.set_api_key(name, key.strip())
             saved += 1
-    flash(f"{saved} ghost key(s) uploaded to the vault.", "success")
+    flash(f"{saved} API key(s) saved.", "success")
     return redirect(url_for("settings.settings_page"))
 
 
@@ -33,7 +33,7 @@ def save_scraper_settings():
     config.set("scraper", "download_delay", value=float(request.form.get("delay", 1.0)))
     config.set("scraper", "concurrent_requests", value=int(request.form.get("concurrent", 16)))
     config.set("scraper", "tor_enabled", value=request.form.get("tor_enabled") == "on")
-    flash("Grid configuration updated.", "success")
+    flash("Settings saved.", "success")
     return redirect(url_for("settings.settings_page"))
 
 

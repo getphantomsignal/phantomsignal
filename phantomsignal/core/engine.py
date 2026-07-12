@@ -188,7 +188,7 @@ class PhantomEngine:
                 db.add(result)
 
     async def _finalize_scan(self, scan_id: str) -> None:
-        """Wrap up the ghost run, compute shadow score, notify grid."""
+        """Wrap up the scan, compute the risk score, notify clients."""
         with get_db() as db:
             scan = db.query(Scan).filter(Scan.id == scan_id).first()
             if not scan:
@@ -218,7 +218,7 @@ class PhantomEngine:
 
         # Phase 5b — continuous monitoring: diff this scan against the prior
         # baseline and alert on new sensitive assets. Best-effort; never fails
-        # the ghost run.
+        # the scan.
         await self._auto_diff(scan_id, target)
 
     async def _auto_diff(self, scan_id: str, target: str) -> None:
@@ -342,7 +342,7 @@ class PhantomEngine:
         getattr(logger, level, logger.info)(f"[{scan_id}] [{module}] {message}")
 
     def abort_scan(self, scan_id: str) -> bool:
-        """Send the kill signal — abort a running ghost run."""
+        """Abort a running scan."""
         task = self._active_scans.get(scan_id)
         if task and not task.done():
             task.cancel()

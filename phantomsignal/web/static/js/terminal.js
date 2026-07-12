@@ -18,7 +18,7 @@ function initLiveFeed(scanId) {
 
   // ── Join the scan room ──────────────────────────────────────
   socket.emit('join_scan', { scan_id: scanId });
-  appendTerminalLine('live-terminal', 'PHANTOMSIGNAL', `Signal locked — ghost run ${scanId.slice(0,8)}...`, 'system');
+  appendTerminalLine('live-terminal', 'PHANTOMSIGNAL', `Scan started — ${scanId.slice(0,8)}...`, 'system');
 
   // ── Sync state sent by server on room join ──────────────────
   // Server sends current progress so late-joining clients don't start at 0%.
@@ -26,7 +26,7 @@ function initLiveFeed(scanId) {
     if (data.scan_id !== scanId) return;
     _setProgress(data.progress || 0);
     if (data.progress > 0) {
-      appendTerminalLine('live-terminal', 'SYNC', `Signal synced — ghost run at ${data.progress}%`, 'system');
+      appendTerminalLine('live-terminal', 'SYNC', `Progress: ${data.progress}%`, 'system');
     }
   });
 
@@ -43,14 +43,14 @@ function initLiveFeed(scanId) {
   // ── Module lifecycle events ─────────────────────────────────
   socket.on('module_start', (data) => {
     if (data.scan_id !== scanId) return;
-    appendTerminalLine('live-terminal', '>> MODULE', `${data.module.toUpperCase()} — INITIALIZING`, 'system');
+    appendTerminalLine('live-terminal', '>> MODULE', `${data.module.toUpperCase()} — STARTING`, 'system');
   });
 
   socket.on('module_complete', (data) => {
     if (data.scan_id !== scanId) return;
     appendTerminalLine(
       'live-terminal', '<< MODULE',
-      `${data.module.toUpperCase()} COMPLETE — ${data.result_count} signal(s) captured [${data.progress}%]`,
+      `${data.module.toUpperCase()} COMPLETE — ${data.result_count} result(s) [${data.progress}%]`,
       'success'
     );
     _setProgress(data.progress);
@@ -61,25 +61,25 @@ function initLiveFeed(scanId) {
     if (data.scan_id !== scanId) return;
     _setProgress(100);
     appendTerminalLine('live-terminal', '====', '═'.repeat(50), 'system');
-    appendTerminalLine('live-terminal', 'MISSION', 'GHOST RUN COMPLETE', 'success');
-    appendTerminalLine('live-terminal', 'SCORE  ', `Shadow Score: ${data.shadow_score?.toFixed(0)}/100`, 'success');
+    appendTerminalLine('live-terminal', 'SCAN', 'SCAN COMPLETE', 'success');
+    appendTerminalLine('live-terminal', 'SCORE  ', `Risk Score: ${data.shadow_score?.toFixed(0)}/100`, 'success');
     appendTerminalLine('live-terminal', 'THREAT ',
       `Level: ${(data.threat_level || 'unknown').toUpperCase()}`,
       data.threat_level === 'critical' || data.threat_level === 'malicious' ? 'error' : 'success');
-    appendTerminalLine('live-terminal', 'INTEL  ', `${data.result_count} signal(s) archived`, 'success');
+    appendTerminalLine('live-terminal', 'RESULTS', `${data.result_count} result(s) saved`, 'success');
     appendTerminalLine('live-terminal', '====', '═'.repeat(50), 'system');
     setTimeout(() => { location.reload(); }, 3000);
   });
 
   socket.on('scan_failed', (data) => {
     if (data.scan_id !== scanId) return;
-    appendTerminalLine('live-terminal', '!! ERROR', `GHOST RUN FAILED: ${data.error}`, 'error');
+    appendTerminalLine('live-terminal', '!! ERROR', `SCAN FAILED: ${data.error}`, 'error');
     setTimeout(() => { location.reload(); }, 2000);
   });
 
   socket.on('scan_aborted', (data) => {
     if (data.scan_id !== scanId) return;
-    appendTerminalLine('live-terminal', 'ABORT', 'SIGNAL SEVERED — Ghost run terminated by operator.', 'warning');
+    appendTerminalLine('live-terminal', 'ABORT', 'Scan stopped by user.', 'warning');
     setTimeout(() => { location.reload(); }, 1500);
   });
 }

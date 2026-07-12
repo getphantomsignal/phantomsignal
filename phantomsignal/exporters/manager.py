@@ -27,7 +27,7 @@ logger = logging.getLogger("phantomsignal.exporters")
 
 
 class ExportManager:
-    """Central export coordinator — compiles, compresses, and optionally encrypts intel packets."""
+    """Central export coordinator — compiles, compresses, and optionally encrypts reports."""
 
     SUPPORTED_FORMATS = {
         "json": ".json",

@@ -4,8 +4,8 @@
 {% block content %}
 <div class="page-header">
   <div class="page-title-block">
-    <h1 class="page-title glitch-text" data-text="INTEL PACKET EXPORT">INTEL PACKET EXPORT</h1>
-    <p class="page-subtitle">Compile and export intelligence for: <strong>{{ scan.target }}</strong></p>
+    <h1 class="page-title glitch-text" data-text="Export">Export</h1>
+    <p class="page-subtitle">Export results for: <strong>{{ scan.target }}</strong></p>
   </div>
   <a href="{{ url_for('scans.scan_results', scan_id=scan.id) }}" class="btn btn-ghost">← BACK</a>
 </div>
@@ -22,7 +22,7 @@
           ('json', '📄', 'Raw JSON — machine readable'),
           ('csv', '📊', 'Spreadsheet compatible'),
           ('html', '🌐', 'Self-contained report'),
-          ('pdf', '📕', 'Styled PDF dossier'),
+          ('pdf', '📕', 'Styled PDF report'),
           ('xml', '💾', 'XML structured data'),
           ('xlsx', '📈', 'Excel workbook'),
           ('stix', '🛡', 'STIX 2.1 threat bundle'),
@@ -67,7 +67,7 @@
       </div>
 
       <button type="submit" class="btn btn-primary btn-glow btn-full">
-        ↓ COMPILE INTEL PACKET
+        ↓ Export
       </button>
     </form>
   </div>
@@ -80,7 +80,7 @@
     <table class="data-table" style="font-size:0.82rem;">
       <tr><td class="text-dim" style="width:40%">Target</td><td>{{ scan.target }}</td></tr>
       <tr><td class="text-dim">Results</td><td class="neon-cyan">{{ scan.result_count }}</td></tr>
-      <tr><td class="text-dim">Shadow Score</td><td>{{ "%.0f"|format(scan.shadow_score or 0) }}/100</td></tr>
+      <tr><td class="text-dim">Risk Score</td><td>{{ "%.0f"|format(scan.shadow_score or 0) }}/100</td></tr>
       <tr><td class="text-dim">Threat Level</td><td><span class="threat-badge threat-{{ scan.threat_level or 'unknown' }}">{{ (scan.threat_level or 'unknown').upper() }}</span></td></tr>
       <tr><td class="text-dim">Duration</td><td>{{ "%.1f"|format(scan.duration_seconds or 0) }}s</td></tr>
     </table>

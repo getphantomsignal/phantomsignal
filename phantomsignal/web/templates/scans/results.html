@@ -382,7 +382,7 @@
 <div class="page-header">
   <div class="page-title-block">
     <div class="breadcrumb">
-      <a href="{{ url_for('scans.list_scans') }}" class="bc-link">GHOST RUNS</a>
+      <a href="{{ url_for('scans.list_scans') }}" class="bc-link">Scans</a>
       <span class="bc-sep">›</span>
       <span class="bc-current">{{ scan.target[:50] }}</span>
     </div>
@@ -400,13 +400,16 @@
         <button class="btn btn-danger">⬛ ABORT</button>
       </form>
     {% else %}
+      <form action="{{ url_for('scans.rescan', scan_id=scan.id) }}" method="POST" style="display:inline">
+        <button class="btn btn-primary">↻ Re-scan</button>
+      </form>
       <a href="{{ url_for('export.export_options', scan_id=scan.id) }}" class="btn btn-secondary">
         ↓ EXPORT INTEL
       </a>
     {% endif %}
     <form action="{{ url_for('scans.delete_scan', scan_id=scan.id) }}" method="POST" style="display:inline"
-          onsubmit="return confirm('Purge this ghost run from the grid?')">
-      <button class="btn btn-ghost">✕ PURGE</button>
+          onsubmit="return confirm('Delete this scan?')">
+      <button class="btn btn-ghost">✕ Delete</button>
     </form>
   </div>
 </div>
@@ -430,7 +433,7 @@
     <span class="meta-val">{% if scan.duration_seconds %}{{ "%.1f"|format(scan.duration_seconds) }}s{% else %}—{% endif %}</span>
   </div>
   <div class="meta-item">
-    <span class="meta-label">SHADOW SCORE</span>
+    <span class="meta-label">RISK SCORE</span>
     <div class="shadow-score-wrap">
       <div class="shadow-score-bar">
         <div class="shadow-score-fill" style="width: {{ scan.shadow_score or 0 }}%"></div>
@@ -453,7 +456,7 @@
 <div class="live-section">
   <div class="live-header">
     <span class="live-indicator pulse-anim">◉</span>
-    <span>LIVE SIGNAL FEED</span>
+    <span>LIVE ACTIVITY</span>
     <div class="progress-bar-wrap">
       <div class="progress-bar">
         <div class="progress-fill" id="progress-fill" style="width: {{ scan.progress }}%"></div>
@@ -464,7 +467,7 @@
   <div id="live-terminal" class="terminal-output terminal-large">
     <div class="term-line term-system">
       <span class="term-prompt">[PHANTOMSIGNAL]</span>
-      <span class="term-msg">Ghost run active. Receiving signal...</span>
+      <span class="term-msg">Scan running...</span>
     </div>
   </div>
 </div>
@@ -517,8 +520,8 @@
       </div>
       {% else %}
       <div class="empty-state">
-        <div class="empty-ghost">👻</div>
-        <p class="text-dim">{% if is_live %}Mission in progress — signals incoming...{% else %}No results captured.{% endif %}</p>
+        <div class="empty-ghost" aria-hidden="true">∿</div>
+        <p class="text-dim">{% if is_live %}Scan in progress — results incoming...{% else %}No results yet.{% endif %}</p>
       </div>
       {% endfor %}
     </div>
@@ -576,7 +579,7 @@
       {% else %}
       <div class="empty-state">
         <span class="neon-green">✓</span>
-        <p>No anomalies detected in this ghost run.</p>
+        <p>No anomalies detected in this scan.</p>
       </div>
       {% endfor %}
     </div>
