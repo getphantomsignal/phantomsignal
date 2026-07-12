@@ -58,7 +58,7 @@ def build_alert_payload(target: str, findings: List[Dict]) -> Optional[Dict]:
     summary = diff_summary(findings)
     assets = [
         {"type": (c.get("data") or {}).get("asset_type", ""),
-         "key":  (c.get("data") or {}).get("key", "")}
+         "key": (c.get("data") or {}).get("key", "")}
         for c in sensitive
     ]
     bullets = "\n".join(f"• {a['type']}: {a['key']}" for a in assets[:_MSG_ASSET_LIMIT])
@@ -68,14 +68,14 @@ def build_alert_payload(target: str, findings: List[Dict]) -> Optional[Dict]:
             f"asset(s) on {target}\n{bullets}")
 
     return {
-        "text":           text,   # Slack incoming-webhook
-        "content":        text,   # Discord webhook
-        "target":         target,
-        "new_sensitive":  len(sensitive),
-        "new_assets":     summary.get("new_assets", 0),
+        "text": text,   # Slack incoming-webhook
+        "content": text,   # Discord webhook
+        "target": target,
+        "new_sensitive": len(sensitive),
+        "new_assets": summary.get("new_assets", 0),
         "changed_assets": summary.get("changed_assets", 0),
         "removed_assets": summary.get("removed_assets", 0),
-        "assets":         assets,
+        "assets": assets,
     }
 
 

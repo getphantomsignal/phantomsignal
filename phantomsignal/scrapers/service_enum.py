@@ -96,20 +96,20 @@ def build_snmp_get(community: str, oid_body: bytes = _OID_SYSDESCR,
     43-byte packet (see tests).
     """
     varbind = _ber_tlv(0x30,                       # varbind SEQUENCE
-                       _ber_tlv(0x06, oid_body) +  # OID
-                       _ber_tlv(0x05, b""))        # NULL value
+                       _ber_tlv(0x06, oid_body)  # OID
+                       + _ber_tlv(0x05, b""))        # NULL value
     varbind_list = _ber_tlv(0x30, varbind)
     pdu_body = (
-        _ber_tlv(0x02, request_id.to_bytes(4, "big")) +  # request-id (4 bytes)
-        _ber_tlv(0x02, b"\x00") +                          # error-status
-        _ber_tlv(0x02, b"\x00") +                          # error-index
-        varbind_list
+        _ber_tlv(0x02, request_id.to_bytes(4, "big"))  # request-id (4 bytes)
+        + _ber_tlv(0x02, b"\x00")                          # error-status
+        + _ber_tlv(0x02, b"\x00")                          # error-index
+        + varbind_list
     )
     pdu = _ber_tlv(0xA0, pdu_body)                  # GetRequest PDU (context 0)
     message = (
-        _ber_tlv(0x02, b"\x00") +                   # version: 0 (SNMPv1)
-        _ber_tlv(0x04, community.encode()) +        # community
-        pdu
+        _ber_tlv(0x02, b"\x00")                   # version: 0 (SNMPv1)
+        + _ber_tlv(0x04, community.encode())        # community
+        + pdu
     )
     return _ber_tlv(0x30, message)                  # outer SEQUENCE
 

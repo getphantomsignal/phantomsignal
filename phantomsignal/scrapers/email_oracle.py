@@ -80,11 +80,11 @@ def parse_gravatar_profile(payload) -> Dict:
             accounts.append((str(service).lower(), str(handle)))
     return {
         "display_name": e.get("displayName") or "",
-        "username":     e.get("preferredUsername") or "",
-        "company":      e.get("company") or "",
-        "job_title":    e.get("job_title") or "",
-        "location":     e.get("currentLocation") or "",
-        "accounts":     accounts,
+        "username": e.get("preferredUsername") or "",
+        "company": e.get("company") or "",
+        "job_title": e.get("job_title") or "",
+        "location": e.get("currentLocation") or "",
+        "accounts": accounts,
     }
 
 
@@ -92,7 +92,7 @@ class EmailOracle:
     """Discover which services an email is registered on (keyless)."""
 
     def __init__(self, config):
-        self.config  = config
+        self.config = config
         self.timeout = config.get("email_oracle", "timeout", default=10)
         self.oracles = GET_ORACLES
 
@@ -136,17 +136,17 @@ class EmailOracle:
         results: List[Dict] = []
         for service in found:
             results.append({
-                "type":   "email_account",
+                "type": "email_account",
                 "source": "email_oracle",
-                "data":   {"email": email, "service": service, "registered": True},
-                "confidence":      0.95,
+                "data": {"email": email, "service": service, "registered": True},
+                "confidence": 0.95,
                 "relevance_score": 0.8,
-                "tags":            ["email", "account", "identity", service],
+                "tags": ["email", "account", "identity", service],
             })
 
         if profile and any(profile.get(k) for k in ("display_name", "username", "accounts")):
             results.append({
-                "type":   "email_profile",
+                "type": "email_profile",
                 "source": "email_oracle",
                 "data": {"email": email, "source_service": "gravatar",
                          "display_name": profile.get("display_name"),
@@ -154,35 +154,35 @@ class EmailOracle:
                          "company": profile.get("company"),
                          "job_title": profile.get("job_title"),
                          "location": profile.get("location")},
-                "confidence":      0.9,
+                "confidence": 0.9,
                 "relevance_score": 0.85,
-                "tags":            ["email", "profile", "identity"],
-                "is_anomaly":      True,
+                "tags": ["email", "profile", "identity"],
+                "is_anomaly": True,
             })
             for service, handle in profile.get("accounts", []):
                 results.append({
-                    "type":   "email_linked_account",
+                    "type": "email_linked_account",
                     "source": "email_oracle",
-                    "data":   {"email": email, "via": "gravatar",
+                    "data": {"email": email, "via": "gravatar",
                                "service": service, "handle": handle},
-                    "confidence":      0.9,
+                    "confidence": 0.9,
                     "relevance_score": 0.75,
-                    "tags":            ["email", "identity", "linked", service],
+                    "tags": ["email", "identity", "linked", service],
                 })
 
         results.append({
-            "type":   "email_oracle_summary",
+            "type": "email_oracle_summary",
             "source": "email_oracle",
             "data": {
-                "email":            email,
+                "email": email,
                 "services_checked": len(self.oracles),
-                "registered_on":    found,
-                "has_profile":      bool(profile),
-                "linked_accounts":  len(profile.get("accounts", [])) if profile else 0,
+                "registered_on": found,
+                "has_profile": bool(profile),
+                "linked_accounts": len(profile.get("accounts", [])) if profile else 0,
             },
-            "confidence":      1.0,
+            "confidence": 1.0,
             "relevance_score": 0.8,
-            "tags":            ["email", "summary", "identity"],
-            "is_anomaly":      bool(found),
+            "tags": ["email", "summary", "identity"],
+            "is_anomaly": bool(found),
         })
         return results

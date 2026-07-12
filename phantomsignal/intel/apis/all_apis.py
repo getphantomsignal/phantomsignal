@@ -1539,8 +1539,8 @@ class TwitchAPI(BaseIntelAPI):
     @property
     def is_configured(self) -> bool:
         return bool(
-            self.config.get_api_key("twitch_client_id") and
-            self.config.get_api_key("twitch_client_secret")
+            self.config.get_api_key("twitch_client_id")
+            and self.config.get_api_key("twitch_client_secret")
         )
 
     async def _get_app_token(self) -> Optional[str]:
@@ -1980,8 +1980,8 @@ class SpotifyAPI(BaseIntelAPI):
     @property
     def is_configured(self) -> bool:
         return bool(
-            self.config.get_api_key("spotify_client_id") and
-            self.config.get_api_key("spotify_client_secret")
+            self.config.get_api_key("spotify_client_id")
+            and self.config.get_api_key("spotify_client_secret")
         )
 
     async def _get_token(self) -> Optional[str]:

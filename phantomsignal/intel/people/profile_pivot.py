@@ -38,21 +38,21 @@ _GRAVATAR_RE = re.compile(r"gravatar\.com/avatar/([0-9a-fA-F]{32})")
 
 # Profile-URL shapes → (platform, handle). Ordered; first match wins per URL.
 _SOCIAL_PATTERNS: List[Tuple[str, re.Pattern]] = [
-    ("github",     re.compile(r"github\.com/([A-Za-z0-9](?:[A-Za-z0-9-]{0,38}))(?:[/?#]|$)")),
-    ("gitlab",     re.compile(r"gitlab\.com/([A-Za-z0-9][A-Za-z0-9_.\-]{0,38})(?:[/?#]|$)")),
-    ("twitter",    re.compile(r"(?:twitter|x)\.com/([A-Za-z0-9_]{1,15})(?:[/?#]|$)")),
-    ("reddit",     re.compile(r"reddit\.com/u(?:ser)?/([A-Za-z0-9_\-]{3,20})(?:[/?#]|$)")),
-    ("instagram",  re.compile(r"instagram\.com/([A-Za-z0-9_.]{1,30})(?:[/?#]|$)")),
-    ("telegram",   re.compile(r"t\.me/([A-Za-z0-9_]{5,32})(?:[/?#]|$)")),
-    ("linkedin",   re.compile(r"linkedin\.com/in/([A-Za-z0-9\-]{3,100})(?:[/?#]|$)")),
-    ("tiktok",     re.compile(r"tiktok\.com/@([A-Za-z0-9_.]{1,24})(?:[/?#]|$)")),
-    ("youtube",    re.compile(r"youtube\.com/@([A-Za-z0-9_.\-]{1,30})(?:[/?#]|$)")),
-    ("facebook",   re.compile(r"facebook\.com/([A-Za-z0-9.]{5,50})(?:[/?#]|$)")),
-    ("keybase",    re.compile(r"keybase\.io/([A-Za-z0-9_]{1,25})(?:[/?#]|$)")),
-    ("medium",     re.compile(r"medium\.com/@([A-Za-z0-9_.\-]{1,50})(?:[/?#]|$)")),
-    ("twitch",     re.compile(r"twitch\.tv/([A-Za-z0-9_]{3,25})(?:[/?#]|$)")),
+    ("github", re.compile(r"github\.com/([A-Za-z0-9](?:[A-Za-z0-9-]{0,38}))(?:[/?#]|$)")),
+    ("gitlab", re.compile(r"gitlab\.com/([A-Za-z0-9][A-Za-z0-9_.\-]{0,38})(?:[/?#]|$)")),
+    ("twitter", re.compile(r"(?:twitter|x)\.com/([A-Za-z0-9_]{1,15})(?:[/?#]|$)")),
+    ("reddit", re.compile(r"reddit\.com/u(?:ser)?/([A-Za-z0-9_\-]{3,20})(?:[/?#]|$)")),
+    ("instagram", re.compile(r"instagram\.com/([A-Za-z0-9_.]{1,30})(?:[/?#]|$)")),
+    ("telegram", re.compile(r"t\.me/([A-Za-z0-9_]{5,32})(?:[/?#]|$)")),
+    ("linkedin", re.compile(r"linkedin\.com/in/([A-Za-z0-9\-]{3,100})(?:[/?#]|$)")),
+    ("tiktok", re.compile(r"tiktok\.com/@([A-Za-z0-9_.]{1,24})(?:[/?#]|$)")),
+    ("youtube", re.compile(r"youtube\.com/@([A-Za-z0-9_.\-]{1,30})(?:[/?#]|$)")),
+    ("facebook", re.compile(r"facebook\.com/([A-Za-z0-9.]{5,50})(?:[/?#]|$)")),
+    ("keybase", re.compile(r"keybase\.io/([A-Za-z0-9_]{1,25})(?:[/?#]|$)")),
+    ("medium", re.compile(r"medium\.com/@([A-Za-z0-9_.\-]{1,50})(?:[/?#]|$)")),
+    ("twitch", re.compile(r"twitch\.tv/([A-Za-z0-9_]{3,25})(?:[/?#]|$)")),
     ("soundcloud", re.compile(r"soundcloud\.com/([A-Za-z0-9_\-]{3,25})(?:[/?#]|$)")),
-    ("pinterest",  re.compile(r"pinterest\.com/([A-Za-z0-9_]{3,30})(?:[/?#]|$)")),
+    ("pinterest", re.compile(r"pinterest\.com/([A-Za-z0-9_]{3,30})(?:[/?#]|$)")),
 ]
 # Reserved path segments that look like handles but aren't.
 _RESERVED = {
@@ -132,15 +132,15 @@ class ProfilePivotEngine:
     """Expand a seed handle into linked identities by parsing its profiles."""
 
     def __init__(self, config, enumerator: Optional[UsernameEnumerator] = None):
-        self.config       = config
-        self.enumerator   = enumerator or UsernameEnumerator(config)
+        self.config = config
+        self.enumerator = enumerator or UsernameEnumerator(config)
         self.max_profiles = config.get("profile_pivot", "max_profiles", default=30)
         # 0 = parse the seed's profiles only (cheap default). Each extra hop
         # re-runs the full ~700-site username enum on discovered handles, so
         # deeper pivoting is explicit opt-in.
-        self.max_depth    = config.get("profile_pivot", "max_depth",    default=0)
-        self.max_recurse  = config.get("profile_pivot", "max_recurse_handles", default=5)
-        self.timeout      = config.get("profile_pivot", "timeout",      default=10)
+        self.max_depth = config.get("profile_pivot", "max_depth", default=0)
+        self.max_recurse = config.get("profile_pivot", "max_recurse_handles", default=5)
+        self.timeout = config.get("profile_pivot", "timeout", default=10)
 
     async def run(self, target: str) -> List[Dict]:
         seed = clean_username(target)
@@ -150,9 +150,9 @@ class ProfilePivotEngine:
         seen_handles: Set[str] = {seed.lower()}
         # provenance maps: identity -> set of profile URLs it was linked from
         prov_handles: Dict[Tuple[str, str], Set[str]] = {}
-        prov_emails:  Dict[str, Set[str]] = {}
+        prov_emails: Dict[str, Set[str]] = {}
         prov_domains: Dict[str, Set[str]] = {}
-        gravatars:    Dict[str, Set[str]] = {}
+        gravatars: Dict[str, Set[str]] = {}
         profiles_seen: Set[str] = set()
 
         async with httpx.AsyncClient(
@@ -198,7 +198,7 @@ class ProfilePivotEngine:
                     break
 
         return self._build_results(seed, prov_handles, prov_emails,
-                                    prov_domains, gravatars, len(profiles_seen))
+                                   prov_domains, gravatars, len(profiles_seen))
 
     async def _profile_urls(self, handle: str) -> List[str]:
         try:

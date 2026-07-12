@@ -68,7 +68,7 @@ def _dns_panel(con, results):
     for r in results:
         if r["result_type"] == "email_security":
             d = r["data"]
-            spf   = "[green]✓ SPF[/green]"   if d.get("spf_configured")   else "[red]✗ SPF[/red]"
+            spf = "[green]✓ SPF[/green]" if d.get("spf_configured") else "[red]✗ SPF[/red]"
             dmarc = "[green]✓ DMARC[/green]" if d.get("dmarc_configured") else "[red]✗ DMARC[/red]"
             spoof = "  [bold red]⚠ DOMAIN SPOOFABLE[/bold red]" if d.get("spoofable") else ""
             lines.append(f"[bold cyan]Email Security:[/bold cyan] {spf}  {dmarc}{spoof}")
@@ -255,11 +255,11 @@ def _service_panel(con, results):
 
 def _docmeta_panel(con, results):
     summary = next((r for r in results if r["result_type"] == "doc_metadata_summary"), None)
-    users   = next((r for r in results if r["result_type"] == "metadata_usernames"), None)
+    users = next((r for r in results if r["result_type"] == "metadata_usernames"), None)
     software = next((r for r in results if r["result_type"] == "metadata_software"), None)
-    paths   = next((r for r in results if r["result_type"] == "metadata_paths"), None)
-    emails  = next((r for r in results if r["result_type"] == "metadata_emails"), None)
-    geo     = [r for r in results if r["result_type"] == "document_geolocation"]
+    paths = next((r for r in results if r["result_type"] == "metadata_paths"), None)
+    emails = next((r for r in results if r["result_type"] == "metadata_emails"), None)
+    geo = [r for r in results if r["result_type"] == "document_geolocation"]
     if not summary:
         return
 
@@ -434,10 +434,10 @@ def _darkweb_panel(con, results):
 
 def _port_panel(con, results):
     open_ports = [r for r in results if r["result_type"] == "open_port"]
-    summary_r  = next((r for r in results if r["result_type"] == "port_scan_summary"), None)
-    os_r       = next((r for r in results if r["result_type"] == "os_detection"),      None)
-    passive_r  = next((r for r in results if r["result_type"] == "passive_os"),        None)
-    stealth_r  = next((r for r in results if r["result_type"] == "stealth_unavailable"), None)
+    summary_r = next((r for r in results if r["result_type"] == "port_scan_summary"), None)
+    os_r = next((r for r in results if r["result_type"] == "os_detection"), None)
+    passive_r = next((r for r in results if r["result_type"] == "passive_os"), None)
+    stealth_r = next((r for r in results if r["result_type"] == "stealth_unavailable"), None)
 
     if not open_ports:
         if stealth_r:
@@ -447,20 +447,20 @@ def _port_panel(con, results):
 
     t = Table(show_header=True, header_style="bold green", box=None,
               pad_edge=False, padding=(0, 1), expand=True)
-    t.add_column("PORT",    style="cyan",       width=7,  no_wrap=True)
-    t.add_column("SERVICE", style="white",      width=14, no_wrap=True)
-    t.add_column("PROTO",   style="dim",        width=5,  no_wrap=True)
-    t.add_column("VERSION", style="dim white",  width=34, no_wrap=True)
-    t.add_column("BANNER",  style="dim",        ratio=1,  no_wrap=True)
-    t.add_column("RISK",                        width=8,  no_wrap=True)
+    t.add_column("PORT", style="cyan", width=7, no_wrap=True)
+    t.add_column("SERVICE", style="white", width=14, no_wrap=True)
+    t.add_column("PROTO", style="dim", width=5, no_wrap=True)
+    t.add_column("VERSION", style="dim white", width=34, no_wrap=True)
+    t.add_column("BANNER", style="dim", ratio=1, no_wrap=True)
+    t.add_column("RISK", width=8, no_wrap=True)
 
     for r in sorted(open_ports, key=lambda x: x["data"].get("port", 0)):
-        d      = r["data"]
+        d = r["data"]
         danger = d.get("danger_warning")
-        risk   = "[bold red]HIGH[/bold red]" if danger else "[green]LOW[/green]"
+        risk = "[bold red]HIGH[/bold red]" if danger else "[green]LOW[/green]"
         banner = (d.get("banner") or "")[:60].replace("\n", " ").replace("\r", "")
-        ver    = (d.get("version") or "")[:34]
-        proto  = d.get("protocol", "tcp")
+        ver = (d.get("version") or "")[:34]
+        proto = d.get("protocol", "tcp")
         t.add_row(
             str(d.get("port", "")),
             d.get("service", ""),
@@ -473,8 +473,8 @@ def _port_panel(con, results):
     footer = f"[bold]{len(open_ports)}[/bold] open port(s)"
     engine = "python async"
     if summary_r:
-        dp     = summary_r["data"].get("dangerous_ports", [])
-        ra     = summary_r["data"].get("risk_assessment", {})
+        dp = summary_r["data"].get("dangerous_ports", [])
+        ra = summary_r["data"].get("risk_assessment", {})
         engine = summary_r["data"].get("scan_engine", "python")
         if dp:
             ports_str = ", ".join(str(p["port"]) for p in dp[:5])
@@ -491,13 +491,13 @@ def _port_panel(con, results):
     else:
         engine_tag = "[dim]async TCP[/dim]"
     if os_r:
-        d       = os_r["data"]
+        d = os_r["data"]
         os_name = d.get("os_name", "Unknown")
-        acc     = d.get("accuracy", 0)
-        fam     = d.get("os_family", "")
+        acc = d.get("accuracy", 0)
+        fam = d.get("os_family", "")
         footer += f" · OS: [cyan]{os_name}[/cyan]" + (f" ({fam})" if fam else "") + f" [{acc}%]"
     elif passive_r:
-        d   = passive_r["data"]
+        d = passive_r["data"]
         pct = int(d.get("confidence", 0) * 100)
         footer += (f" · OS(passive): [cyan]{d.get('os_family')}[/cyan] "
                    f"[TTL {d.get('initial_ttl')}, {d.get('hop_count')} hops, {pct}%]")
@@ -508,17 +508,17 @@ def _port_panel(con, results):
 
 
 def _tech_panel(con, results):
-    techs     = [r for r in results if r["result_type"] == "technology"]
+    techs = [r for r in results if r["result_type"] == "technology"]
     posture_r = next((r for r in results if r["result_type"] == "security_posture"), None)
-    tls_r     = next((r for r in results if r["result_type"] == "tls_certificate"),  None)
-    headers_r = next((r for r in results if r["result_type"] == "http_headers"),     None)
+    tls_r = next((r for r in results if r["result_type"] == "tls_certificate"), None)
+    headers_r = next((r for r in results if r["result_type"] == "http_headers"), None)
 
     lines = []
 
     if techs:
         parts = []
         for tech in sorted(techs, key=lambda x: x["data"].get("confidence", 0), reverse=True)[:12]:
-            d   = tech["data"]
+            d = tech["data"]
             cat = d.get("category", "")
             ver = d.get("version")
             entry = f"[cyan]{d['name']}[/cyan]" + (f" {ver}" if ver else "")
@@ -528,7 +528,7 @@ def _tech_panel(con, results):
         lines.append("[bold cyan]Stack:[/bold cyan] " + " · ".join(parts))
 
     if headers_r:
-        d     = headers_r["data"]
+        d = headers_r["data"]
         parts = []
         if d.get("server_fingerprint"):
             parts.append(f"Server: [cyan]{d['server_fingerprint']}[/cyan]")
@@ -538,10 +538,10 @@ def _tech_panel(con, results):
             lines.append("[bold cyan]Fingerprint:[/bold cyan] " + " · ".join(parts))
 
     if posture_r:
-        d      = posture_r["data"]
+        d = posture_r["data"]
         rating = d.get("rating", "?")
-        score  = d.get("score", 0)
-        color  = "green" if rating == "A" else "yellow" if rating in ("B", "C") else "red"
+        score = d.get("score", 0)
+        color = "green" if rating == "A" else "yellow" if rating in ("B", "C") else "red"
         missing = ", ".join(d.get("missing", [])[:4])
         grade_line = (f"[bold cyan]Security Headers:[/bold cyan] "
                       f"[{color}]Grade {rating} ({score}/100)[/{color}]")
@@ -550,7 +550,7 @@ def _tech_panel(con, results):
         lines.append(grade_line)
 
     if tls_r:
-        d      = tls_r["data"]
+        d = tls_r["data"]
         issuer = d.get("issuer", {}).get("organizationName", "?")
         lines.append(f"[bold cyan]TLS:[/bold cyan] {d.get('version', '?')} · "
                      f"issuer: [cyan]{issuer}[/cyan] · "
@@ -573,11 +573,11 @@ def _api_panel(con, results):
 
     t = Table(show_header=True, header_style="bold green", box=None,
               pad_edge=False, padding=(0, 1))
-    t.add_column("STATUS", width=7,  no_wrap=True)
-    t.add_column("TYPE",   width=18, no_wrap=True)
-    t.add_column("PATH",   style="cyan", max_width=50)
-    t.add_column("AUTH",   width=7,  no_wrap=True)
-    t.add_column("!",      width=3,  no_wrap=True)
+    t.add_column("STATUS", width=7, no_wrap=True)
+    t.add_column("TYPE", width=18, no_wrap=True)
+    t.add_column("PATH", style="cyan", max_width=50)
+    t.add_column("AUTH", width=7, no_wrap=True)
+    t.add_column("!", width=3, no_wrap=True)
 
     to_show = sorted(
         endpoints,
@@ -585,7 +585,7 @@ def _api_panel(con, results):
     )[:25]
 
     for r in to_show:
-        d      = r["data"]
+        d = r["data"]
         status = d.get("status_code", "?")
         if status == 200:
             sc = f"[green]{status}[/green]"
@@ -593,10 +593,10 @@ def _api_panel(con, results):
             sc = f"[yellow]{status}[/yellow]"
         else:
             sc = f"[dim]{status}[/dim]"
-        path  = (d.get("path") or d.get("url") or "?")[:50]
+        path = (d.get("path") or d.get("url") or "?")[:50]
         etype = (d.get("endpoint_type") or "")[:18]
-        auth  = "[yellow]auth[/yellow]" if d.get("requires_auth") else ""
-        flag  = "[bold red]![/bold red]" if d.get("is_sensitive") else ""
+        auth = "[yellow]auth[/yellow]" if d.get("requires_auth") else ""
+        flag = "[bold red]![/bold red]" if d.get("is_sensitive") else ""
         t.add_row(sc, etype, path, auth, flag)
 
     footer = f"[bold]{len(endpoints)}[/bold] resources probed"
@@ -613,15 +613,18 @@ def _intel_panel(con, results):
 
     for r in results:
         if r["result_type"] == "ip_geolocation":
-            d         = r["data"]
+            d = r["data"]
             loc_parts = [p for p in [d.get("city"), d.get("region"), d.get("country")] if p]
-            loc       = ", ".join(loc_parts)
-            org       = d.get("org", "")
-            flags     = []
-            if d.get("is_tor"):   flags.append("[bold red]TOR EXIT NODE[/bold red]")
-            if d.get("is_vpn"):   flags.append("[yellow]VPN[/yellow]")
-            if d.get("is_proxy"): flags.append("[yellow]PROXY[/yellow]")
-            flag_str  = ("  " + " ".join(flags)) if flags else ""
+            loc = ", ".join(loc_parts)
+            org = d.get("org", "")
+            flags = []
+            if d.get("is_tor"):
+                flags.append("[bold red]TOR EXIT NODE[/bold red]")
+            if d.get("is_vpn"):
+                flags.append("[yellow]VPN[/yellow]")
+            if d.get("is_proxy"):
+                flags.append("[yellow]PROXY[/yellow]")
+            flag_str = ("  " + " ".join(flags)) if flags else ""
             lines.append(f"[bold cyan]GeoIP:[/bold cyan] {loc} · [cyan]{org}[/cyan]{flag_str}")
             if d.get("asn"):
                 lines.append(f"[bold cyan]ASN:[/bold cyan] {d['asn']}")
@@ -637,8 +640,8 @@ def _anomaly_panel(con, anomalies):
     lines = []
     for r in anomalies[:12]:
         module = r.get("module", "?")
-        rtype  = r.get("result_type", "?")
-        d      = r.get("data", {})
+        rtype = r.get("result_type", "?")
+        d = r.get("data", {})
         detail = (
             d.get("danger_warning")
             or d.get("nameserver")
@@ -657,10 +660,10 @@ def _anomaly_panel(con, anomalies):
 
 
 def _summary_footer(con, scan_dict, results_list):
-    score  = scan_dict.get("shadow_score", 0)
+    score = scan_dict.get("shadow_score", 0)
     threat = (scan_dict.get("threat_level") or "unknown").upper()
-    s_color = "red"    if score  >= 70                          else "yellow" if score  >= 35 else "green"
-    t_color = "red"    if threat in ("CRITICAL", "MALICIOUS")   else "yellow" if threat == "SUSPICIOUS" else "green"
+    s_color = "red" if score >= 70 else "yellow" if score >= 35 else "green"
+    t_color = "red" if threat in ("CRITICAL", "MALICIOUS") else "yellow" if threat == "SUSPICIOUS" else "green"
 
     con.print()
     con.rule("[bold green]◈ SHADOW ANALYSIS[/bold green]", style="green")
@@ -684,23 +687,40 @@ def _render_scan_results(con, results_list, scan_dict, target):
     con.rule(f"[bold green]◈ GHOST RUN COMPLETE — {target}[/bold green]", style="green")
     con.print()
 
-    if "dns_recon"  in by_module: _dns_panel(con,   by_module["dns_recon"])
-    if "subdomain_enum" in by_module: _subdomain_panel(con, by_module["subdomain_enum"])
-    if "takeover"   in by_module: _takeover_panel(con, by_module["takeover"])
-    if "port_scan"  in by_module: _port_panel(con,  by_module["port_scan"])
-    if "tech_detect" in by_module: _tech_panel(con, by_module["tech_detect"])
-    if "api_hunt"   in by_module: _api_panel(con,   by_module["api_hunt"])
-    if "js_mine"    in by_module: _js_panel(con,    by_module["js_mine"])
-    if "archive_mine" in by_module: _archive_panel(con, by_module["archive_mine"])
-    if "infra_pivot" in by_module: _infra_panel(con, by_module["infra_pivot"])
-    if "service_enum" in by_module: _service_panel(con, by_module["service_enum"])
-    if "doc_metadata" in by_module: _docmeta_panel(con, by_module["doc_metadata"])
-    if "username_enum" in by_module: _username_panel(con, by_module["username_enum"])
-    if "profile_pivot" in by_module: _profile_pivot_panel(con, by_module["profile_pivot"])
-    if "darkweb"    in by_module: _darkweb_panel(con, by_module["darkweb"])
-    if "email_oracle" in by_module: _email_oracle_panel(con, by_module["email_oracle"])
-    if "intel"      in by_module: _intel_panel(con, by_module["intel"])
-    if anomalies:                  _anomaly_panel(con, anomalies)
+    if "dns_recon" in by_module:
+        _dns_panel(con, by_module["dns_recon"])
+    if "subdomain_enum" in by_module:
+        _subdomain_panel(con, by_module["subdomain_enum"])
+    if "takeover" in by_module:
+        _takeover_panel(con, by_module["takeover"])
+    if "port_scan" in by_module:
+        _port_panel(con, by_module["port_scan"])
+    if "tech_detect" in by_module:
+        _tech_panel(con, by_module["tech_detect"])
+    if "api_hunt" in by_module:
+        _api_panel(con, by_module["api_hunt"])
+    if "js_mine" in by_module:
+        _js_panel(con, by_module["js_mine"])
+    if "archive_mine" in by_module:
+        _archive_panel(con, by_module["archive_mine"])
+    if "infra_pivot" in by_module:
+        _infra_panel(con, by_module["infra_pivot"])
+    if "service_enum" in by_module:
+        _service_panel(con, by_module["service_enum"])
+    if "doc_metadata" in by_module:
+        _docmeta_panel(con, by_module["doc_metadata"])
+    if "username_enum" in by_module:
+        _username_panel(con, by_module["username_enum"])
+    if "profile_pivot" in by_module:
+        _profile_pivot_panel(con, by_module["profile_pivot"])
+    if "darkweb" in by_module:
+        _darkweb_panel(con, by_module["darkweb"])
+    if "email_oracle" in by_module:
+        _email_oracle_panel(con, by_module["email_oracle"])
+    if "intel" in by_module:
+        _intel_panel(con, by_module["intel"])
+    if anomalies:
+        _anomaly_panel(con, anomalies)
 
     _summary_footer(con, scan_dict, results_list)
 
