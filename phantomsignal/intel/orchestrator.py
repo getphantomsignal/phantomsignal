@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Dict, List
 
 from phantomsignal.intel.apis.base import get_registered_apis
 from phantomsignal.intel.apis import shodan_api, all_apis  # noqa: F401 — trigger registration
@@ -176,8 +176,8 @@ class IntelOrchestrator:
     def get_available_apis(self) -> List[Dict]:
         """Return all registered APIs including unconfigured ones."""
         from phantomsignal.intel.apis.base import get_registered_apis
-        all_apis = get_registered_apis()
+        registered = get_registered_apis()
         return [
             {**cls(self.config).info(), "name": name}
-            for name, cls in all_apis.items()
+            for name, cls in registered.items()
         ]

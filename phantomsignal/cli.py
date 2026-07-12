@@ -12,8 +12,6 @@ import asyncio
 import json
 import sys
 import platform
-from pathlib import Path
-from typing import Optional
 
 # On Windows, Python 3.10+ defaults to ProactorEventLoop which is incompatible
 # with aiodns used during scans. Force SelectorEventLoop on Windows.
@@ -25,8 +23,6 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
-from rich.syntax import Syntax
-from rich import print as rprint
 
 from phantomsignal import __version__, BANNER, DISCLAIMER
 
@@ -193,7 +189,7 @@ def _archive_panel(con, results):
                      f"  ·  params: {d.get('param_count', 0)}")
         src = d.get("sources", {})
         if src:
-            lines.append(f"[bold cyan]Sources:[/bold cyan] "
+            lines.append("[bold cyan]Sources:[/bold cyan] "
                          + "  ".join(f"{k}:{v}" for k, v in src.items()))
     sens = [r for r in interesting if "sensitive-file" in r["data"].get("flags", [])]
     for r in sens[:8]:
@@ -348,7 +344,7 @@ def _asm_diff_panel(con, results):
         return
     s = summary["data"]
     if not changes:
-        con.print(f"  [dim]No attack-surface changes since the previous scan.[/dim]\n")
+        con.print("  [dim]No attack-surface changes since the previous scan.[/dim]\n")
         return
 
     icon = {"new": "[bold green]+[/bold green]", "removed": "[red]−[/red]",
@@ -556,9 +552,9 @@ def _tech_panel(con, results):
     if tls_r:
         d      = tls_r["data"]
         issuer = d.get("issuer", {}).get("organizationName", "?")
-        lines.append(f"[bold cyan]TLS:[/bold cyan] {d.get('version','?')} · "
+        lines.append(f"[bold cyan]TLS:[/bold cyan] {d.get('version', '?')} · "
                      f"issuer: [cyan]{issuer}[/cyan] · "
-                     f"expires: [dim]{d.get('not_after','?')}[/dim]")
+                     f"expires: [dim]{d.get('not_after', '?')}[/dim]")
 
     if lines:
         con.print(Panel("\n".join(lines), title="[bold green]◈ TECH STACK[/bold green]",
@@ -749,13 +745,14 @@ def web(host, port, debug, open_browser):
     _port = port or cfg.get("server", "port", default=5000)
     _debug = debug or cfg.get("server", "debug", default=False)
 
-    console.print(f"\n[bold green]>> SIGNAL LOCKED[/bold green]")
+    console.print("\n[bold green]>> SIGNAL LOCKED[/bold green]")
     console.print(f"   Grid interface: [bold cyan]http://{_host}:{_port}[/bold cyan]")
     console.print(f"   Mode: {'[yellow]DEBUG[/yellow]' if _debug else '[green]STEALTH[/green]'}")
-    console.print(f"   [dim]Press Ctrl+C to sever the connection[/dim]\n")
+    console.print("   [dim]Press Ctrl+C to sever the connection[/dim]\n")
 
     if open_browser:
-        import threading, webbrowser
+        import threading
+        import webbrowser
         threading.Timer(1.5, lambda: webbrowser.open(f"http://{_host}:{_port}")).start()
 
     from phantomsignal.web.app import create_app, socketio
@@ -813,7 +810,7 @@ def scan(target, scan_type, modules, profile, output, fmt, compress, encrypt,
 
     from phantomsignal.core.config import config as cfg
     from phantomsignal.core.database import get_db
-    from phantomsignal.core.models import Scan, ScanType, ScanStatus
+    from phantomsignal.core.models import Scan, ScanType
     from phantomsignal.core.engine import PhantomEngine
 
     if no_robots:
@@ -894,7 +891,7 @@ def profile(first_name, last_name, email, phone, username, output):
     from phantomsignal.intel.people.aggregator import ShadowProfileBuilder
     from phantomsignal.core.config import config as cfg
 
-    console.print(f"\n[bold cyan]◉ INITIATING SHADOW PROFILER...[/bold cyan]")
+    console.print("\n[bold cyan]◉ INITIATING SHADOW PROFILER...[/bold cyan]")
 
     with console.status("[bold green]Scanning the grid...", spinner="dots"):
         builder = ShadowProfileBuilder(cfg)
@@ -906,23 +903,23 @@ def profile(first_name, last_name, email, phone, username, output):
             username=username,
         ))
 
-    console.print(f"\n[bold green]SHADOW PROFILE COMPILED[/bold green]")
+    console.print("\n[bold green]SHADOW PROFILE COMPILED[/bold green]")
     console.print(f"Confidence: [cyan]{result.get('confidence', 0):.0%}[/cyan]")
     console.print(f"Shadow Score: [{'red' if result.get('shadow_score', 0) > 60 else 'green'}]{result.get('shadow_score', 0):.0f}/100[/]")
     console.print(f"Sources: [cyan]{', '.join(result.get('sources', []))}[/cyan]")
 
     if result.get("emails"):
-        console.print(f"\n[bold]Emails:[/bold]")
+        console.print("\n[bold]Emails:[/bold]")
         for e in result["emails"][:10]:
             console.print(f"  ● {e.get('value', e)}")
 
     if result.get("phones"):
-        console.print(f"\n[bold]Phones:[/bold]")
+        console.print("\n[bold]Phones:[/bold]")
         for p in result["phones"][:10]:
             console.print(f"  ● {p.get('value', p)}")
 
     if result.get("addresses"):
-        console.print(f"\n[bold]Addresses:[/bold]")
+        console.print("\n[bold]Addresses:[/bold]")
         for a in result["addresses"][:5]:
             console.print(f"  ● {json.dumps(a, default=str)[:120]}")
 
@@ -950,7 +947,6 @@ def status():
     with get_db() as db:
         total = db.query(Scan).count()
         running = db.query(Scan).filter(Scan.status == ScanStatus.RUNNING).count()
-        recent = db.query(Scan).order_by(Scan.created_at.desc()).limit(5).all()
 
     orch = IntelOrchestrator(cfg)
     apis = orch.get_api_status()
@@ -995,7 +991,7 @@ def export(scan_id, fmt, output, compress, encrypt, password):
             encrypt=encrypt,
             encryption_password=password,
         )
-        console.print(f"[bold green]✓ Intel packet compiled:[/bold green]")
+        console.print("[bold green]✓ Intel packet compiled:[/bold green]")
         console.print(f"  File: {result['file_path']}")
         console.print(f"  Size: {result['file_size_human']}")
         console.print(f"  Results: {result['result_count']}")

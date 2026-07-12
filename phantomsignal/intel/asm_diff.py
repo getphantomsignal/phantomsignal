@@ -47,11 +47,13 @@ IDENTITY_FIELDS: Dict[str, Tuple[str, ...]] = {
     "tls_certificate":      ("sha256",),
 }
 
+
 # Aggregate/meta results that describe a scan, not an asset — never diffed.
 def _is_skippable(result_type: str) -> bool:
     return (not result_type
             or result_type.endswith("_summary")
             or result_type in ("asm_change", "asm_diff_summary"))
+
 
 # New assets of these types are alerts (anomalies) when they appear.
 SENSITIVE_TYPES = {

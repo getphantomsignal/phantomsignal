@@ -11,7 +11,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import re
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from phantomsignal.intel.apis import shodan_api, all_apis  # noqa: F401 — trigger API registration
 from phantomsignal.intel.apis.base import get_registered_apis, APICategory

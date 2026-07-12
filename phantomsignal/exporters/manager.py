@@ -8,16 +8,13 @@ License: MIT — see LICENSE
 """
 from __future__ import annotations
 
-import gzip
 import hashlib
 import json
 import logging
-import os
-import shutil
 import zipfile
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional
 
 from phantomsignal.core.config import config as phantomsignal_config
 from phantomsignal.core.database import get_db
@@ -193,7 +190,7 @@ class ExportManager:
     def _export_xlsx(self, payload: Dict, path: Path) -> None:
         try:
             from openpyxl import Workbook
-            from openpyxl.styles import PatternFill, Font, Alignment
+            from openpyxl.styles import PatternFill, Font
         except ImportError:
             self._export_csv(payload, path.with_suffix(".csv"))
             return
@@ -284,7 +281,6 @@ class ExportManager:
 
         story.append(Paragraph("Intelligence Results", styles["Heading2"]))
         for r in payload["results"][:200]:
-            data_str = json.dumps(r.get("data", {}), default=str, indent=2)[:800]
             result_text = f"<b>[{r.get('module', '')}]</b> {r.get('result_type', '')} | {r.get('source', '')} | conf: {r.get('confidence', '')}"
             story.append(Paragraph(result_text, styles["Normal"]))
             story.append(Spacer(1, 0.2 * cm))
@@ -361,7 +357,6 @@ footer {{ margin-top: 3rem; border-top: 1px solid #1a1a2e; padding-top: 1rem; co
     def _export_stix(self, payload: Dict, path: Path) -> None:
         """Export as STIX 2.1 bundle for threat intelligence platforms."""
         import uuid
-        scan = payload["scan"]
         objects = []
 
         # Create STIX identity for report source

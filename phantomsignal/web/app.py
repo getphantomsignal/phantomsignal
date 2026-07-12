@@ -10,15 +10,12 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import os
 import threading
 from datetime import datetime
 from typing import Optional
 
 from flask import Flask
-from flask_login import LoginManager
 from flask_socketio import SocketIO, emit, join_room, leave_room
-from flask_sqlalchemy import SQLAlchemy
 
 from phantomsignal import __version__, __codename__
 from phantomsignal.core.config import config as phantomsignal_config

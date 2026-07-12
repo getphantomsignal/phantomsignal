@@ -3,7 +3,6 @@ from flask import Blueprint, render_template, request, jsonify, send_file, flash
 from phantomsignal.exporters.manager import ExportManager
 from phantomsignal.core.database import get_db
 from phantomsignal.core.models import Scan
-import os
 
 export_bp = Blueprint("export", __name__)
 

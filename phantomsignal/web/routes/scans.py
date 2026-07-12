@@ -1,15 +1,14 @@
 """PhantomSignal Scan Routes — scan launch, listing, and results."""
 from __future__ import annotations
 
-from datetime import datetime
 
 from flask import (
-    Blueprint, current_app, flash, jsonify,
-    redirect, render_template, request, url_for
+    Blueprint, current_app, flash, redirect,
+    render_template, request, url_for
 )
 
 from phantomsignal.core.database import get_db
-from phantomsignal.core.models import Scan, ScanResult, ScanStatus, ScanType
+from phantomsignal.core.models import Scan, ScanResult, ScanType
 
 scans_bp = Blueprint("scans", __name__)
 

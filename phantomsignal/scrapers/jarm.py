@@ -23,7 +23,7 @@ import hashlib
 import os
 import socket
 import struct
-from typing import List, Optional
+from typing import List
 
 # Each probe: [tls_version, cipher_list, cipher_order, grease, alpn, support, ext_order]
 # (the reference carries host+port in slots 0-1; we pass those separately.)

@@ -9,14 +9,10 @@ License: MIT — see LICENSE
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
-import os
-import tempfile
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 from urllib.parse import urljoin, urlparse
 
-import scrapy
 from scrapy import signals
 from scrapy.crawler import CrawlerRunner
 from scrapy.http import Response
@@ -24,7 +20,6 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.utils.log import configure_logging
 from scrapy.utils.project import get_project_settings
-from twisted.internet import asyncioreactor
 
 logger = logging.getLogger("phantomsignal.crawler")
 
@@ -89,7 +84,6 @@ class PhantomSignalSpider(CrawlSpider):
 
     def parse_page(self, response: Response):
         url = response.url
-        parsed = urlparse(url)
 
         page_data = {
             "type": "web_page",
@@ -266,7 +260,7 @@ class WebCrawler:
                 options=options or {},
             )
 
-            from twisted.internet import defer, reactor
+            from twisted.internet import defer
             d = defer.Deferred()
 
             def on_complete(_):

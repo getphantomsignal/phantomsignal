@@ -31,7 +31,6 @@ from __future__ import annotations
 import asyncio
 import logging
 import socket
-import struct
 from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger("phantomsignal.scrapers.service_enum")
@@ -124,7 +123,6 @@ def parse_snmp_sysdescr(data: bytes) -> Optional[str]:
     if not data or data[0] != 0x30:
         return None
     try:
-        i = 0
 
         def read_tlv(buf: bytes, pos: int) -> Tuple[int, bytes, int]:
             tag = buf[pos]
@@ -192,7 +190,7 @@ class ServiceEnumerator:
         results: List[Dict] = []
         try:
             await asyncio.wait_for(reader.readline(), timeout=6)   # banner
-            await self._smtp_cmd(reader, writer, f"EHLO phantomsignal.local")
+            await self._smtp_cmd(reader, writer, "EHLO phantomsignal.local")
 
             valid: List[str] = []
             vrfy_supported = False

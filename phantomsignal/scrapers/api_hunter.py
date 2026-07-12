@@ -12,7 +12,7 @@ import asyncio
 import logging
 import re
 from typing import Dict, List, Optional
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 
 import httpx
 
@@ -181,7 +181,6 @@ class APIHunter:
                 data_preview = None
                 if "json" in content_type and content_len < 10000:
                     try:
-                        import json
                         data_preview = response.json()
                     except Exception:
                         pass

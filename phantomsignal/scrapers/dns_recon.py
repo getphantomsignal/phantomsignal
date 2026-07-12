@@ -11,7 +11,6 @@ from __future__ import annotations
 import asyncio
 import ipaddress
 import logging
-import re
 import socket
 from typing import Dict, List, Optional
 from urllib.parse import urlparse

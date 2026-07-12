@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from flask import Blueprint, jsonify, request
 from phantomsignal.core.database import get_db
-from phantomsignal.core.models import Scan, ScanResult, ScanStatus, ScanType
+from phantomsignal.core.models import Scan, ScanResult, ScanType
 
 api_bp = Blueprint("api", __name__)
 

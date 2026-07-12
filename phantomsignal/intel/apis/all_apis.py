@@ -8,8 +8,11 @@ License: MIT — see LICENSE
 """
 from __future__ import annotations
 
+import asyncio
 import re
 from typing import Dict, List, Optional
+
+import httpx
 
 from phantomsignal.intel.apis.base import (
     APICategory, APITier, BaseIntelAPI, register_api
@@ -1337,7 +1340,7 @@ class InstagramAPI(BaseIntelAPI):
         username = query.lstrip("@")
 
         # Business/Creator account lookup via Graph API
-        data = await self._get(
+        await self._get(
             f"{self.BASE_URL}/ig_hashtag_search",
             params={"user_id": "me", "q": username, "access_token": token},
         )
@@ -1413,7 +1416,7 @@ class TikTokAPI(BaseIntelAPI):
             return []
 
         username = query.lstrip("@")
-        data = await self._get(
+        await self._get(
             f"{self.BASE_URL}/research/user/info/",
             params={
                 "fields": "display_name,bio_description,avatar_url,is_verified,follower_count,following_count,likes_count,video_count",

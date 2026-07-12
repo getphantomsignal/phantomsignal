@@ -24,7 +24,7 @@ from __future__ import annotations
 import hashlib
 import logging
 import re
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 from urllib.parse import quote
 
 import httpx

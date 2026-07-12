@@ -56,17 +56,6 @@ The Risk Score meter now runs a true green → amber → red ramp, so a low scor
 
 ![CLI scan demo](https://raw.githubusercontent.com/getphantomsignal/phantomsignal/main/docs/assets/demo.gif)
 
-### Web UI — Dashboard
-
-![Dashboard](https://raw.githubusercontent.com/getphantomsignal/phantomsignal/main/docs/assets/screenshot_dashboard.png)
-
-### Web UI — New Scan
-
-![New Scan](https://raw.githubusercontent.com/getphantomsignal/phantomsignal/main/docs/assets/screenshot_launch.png)
-
-### Web UI — Scan Results
-
-![Scan results](https://raw.githubusercontent.com/getphantomsignal/phantomsignal/main/docs/assets/screenshot_results.png)
 
 ### Web UI — Theme Options
 

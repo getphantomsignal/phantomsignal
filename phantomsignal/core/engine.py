@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import time
 from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional
 
@@ -44,12 +43,6 @@ class PhantomEngine:
         Launch a ghost run. Entry point for all scan types.
         Spins up the appropriate module pipeline based on scan configuration.
         """
-        from phantomsignal.scrapers.crawler import WebCrawler
-        from phantomsignal.scrapers.port_scanner import PortScanner
-        from phantomsignal.scrapers.tech_detector import TechDetector
-        from phantomsignal.scrapers.api_hunter import APIHunter
-        from phantomsignal.scrapers.dns_recon import DNSRecon
-        from phantomsignal.intel.orchestrator import IntelOrchestrator
 
         with get_db() as db:
             scan = db.query(Scan).filter(Scan.id == scan_id).first()
