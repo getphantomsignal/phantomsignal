@@ -15,7 +15,7 @@
    - [Scenario C — Domain Intelligence](#scenario-c--domain-intelligence)
    - [Scenario D — People Intelligence (Shadow Profiler)](#scenario-d--people-intelligence-shadow-profiler)
    - [Scenario E — Bug Bounty Recon](#scenario-e--bug-bounty-recon)
-   - [Scenario F — Ghost Mode (Low-and-Slow)](#scenario-f--ghost-mode-low-and-slow)
+   - [Scenario F — Covert Recon (Low-and-Slow)](#scenario-f--covert-recon-low-and-slow)
 5. [Configuring API Keys](#5-configuring-api-keys)
 6. [Reading Results](#6-reading-results)
 7. [Exporting Intel](#7-exporting-intel)
@@ -112,7 +112,7 @@ The fastest way to start — enter a target in the **QUICK PROBE** box on the da
 | **Quick Probe** | ~30 sec | Fast triage, live asset check |
 | **Standard Recon** | 2–5 min | Balanced — most common choice |
 | **Deep Dive** | 10–30 min | Full crawl, all ports, all APIs |
-| **Ghost Mode** | Variable | Low-and-slow, minimal footprint |
+| **Covert** | Variable | Low-and-slow, minimal footprint |
 
 4. Toggle individual **Recon Modules** on/off as needed
 5. Adjust **Advanced Config** (crawl depth, port profile, robots.txt respect)
@@ -132,7 +132,7 @@ You are redirected to the live results page where findings stream in as they're 
 - Target: `https://yoursite.com`
 - Profile: **Standard Recon**
 - Modules: DNS Recon ✓, Port Scanner ✓, Tech Detector ✓, API Hunter ✓, Web Crawler ✓
-- Ghost Mode: off
+- Evasive mode: off
 
 **What PhantomSignal will find:**
 - Open ports and exposed services (admin panels, staging, APIs)
@@ -241,34 +241,34 @@ You are redirected to the live results page where findings stream in as they're 
 - **URLScan.io** — passive screenshot and DOM analysis
 - **VirusTotal** — passive DNS and URL history
 
-**Tip:** Use **Ghost Mode** if the programme's scope rules require low-noise recon. Enable **Respect robots.txt** to avoid accidental out-of-scope crawling.
+**Tip:** Use the **Covert** profile if the programme's scope rules require low-noise recon. Enable **Respect robots.txt** to avoid accidental out-of-scope crawling.
 
 ---
 
-### Scenario F — Ghost Mode (Low-and-Slow)
+### Scenario F — Covert Recon (Low-and-Slow)
 
 **Goal:** Perform recon with the lowest possible noise and detection footprint.
 
 **Settings:**
-- Profile: **Ghost Mode**
-- Enable **Ghost Mode (low & slow)** toggle in Advanced Config
+- Profile: **Covert**
+- Enable **Evasive (low & slow)** toggle in Advanced Config
 - Respect robots.txt: **on**
 - Crawl depth: **1** (surface only)
 
-**What Ghost Mode does:**
-- Adds random jitter (2–8 seconds) between requests
-- Rotates User-Agent strings to mimic different browsers
-- Reduces concurrent connections to 1
-- Skips aggressive techniques (zone transfers, brute-force subdomain)
-- Optionally routes traffic via Tor (Docker `ghost` profile only)
+**What the Covert profile and Evasive mode do:**
+- Add random jitter (2–8 seconds) between requests
+- Rotate User-Agent strings to mimic different browsers
+- Reduce concurrent connections to 1
+- Skip aggressive techniques (zone transfers, brute-force subdomain)
+- Optionally route traffic via Tor (Docker `covert` profile only)
 
 **Docker + Tor:**
 ```bash
-docker-compose --profile ghost up -d
+docker-compose --profile covert up -d
 ```
 This spins up a Tor sidecar and routes all PhantomSignal traffic through it automatically.
 
-**Tip:** Ghost Mode significantly increases scan duration. Plan for 30–90 minutes on a moderately sized target.
+**Tip:** Covert scanning significantly increases scan duration. Plan for 30–90 minutes on a moderately sized target.
 
 ---
 
@@ -393,12 +393,11 @@ phantomsignal --version
 
 | Flag | Description |
 |------|-------------|
-| `--profile quick\|standard\|deep\|ghost` | Scan profile |
+| `--profile quick\|standard\|deep\|covert` | Scan profile |
 | `--type web_recon\|ip_recon\|domain_recon\|full_spectrum` | Scan type (auto-detected if omitted) |
 | `--format json\|html\|pdf\|csv\|stix` | Output format |
 | `--output <path>` | Output directory (default: `./reports`) |
 | `--modules dns,port,tech` | Comma-separated module list |
-| `--ghost` | Enable Ghost Mode |
 | `--no-browser` | Skip web browser launch on completion |
 
 ---
@@ -585,9 +584,9 @@ services:
 
 Increase Docker Desktop memory allocation (Settings → Resources → Memory) to at least 2 GB. For very large targets, 4 GB recommended.
 
-**Tor (Ghost Mode) container not connecting**
+**Tor (Covert) container not connecting**
 ```bash
-docker-compose --profile ghost logs tor
+docker-compose --profile covert logs tor
 # Common fix — wait 30s for Tor circuit establishment, then retry the scan
 ```
 

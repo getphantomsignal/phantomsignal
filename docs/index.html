@@ -228,31 +228,31 @@
     </div>
   </section>
 
-  <!-- GHOST MODE CALLOUT -->
+  <!-- COVERT RECON CALLOUT -->
   <section class="section section-ghost">
     <div class="section-inner ghost-inner">
       <div class="ghost-text">
-        <div class="section-label">👻 GHOST MODE</div>
+        <div class="section-label">◈ COVERT RECON</div>
         <h2 class="section-title">Low-and-Slow. Minimum Footprint.</h2>
-        <p class="section-sub">Identity rotation, request jitter, user-agent spoofing, and optional Tor routing keep your recon beneath the noise floor. Purpose-built for engagements where detection is not an option.</p>
-        <a href="#quickstart" class="btn btn-primary" style="margin-top:1.5rem;">DEPLOY GHOST MODE</a>
+        <p class="section-sub">Identity rotation, request jitter, user-agent spoofing, and optional Tor routing keep your recon beneath the noise floor. Purpose-built for engagements where staying under the radar matters.</p>
+        <a href="#quickstart" class="btn btn-primary" style="margin-top:1.5rem;">RUN A COVERT SCAN</a>
       </div>
       <div class="ghost-code">
         <div class="demo-bar">
           <span class="demo-dot red"></span><span class="demo-dot yellow"></span><span class="demo-dot green"></span>
-          <span class="demo-title">ghost mode + tor</span>
+          <span class="demo-title">covert scan + tor</span>
         </div>
-        <pre class="code-block"><span class="c-dim"># Docker — Ghost Mode with Tor routing</span>
-<span class="c-green">docker-compose</span> --profile ghost up -d
+        <pre class="code-block"><span class="c-dim"># Docker — covert scan with Tor routing</span>
+<span class="c-green">docker-compose</span> --profile covert up -d
 
-<span class="c-dim"># CLI — Ghost Mode scan</span>
+<span class="c-dim"># CLI — covert scan</span>
 <span class="c-green">phantomsignal</span> scan target.com \
-  --profile ghost \
+  --profile covert \
   --modules dns,tech \
   --format json
 
-<span class="c-dim"># Web UI — toggle Ghost Mode</span>
-<span class="c-cyan">Advanced Config</span> → Ghost Mode (low &amp; slow) ✓</pre>
+<span class="c-dim"># Web UI — enable Evasive mode</span>
+<span class="c-cyan">Advanced Config</span> → Evasive (low &amp; slow) ✓</pre>
       </div>
     </div>
   </section>

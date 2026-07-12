@@ -137,11 +137,11 @@ LexisNexis-style identity aggregation from public records:
 
 All formats support **ZIP compression** and **AES-256-GCM encryption**.
 
-### 🌑 Ghost Mode
-- Low-and-slow scanning profiles to minimize detection
+### 🌑 Covert Recon
+- Low-and-slow **Covert** scan profile to minimize noise
 - Identity rotation via user-agent spoofing
-- Tor proxy integration (Docker compose profile: `ghost`)
-- Configurable request jitter and delays
+- Tor proxy integration (Docker compose profile: `covert`)
+- Configurable request jitter and delays, toggled via **Evasive** mode
 
 ### 🔔 Additional Features
 - **Real-time live feed** — WebSocket-powered terminal during scans

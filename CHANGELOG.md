@@ -32,6 +32,12 @@ screenshot assets in favour of richer written descriptions.
   the README, `USAGE.md`, `web/app.py`, and the About page, and dropped the
   landing page's animated matrix-rain canvas and CRT scanline overlay (elements,
   CSS, and JS).
+- **"Ghost Mode" → Covert / Evasive**: brought the public docs in line with the
+  app's plain-language terminology. The README feature, landing-page callout, and
+  `USAGE.md` now describe the **Covert** scan profile and **Evasive (low & slow)**
+  toggle instead of "Ghost Mode"; corrected the CLI reference (`--profile covert`,
+  not `ghost`; dropped the non-existent `--ghost` flag). The Docker Tor sidecar
+  compose profile was renamed `ghost` → `covert` (`docker-compose --profile covert`).
 - **GitHub Pages retheme**: the landing site (`docs/index.html`, `docs/site.css`)
   was recoloured from the coral/neon marketing palette to the app's default Dark
   theme — deep-slate surfaces, federal-blue hero, steel-blue links, gold accents,
