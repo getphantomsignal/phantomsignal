@@ -135,3 +135,34 @@ def abort_scan(scan_id):
     if aborted:
         flash("Scan stopped.", "warning")
     return redirect(url_for("scans.scan_results", scan_id=scan_id))
+
+
+@scans_bp.route("/<scan_id>/rescan", methods=["POST"])
+def rescan(scan_id):
+    """Re-run an existing scan against the same target with the same config."""
+    from phantomsignal.web.app import run_scan_async
+
+    with get_db() as db:
+        original = db.query(Scan).filter(Scan.id == scan_id).first()
+        if not original:
+            flash("Scan not found.", "error")
+            return redirect(url_for("scans.list_scans"))
+
+        target = original.target
+        new_scan = Scan(
+            name=f"Re-scan — {target[:30]}",
+            target=target,
+            scan_type=original.scan_type,
+            profile=original.profile,
+            modules_enabled=list(original.modules_enabled or []),
+            options=dict(original.options or {}),
+            tags=list(original.tags or []),
+        )
+        db.add(new_scan)
+        db.flush()
+        new_id = new_scan.id
+
+    run_scan_async(current_app._get_current_object(), new_id)
+
+    flash(f"Re-scanning {target}.", "success")
+    return redirect(url_for("scans.scan_results", scan_id=new_id))

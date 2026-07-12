@@ -400,6 +400,9 @@
         <button class="btn btn-danger">⬛ ABORT</button>
       </form>
     {% else %}
+      <form action="{{ url_for('scans.rescan', scan_id=scan.id) }}" method="POST" style="display:inline">
+        <button class="btn btn-primary">↻ Re-scan</button>
+      </form>
       <a href="{{ url_for('export.export_options', scan_id=scan.id) }}" class="btn btn-secondary">
         ↓ EXPORT INTEL
       </a>

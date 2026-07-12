@@ -21,36 +21,36 @@
 
 <!-- Stats row -->
 <div class="stats-grid">
-  <div class="stat-card">
+  <a href="{{ url_for('scans.list_scans') }}" class="stat-card" title="View all scans">
     <div class="stat-icon neon-green">◫</div>
     <div class="stat-value neon-green">{{ stats.total_scans }}</div>
     <div class="stat-label">TOTAL SCANS</div>
     <div class="stat-bar"><div class="stat-bar-fill green" style="width: 100%"></div></div>
-  </div>
-  <div class="stat-card">
+  </a>
+  <a href="{{ url_for('scans.list_scans') }}" class="stat-card" title="View running scans">
     <div class="stat-icon neon-cyan pulse-anim">◉</div>
     <div class="stat-value neon-cyan">{{ stats.active_scans }}</div>
     <div class="stat-label">RUNNING SCANS</div>
     <div class="stat-bar"><div class="stat-bar-fill cyan" style="width: {{ [stats.active_scans * 20, 100]|min }}%"></div></div>
-  </div>
-  <div class="stat-card">
+  </a>
+  <a href="{{ url_for('scans.list_scans') }}" class="stat-card" title="View scans and their findings">
     <div class="stat-icon neon-purple">▁▃▅</div>
     <div class="stat-value neon-purple">{{ stats.total_results }}</div>
     <div class="stat-label">FINDINGS</div>
     <div class="stat-bar"><div class="stat-bar-fill purple" style="width: 75%"></div></div>
-  </div>
-  <div class="stat-card {% if stats.critical_threats > 0 %}threat-card{% endif %}">
+  </a>
+  <a href="{{ url_for('scans.list_scans') }}" class="stat-card {% if stats.critical_threats > 0 %}threat-card{% endif %}" title="View scans with critical findings">
     <div class="stat-icon neon-red">⚠</div>
     <div class="stat-value neon-red">{{ stats.critical_threats }}</div>
     <div class="stat-label">CRITICAL FINDINGS</div>
     <div class="stat-bar"><div class="stat-bar-fill red" style="width: {{ [stats.critical_threats * 15, 100]|min }}%"></div></div>
-  </div>
-  <div class="stat-card">
+  </a>
+  <a href="{{ url_for('settings.settings_page') }}" class="stat-card" title="Manage data sources">
     <div class="stat-icon neon-orange">⚙</div>
     <div class="stat-value neon-orange">{{ configured_apis }}</div>
     <div class="stat-label">CONNECTED SOURCES</div>
     <div class="stat-bar"><div class="stat-bar-fill orange" style="width: {{ [configured_apis * 5, 100]|min }}%"></div></div>
-  </div>
+  </a>
 </div>
 
 <!-- Main content columns -->

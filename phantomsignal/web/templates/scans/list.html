@@ -58,6 +58,9 @@
         <td>
           <div class="action-group">
             <a href="{{ url_for('scans.scan_results', scan_id=scan.id) }}" class="action-link">VIEW</a>
+            <form action="{{ url_for('scans.rescan', scan_id=scan.id) }}" method="POST" style="display:inline">
+              <button type="submit" class="action-link action-link-btn">↻ RE-SCAN</button>
+            </form>
             <a href="{{ url_for('export.export_options', scan_id=scan.id) }}" class="action-link">EXPORT</a>
           </div>
         </td>
