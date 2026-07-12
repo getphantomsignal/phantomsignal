@@ -8,12 +8,12 @@
 
 1. [Getting Started](#1-getting-started)
 2. [The Web Interface](#2-the-web-interface)
-3. [Launching a Ghost Run](#3-launching-a-ghost-run)
+3. [Launching a Scan](#3-launching-a-scan)
 4. [Usage Scenarios](#4-usage-scenarios)
    - [Scenario A — Website Security Audit](#scenario-a--website-security-audit)
    - [Scenario B — IP / Server Reconnaissance](#scenario-b--ip--server-reconnaissance)
    - [Scenario C — Domain Intelligence](#scenario-c--domain-intelligence)
-   - [Scenario D — People Intelligence (Shadow Profiler)](#scenario-d--people-intelligence-shadow-profiler)
+   - [Scenario D — People Intelligence (Profiler)](#scenario-d--people-intelligence-profiler)
    - [Scenario E — Bug Bounty Recon](#scenario-e--bug-bounty-recon)
    - [Scenario F — Covert Recon (Low-and-Slow)](#scenario-f--covert-recon-low-and-slow)
 5. [Configuring API Keys](#5-configuring-api-keys)
@@ -59,9 +59,9 @@ Open **http://localhost:5000**.
 | Step | Action |
 |------|--------|
 | 1 | Open the web UI at `http://127.0.0.1:5000` |
-| 2 | Navigate to **Ghost Keys** (⚙ in nav bar) and add at least one API key |
-| 3 | Go back to the **Shadow Grid** dashboard |
-| 4 | Use **Quick Probe** or **Launch Ghost Run** to start your first scan |
+| 2 | Navigate to **Integrations** (⚙ in nav bar) and add at least one API key |
+| 3 | Go back to the **Dashboard** |
+| 4 | Use **Quick Scan** or **New Scan** to start your first scan |
 
 ---
 
@@ -69,13 +69,13 @@ Open **http://localhost:5000**.
 
 ### Navigation
 
-| Page | Nav Label | Description |
-|------|-----------|-------------|
-| Dashboard | **GRID** | Mission overview, live feed, API status, quick probe |
-| New Scan | **NEW MISSION** | Full scan configuration form |
-| Scan List | **GHOST RUNS** | All past and active missions |
-| People Intel | **SHADOW PROFILER** | Person/email/username lookup |
-| Settings | **GHOST KEYS** | API key management |
+| Nav | What it does |
+|-----|--------------|
+| **Dashboard** | Overview, live feed, data-source status, and a Quick Scan box |
+| **New Scan** | Full scan configuration form |
+| **Scans** | All past and active scans |
+| **Profiler** | Person / email / username lookup |
+| **Integrations** | API key management |
 
 ### Theme Switch
 
@@ -95,28 +95,28 @@ The **LIVE FEED** terminal on the dashboard streams real-time events from any ac
 
 ---
 
-## 3. Launching a Ghost Run
+## 3. Launching a Scan
 
-### Quick Probe (dashboard)
+### Quick Scan (dashboard)
 
-The fastest way to start — enter a target in the **QUICK PROBE** box on the dashboard. This runs all five default modules (`dns_recon`, `port_scan`, `tech_detect`, `api_hunt`, `intel`) with the quick profile. Results appear in Ghost Runs within seconds.
+The fastest way to start — enter a target in the **QUICK SCAN** box on the dashboard. This runs all five default modules (`dns_recon`, `port_scan`, `tech_detect`, `api_hunt`, `intel`) with the quick profile. Results appear under **Scans** within seconds.
 
-### Full Ghost Run (New Mission page)
+### Full Scan (New Scan page)
 
-1. Navigate to **NEW MISSION**
+1. Navigate to **New Scan**
 2. Enter your target (domain, IP, URL, email, or username)
-3. Choose a **Mission Profile**:
+3. Choose a **Scan Profile**:
 
 | Profile | Duration | Use Case |
 |---------|----------|----------|
-| **Quick Probe** | ~30 sec | Fast triage, live asset check |
-| **Standard Recon** | 2–5 min | Balanced — most common choice |
-| **Deep Dive** | 10–30 min | Full crawl, all ports, all APIs |
+| **Quick** | ~30 sec | Fast triage, live asset check |
+| **Standard** | 2–5 min | Balanced — most common choice |
+| **Deep** | 10–30 min | Full crawl, all ports, all APIs |
 | **Covert** | Variable | Low-and-slow, minimal footprint |
 
-4. Toggle individual **Recon Modules** on/off as needed
-5. Adjust **Advanced Config** (crawl depth, port profile, robots.txt respect)
-6. Click **INITIATE GHOST RUN**
+4. Toggle individual **Modules** on/off as needed
+5. Adjust **Advanced Options** (crawl depth, port profile, robots.txt respect)
+6. Click **Start Scan**
 
 You are redirected to the live results page where findings stream in as they're discovered.
 
@@ -130,7 +130,7 @@ You are redirected to the live results page where findings stream in as they're 
 
 **Recommended settings:**
 - Target: `https://yoursite.com`
-- Profile: **Standard Recon**
+- Profile: **Standard**
 - Modules: DNS Recon ✓, Port Scanner ✓, Tech Detector ✓, API Hunter ✓, Web Crawler ✓
 - Evasive mode: off
 
@@ -142,7 +142,7 @@ You are redirected to the live results page where findings stream in as they're 
 - Email addresses and internal links harvested from crawl
 - Threat intelligence from VirusTotal, Shodan, AbuseIPDB (if keys configured)
 
-**Interpreting the Shadow Score:**
+**Interpreting the Risk Score:**
 - **0–25 CLEAN** — minimal exposure, good security posture
 - **26–50 ELEVATED** — some findings worth reviewing
 - **51–75 HIGH** — significant issues, remediation recommended
@@ -156,7 +156,7 @@ You are redirected to the live results page where findings stream in as they're 
 
 **Recommended settings:**
 - Target: `192.168.1.100` (or public IP)
-- Profile: **Standard Recon** or **Deep Dive** (for full port scan)
+- Profile: **Standard** or **Deep** (for full port scan)
 - Modules: Port Scanner ✓, DNS Recon ✓, Intel APIs ✓
 - Port Profile: **Extended (1000 ports)** or **Full (65535)** for thorough coverage
 
@@ -180,7 +180,7 @@ You are redirected to the live results page where findings stream in as they're 
 
 **Recommended settings:**
 - Target: `example.com`
-- Profile: **Standard Recon** or **Deep Dive**
+- Profile: **Standard** or **Deep**
 - Modules: DNS Recon ✓, Tech Detector ✓, Intel APIs ✓, Web Crawler ✓
 - Crawl depth: 3
 
@@ -197,11 +197,11 @@ You are redirected to the live results page where findings stream in as they're 
 
 ---
 
-### Scenario D — People Intelligence (Shadow Profiler)
+### Scenario D — People Intelligence (Profiler)
 
 **Goal:** Aggregate publicly available information about a person, email address, or online identity.
 
-**Navigate to:** Shadow Grid → **SHADOW PROFILER**
+**Navigate to:** **Profiler** (◉ in the nav bar)
 
 **Input types supported:**
 - Full name + optional location/employer
@@ -216,7 +216,7 @@ You are redirected to the live results page where findings stream in as they're 
 - Email validity and domain reputation
 - Associated accounts and aliases
 
-**Privacy note:** The Shadow Profiler only queries publicly available data sources and licensed APIs. Configure only the APIs you have a legitimate subscription to. GDPR and CCPA restrictions apply — see [Legal & Ethics](../README.md#️-legal--ethics).
+**Privacy note:** The Profiler only queries publicly available data sources and licensed APIs. Configure only the APIs you have a legitimate subscription to. GDPR and CCPA restrictions apply — see [Legal & Ethics](../README.md#️-legal--ethics).
 
 ---
 
@@ -226,8 +226,8 @@ You are redirected to the live results page where findings stream in as they're 
 
 **Workflow:**
 
-1. **Quick Probe** each root domain to identify live assets
-2. For live targets, run **Standard Recon** with all modules enabled
+1. **Quick Scan** each root domain to identify live assets
+2. For live targets, run a **Standard** scan with all modules enabled
 3. Focus review on:
    - API Hunter results (`/api/`, `/graphql`, admin panels)
    - High/Critical severity findings
@@ -274,7 +274,7 @@ This spins up a Tor sidecar and routes all PhantomSignal traffic through it auto
 
 ## 5. Configuring API Keys
 
-Navigate to **Ghost Keys** (⚙ in the nav bar).
+Navigate to **Integrations** (⚙ in the nav bar).
 
 ### Priority keys (highest value, free tiers available)
 
@@ -290,7 +290,7 @@ Navigate to **Ghost Keys** (⚙ in the nav bar).
 
 ### Setting keys via environment variables
 
-Keys entered in the Ghost Keys UI are stored in the local SQLite database. For production or Docker deployments, prefer environment variables:
+Keys entered in the Integrations UI are stored in the local SQLite database. For production or Docker deployments, prefer environment variables:
 
 ```bash
 export SHODAN_API_KEY="your-key"
@@ -312,7 +312,7 @@ Or add them to a `.env` file in the project root (Docker Compose picks this up a
 
 After a scan completes, the results page shows:
 
-- **Meta strip** — target, profile, duration, result count, Shadow Score, threat level
+- **Meta strip** — target, profile, duration, result count, Risk Score, threat level
 - **Tabs** — ALL · per-module tabs · ANOMALIES (auto-filtered)
 - **Type-aware result cards** — each result type renders its key data as structured output rather than raw JSON: open ports show port/service/version/banner/risk in one row; DNS records display as a labelled table; email security shows SPF/DMARC/spoofable status; security posture shows grade A–F; IP geolocation shows city/ASN/TOR/VPN flags; and so on. Click any card to expand it.
 - **Export panel** — download in any supported format
@@ -327,9 +327,9 @@ After a scan completes, the results page shows:
 | **LOW** | Green | Informational, minor exposure |
 | **INFO** | Blue/Dim | Context data, no direct risk |
 
-### Shadow Score breakdown
+### Risk Score breakdown
 
-The Shadow Score (0–100) is a weighted composite:
+The Risk Score (0–100) is a weighted composite:
 - Open high-risk ports (admin panels, databases) — high weight
 - Critical/High severity findings — high weight
 - Missing security headers — medium weight
@@ -387,7 +387,7 @@ phantomsignal apis
 phantomsignal --version
 ```
 
-**CLI output (v1.3.0+):** After the scan completes, results are rendered as named Rich panels — one per active module — rather than a flat table. Each panel extracts the key fields from result data: the port panel shows PORT/SERVICE/PROTO/VERSION/BANNER/RISK with dangerous ports highlighted; the DNS panel shows resolved IPs, MX/NS/TXT records, subdomains, and SPF/DMARC status; the tech panel shows detected stack, security header grade, and TLS info; anomalies appear in a separate red-bordered callout. The footer shows Shadow Score, Threat Level, and a hint to configure API keys for deeper coverage.
+**CLI output (v1.3.0+):** After the scan completes, results are rendered as named Rich panels — one per active module — rather than a flat table. Each panel extracts the key fields from result data: the port panel shows PORT/SERVICE/PROTO/VERSION/BANNER/RISK with dangerous ports highlighted; the DNS panel shows resolved IPs, MX/NS/TXT records, subdomains, and SPF/DMARC status; the tech panel shows detected stack, security header grade, and TLS info; anomalies appear in a separate red-bordered callout. The footer shows Risk Score, Threat Level, and a hint to configure API keys for deeper coverage.
 
 ### Common flags
 

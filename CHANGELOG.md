@@ -38,6 +38,12 @@ screenshot assets in favour of richer written descriptions.
   toggle instead of "Ghost Mode"; corrected the CLI reference (`--profile covert`,
   not `ghost`; dropped the non-existent `--ghost` flag). The Docker Tor sidecar
   compose profile was renamed `ghost` → `covert` (`docker-compose --profile covert`).
+- **USAGE.md nav-terminology sync**: brought the full user guide in line with the
+  app's current plain-language UI — "Ghost Run(s)" → **Scans**, "New Mission" →
+  **New Scan**, "Ghost Keys" → **Integrations**, "Quick Probe" → **Quick Scan** /
+  the **Quick** profile, "Shadow Grid" → **Dashboard**, "Shadow Profiler" →
+  **Profiler**, "Shadow Score" → **Risk Score**, profile names Standard/Deep, and
+  the "Start Scan" button — including the nav map, section headings, and TOC anchors.
 - **GitHub Pages retheme**: the landing site (`docs/index.html`, `docs/site.css`)
   was recoloured from the coral/neon marketing palette to the app's default Dark
   theme — deep-slate surfaces, federal-blue hero, steel-blue links, gold accents,
