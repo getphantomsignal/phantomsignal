@@ -2,16 +2,15 @@
 
 > **Open-source OSINT intelligence framework** — _"Map the surface. Own the signal."_
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-00ff41?style=flat-square&logo=python)](https://python.org)
-[![License: MIT](https://img.shields.io/badge/license-MIT-00f3ff?style=flat-square)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows%20%7C%20Docker-b026ff?style=flat-square)]()
-[![GitHub Stars](https://img.shields.io/github/stars/getphantomsignal/phantomsignal?style=flat-square&color=00ff41)](https://github.com/getphantomsignal/phantomsignal/stargazers)
-[![Open Issues](https://img.shields.io/github/issues/getphantomsignal/phantomsignal?style=flat-square&color=b026ff)](https://github.com/getphantomsignal/phantomsignal/issues)
-[![CI](https://img.shields.io/github/actions/workflow/status/getphantomsignal/phantomsignal/ci.yml?branch=main&style=flat-square&label=CI&color=00ff41)](https://github.com/getphantomsignal/phantomsignal/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/phantomsignal?style=flat-square&color=b026ff&logo=pypi&logoColor=white)](https://pypi.org/project/phantomsignal/)
-[![Project Site](https://img.shields.io/badge/site-phantomsignal.sh-00f3ff?style=flat-square&logo=github)](https://phantomsignal.sh)
-[![Changelog](https://img.shields.io/badge/changelog-view-00ff41?style=flat-square)](CHANGELOG.md)
-[![Sponsors](https://img.shields.io/github/sponsors/getphantomsignal?style=flat-square&color=b026ff&label=sponsors)](https://github.com/sponsors/getphantomsignal)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-4d9fd6?style=flat-square&logo=python)](https://python.org)
+[![License: MIT](https://img.shields.io/badge/license-MIT-7fb8dd?style=flat-square)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows%20%7C%20Docker-c9a24a?style=flat-square)]()
+[![GitHub Stars](https://img.shields.io/github/stars/getphantomsignal/phantomsignal?style=flat-square&color=4d9fd6)](https://github.com/getphantomsignal/phantomsignal/stargazers)
+[![Open Issues](https://img.shields.io/github/issues/getphantomsignal/phantomsignal?style=flat-square&color=c9a24a)](https://github.com/getphantomsignal/phantomsignal/issues)
+[![CI](https://img.shields.io/github/actions/workflow/status/getphantomsignal/phantomsignal/ci.yml?branch=main&style=flat-square&label=CI&color=4d9fd6)](https://github.com/getphantomsignal/phantomsignal/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/phantomsignal?style=flat-square&color=c9a24a&logo=pypi&logoColor=white)](https://pypi.org/project/phantomsignal/)
+[![Project Site](https://img.shields.io/badge/site-phantomsignal.sh-7fb8dd?style=flat-square&logo=github)](https://phantomsignal.sh)
+[![Changelog](https://img.shields.io/badge/changelog-view-4d9fd6?style=flat-square)](CHANGELOG.md)
 
 
 ---
@@ -300,27 +299,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. Please also review our [C
 
 ---
 
-## 💜 Sponsors
-
-PhantomSignal is free, open-source, and built on personal time. If it's useful to you, consider sponsoring to help cover infrastructure costs, domain renewals, trademark filing, and ongoing development.
-
-**[→ Sponsor PhantomSignal on GitHub](https://github.com/sponsors/getphantomsignal)**
-
-| Tier | $/mo | What it covers |
-|---|---|---|
-| Ghost Operative | $5 | Domain renewals & infrastructure |
-| Shadow Agent | $15 | API integrations & dependency updates |
-| Signal Sponsor | $50 | Trademark filing, new modules — listed in README |
-| Grid Patron | $200 | Development sprints, roadmap input — prominent listing |
-
-> Signal Sponsors ($50+) and Grid Patrons ($200+) are listed below.
-
-<!-- SPONSORS -->
-<!-- This section is updated when sponsors join -->
-<!-- END SPONSORS -->
-
----
-
 ## ⚠️ Legal & Ethics
 
 PhantomSignal is a dual-use tool. Operators are responsible for:
@@ -335,26 +313,26 @@ PhantomSignal is a dual-use tool. Operators are responsible for:
 
 ## 🏷 Topics
 
-[![osint](https://img.shields.io/badge/osint-00ff41?style=flat-square)](https://github.com/topics/osint)
-[![security](https://img.shields.io/badge/security-00f3ff?style=flat-square)](https://github.com/topics/security)
-[![python](https://img.shields.io/badge/python-00f3ff?style=flat-square)](https://github.com/topics/python)
-[![hacking](https://img.shields.io/badge/hacking-00ff41?style=flat-square)](https://github.com/topics/hacking)
-[![cybersecurity](https://img.shields.io/badge/cybersecurity-b026ff?style=flat-square)](https://github.com/topics/cybersecurity)
-[![reconnaissance](https://img.shields.io/badge/reconnaissance-00ff41?style=flat-square)](https://github.com/topics/reconnaissance)
-[![recon](https://img.shields.io/badge/recon-00f3ff?style=flat-square)](https://github.com/topics/recon)
-[![penetration-testing](https://img.shields.io/badge/penetration--testing-b026ff?style=flat-square)](https://github.com/topics/penetration-testing)
-[![ethical-hacking](https://img.shields.io/badge/ethical--hacking-00ff41?style=flat-square)](https://github.com/topics/ethical-hacking)
-[![bug-bounty](https://img.shields.io/badge/bug--bounty-00f3ff?style=flat-square)](https://github.com/topics/bug-bounty)
-[![information-gathering](https://img.shields.io/badge/information--gathering-b026ff?style=flat-square)](https://github.com/topics/information-gathering)
-[![threat-intelligence](https://img.shields.io/badge/threat--intelligence-00ff41?style=flat-square)](https://github.com/topics/threat-intelligence)
-[![security-tools](https://img.shields.io/badge/security--tools-00f3ff?style=flat-square)](https://github.com/topics/security-tools)
-[![network-scanner](https://img.shields.io/badge/network--scanner-b026ff?style=flat-square)](https://github.com/topics/network-scanner)
-[![dns-recon](https://img.shields.io/badge/dns--recon-00ff41?style=flat-square)](https://github.com/topics/dns-recon)
-[![infosec](https://img.shields.io/badge/infosec-00f3ff?style=flat-square)](https://github.com/topics/infosec)
-[![flask](https://img.shields.io/badge/flask-b026ff?style=flat-square)](https://github.com/topics/flask)
-[![security-research](https://img.shields.io/badge/security--research-00ff41?style=flat-square)](https://github.com/topics/security-research)
-[![footprinting](https://img.shields.io/badge/footprinting-00f3ff?style=flat-square)](https://github.com/topics/footprinting)
-[![automation](https://img.shields.io/badge/automation-b026ff?style=flat-square)](https://github.com/topics/automation)
+[![osint](https://img.shields.io/badge/osint-4d9fd6?style=flat-square)](https://github.com/topics/osint)
+[![security](https://img.shields.io/badge/security-7fb8dd?style=flat-square)](https://github.com/topics/security)
+[![python](https://img.shields.io/badge/python-7fb8dd?style=flat-square)](https://github.com/topics/python)
+[![hacking](https://img.shields.io/badge/hacking-4d9fd6?style=flat-square)](https://github.com/topics/hacking)
+[![cybersecurity](https://img.shields.io/badge/cybersecurity-c9a24a?style=flat-square)](https://github.com/topics/cybersecurity)
+[![reconnaissance](https://img.shields.io/badge/reconnaissance-4d9fd6?style=flat-square)](https://github.com/topics/reconnaissance)
+[![recon](https://img.shields.io/badge/recon-7fb8dd?style=flat-square)](https://github.com/topics/recon)
+[![penetration-testing](https://img.shields.io/badge/penetration--testing-c9a24a?style=flat-square)](https://github.com/topics/penetration-testing)
+[![ethical-hacking](https://img.shields.io/badge/ethical--hacking-4d9fd6?style=flat-square)](https://github.com/topics/ethical-hacking)
+[![bug-bounty](https://img.shields.io/badge/bug--bounty-7fb8dd?style=flat-square)](https://github.com/topics/bug-bounty)
+[![information-gathering](https://img.shields.io/badge/information--gathering-c9a24a?style=flat-square)](https://github.com/topics/information-gathering)
+[![threat-intelligence](https://img.shields.io/badge/threat--intelligence-4d9fd6?style=flat-square)](https://github.com/topics/threat-intelligence)
+[![security-tools](https://img.shields.io/badge/security--tools-7fb8dd?style=flat-square)](https://github.com/topics/security-tools)
+[![network-scanner](https://img.shields.io/badge/network--scanner-c9a24a?style=flat-square)](https://github.com/topics/network-scanner)
+[![dns-recon](https://img.shields.io/badge/dns--recon-4d9fd6?style=flat-square)](https://github.com/topics/dns-recon)
+[![infosec](https://img.shields.io/badge/infosec-7fb8dd?style=flat-square)](https://github.com/topics/infosec)
+[![flask](https://img.shields.io/badge/flask-c9a24a?style=flat-square)](https://github.com/topics/flask)
+[![security-research](https://img.shields.io/badge/security--research-4d9fd6?style=flat-square)](https://github.com/topics/security-research)
+[![footprinting](https://img.shields.io/badge/footprinting-7fb8dd?style=flat-square)](https://github.com/topics/footprinting)
+[![automation](https://img.shields.io/badge/automation-c9a24a?style=flat-square)](https://github.com/topics/automation)
 
 ---
 

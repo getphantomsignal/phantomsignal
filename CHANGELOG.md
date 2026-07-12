@@ -32,12 +32,20 @@ screenshot assets in favour of richer written descriptions.
   the README, `USAGE.md`, `web/app.py`, and the About page, and dropped the
   landing page's animated matrix-rain canvas and CRT scanline overlay (elements,
   CSS, and JS).
+- **GitHub Pages retheme**: the landing site (`docs/index.html`, `docs/site.css`)
+  was recoloured from the coral/neon marketing palette to the app's default Dark
+  theme — deep-slate surfaces, federal-blue hero, steel-blue links, gold accents,
+  restrained glow, and an app-aligned green → amber → red risk-score ramp. README
+  and landing-page shield badges were updated to the same blue / steel / gold.
 
 ### Removed
 - `docs/assets/demo.gif`, `docs/assets/demo.cast`, `docs/assets/screenshot_cli.svg`,
   and the `scripts/gen_assets.py` generator (its only outputs were the removed
   demo / screenshot assets).
 - The asciinema embed and "play it locally" instructions from the README.
+- **All sponsorship / funding solicitation**: the GitHub Sponsors badge and
+  "Sponsors" tier section in the README, the landing page's nav / footer sponsor
+  links and sponsor-tier section (plus its CSS), and `.github/FUNDING.yml`.
 
 ---
 
