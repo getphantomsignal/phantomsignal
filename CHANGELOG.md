@@ -55,6 +55,9 @@ screenshot assets in favour of richer written descriptions.
   and the `scripts/gen_assets.py` generator (its only outputs were the removed
   demo / screenshot assets).
 - The asciinema embed and "play it locally" instructions from the README.
+- The figlet ASCII-art blocks from the landing page — the hero banner and the
+  "Ready to run a scan?" CTA banner — leaving the styled `PHANTOMSIGNAL` wordmark
+  and headings (hero recentred to a single column).
 - **All sponsorship / funding solicitation**: the GitHub Sponsors badge and
   "Sponsors" tier section in the README, the landing page's nav / footer sponsor
   links and sponsor-tier section (plus its CSS), and `.github/FUNDING.yml`.

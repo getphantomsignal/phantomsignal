@@ -102,20 +102,10 @@ a:hover { color: var(--green); }
 .hero-inner {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 4rem;
   max-width: 1100px;
   width: 100%;
-}
-.hero-ascii-wrap { flex-shrink: 0; }
-.hero-ascii {
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  line-height: 1.35;
-  color: var(--green);
-  text-shadow: var(--glow-g);
-  white-space: pre;
-  margin: 0;
-  opacity: 0.9;
 }
 @keyframes _unused_float {
   0%, 100% { transform: translateY(0); }
@@ -477,17 +467,6 @@ a:hover { color: var(--green); }
 /* ── CTA ─────────────────────────────────────────────────────── */
 .section-cta { background: var(--bg3) !important; border-bottom: 1px solid var(--border); }
 .cta-inner { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
-.cta-ascii {
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  line-height: 1.35;
-  color: var(--green);
-  text-shadow: var(--glow-g);
-  white-space: pre;
-  margin: 0 0 0.5rem;
-  opacity: 0.7;
-}
-
 /* ── Topics ──────────────────────────────────────────────────── */
 .section-topics {
   padding-top: 2.5rem;
