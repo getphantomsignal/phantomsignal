@@ -740,7 +740,7 @@ def main(ctx, config):
 @click.option("--debug", is_flag=True, help="Enable debug mode")
 @click.option("--open-browser", "-b", is_flag=True, help="Auto-open browser")
 def web(host, port, debug, open_browser):
-    """Launch the PhantomSignal web interface — the Shadow Grid control panel."""
+    """Launch the PhantomSignal web interface."""
     print_banner()
     console.print(DISCLAIMER, style="bold yellow")
 
@@ -772,7 +772,7 @@ def web(host, port, debug, open_browser):
 @click.option("--modules", "-m", multiple=True,
               help="Modules to run (dns_recon, subdomain_enum, takeover, port_scan, tech_detect, api_hunt, js_mine, archive_mine, infra_pivot, service_enum, doc_metadata, username_enum, profile_pivot, darkweb, email_oracle, web_crawl, intel)")
 @click.option("--profile", "-p",
-              type=click.Choice(["quick", "standard", "deep", "ghost"]),
+              type=click.Choice(["quick", "standard", "deep", "covert"]),
               default="standard")
 @click.option("--output", "-o", default=None, help="Output directory (defaults to /tmp)")
 @click.option("--format", "-f", "fmt",
@@ -790,7 +790,7 @@ def web(host, port, debug, open_browser):
               help="Decoy spec for a decoy scan, e.g. RND:10 or ip1,ME,ip2 (--stealth decoy)")
 def scan(target, scan_type, modules, profile, output, fmt, compress, encrypt,
          password, no_robots, stealth, zombie, decoys):
-    """Launch a ghost run against a target from the command line."""
+    """Run a scan against a target from the command line."""
     print_banner()
     console.print(DISCLAIMER, style="yellow")
 
@@ -884,7 +884,7 @@ def scan(target, scan_type, modules, profile, output, fmt, compress, encrypt,
 @click.option("--username", "-u", default=None)
 @click.option("--output", "-o", default=None)
 def profile(first_name, last_name, email, phone, username, output):
-    """Build a shadow profile — aggregate people intelligence from all configured APIs."""
+    """Build a profile — aggregate people intelligence from all configured APIs."""
     print_banner()
 
     if not any([first_name, last_name, email, phone, username]):
@@ -984,7 +984,7 @@ def status():
 @click.option("--encrypt", is_flag=True)
 @click.option("--password", default=None)
 def export(scan_id, fmt, output, compress, encrypt, password):
-    """Export a ghost run's intel packet to a file."""
+    """Export a scan's results to a file."""
     from phantomsignal.exporters.manager import ExportManager
     manager = ExportManager(output_dir=output)
     try:

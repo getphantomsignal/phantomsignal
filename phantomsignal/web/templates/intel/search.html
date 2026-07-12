@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% block title %}Shadow Profiler{% endblock %}
+{% block title %}Profiler{% endblock %}
 
 {% block content %}
 <div class="page-header">
   <div class="page-title-block">
-    <h1 class="page-title glitch-text" data-text="SHADOW PROFILER">SHADOW PROFILER</h1>
-    <p class="page-subtitle">People intelligence aggregation — build shadow dossiers from public records</p>
+    <h1 class="page-title glitch-text" data-text="Profiler">Profiler</h1>
+    <p class="page-subtitle">Build a profile of a person from public records across multiple sources</p>
   </div>
 </div>
 
@@ -20,7 +20,7 @@
         <div class="section-header">
           <span class="section-icon neon-purple">◉</span>
           <span class="section-title">TARGET IDENTIFIERS</span>
-          <span class="section-sub">Provide any combination — more = better signal</span>
+          <span class="section-sub">Provide any combination — more inputs, better results</span>
         </div>
         <div class="identifier-grid">
           <div class="form-group">
@@ -75,14 +75,14 @@
 
       <button type="submit" class="btn btn-primary btn-glow btn-full" id="search-btn">
         <span class="btn-icon">◉</span>
-        <span id="search-text">BUILD SHADOW PROFILE</span>
+        <span id="search-text">Run Search</span>
       </button>
     </form>
   </div>
 
   <div class="intel-info-panel">
     <div class="info-card">
-      <div class="info-header neon-cyan">◈ WHAT IS SHADOW PROFILING?</div>
+      <div class="info-header neon-cyan">◈ HOW IT WORKS</div>
       <p>PhantomSignal aggregates publicly available information from multiple intelligence sources to build a comprehensive profile of an individual.</p>
       <p>Data sources include public records, breach databases, people-search services, and direct API integrations across major platforms:</p>
       <div style="display:flex;flex-wrap:wrap;gap:0.35rem;margin-top:0.6rem;">
@@ -112,7 +112,7 @@
         <span class="count-label">/ {{ apis|length }} APIs active</span>
       </div>
       <p style="font-size:0.8rem; margin-top:0.5rem;">
-        <a href="{{ url_for('settings.settings_page') }}" class="neon-cyan">Configure ghost keys →</a>
+        <a href="{{ url_for('settings.settings_page') }}" class="neon-cyan">Configure API keys →</a>
         to unlock more intelligence sources.
       </p>
     </div>
@@ -124,7 +124,7 @@
 <script>
 document.getElementById('person-form').addEventListener('submit', function() {
   const btn = document.getElementById('search-btn');
-  document.getElementById('search-text').textContent = 'SCANNING THE GRID...';
+  document.getElementById('search-text').textContent = 'Searching...';
   btn.disabled = true;
   btn.classList.add('loading');
 });

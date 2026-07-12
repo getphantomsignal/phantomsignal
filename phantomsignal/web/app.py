@@ -86,8 +86,8 @@ def create_app(config_path: Optional[str] = None) -> Flask:
 def _register_socketio_handlers(app: Flask) -> None:
     @socketio.on("connect")
     def on_connect():
-        emit("ghost_online", {
-            "message": "SIGNAL ESTABLISHED. Welcome to the grid, Operative.",
+        emit("server_ready", {
+            "message": "Connected. Ready to scan.",
             "version": __version__,
             "codename": __codename__,
         })
@@ -101,7 +101,7 @@ def _register_socketio_handlers(app: Flask) -> None:
         scan_id = data.get("scan_id")
         if scan_id:
             join_room(f"scan_{scan_id}")
-            emit("joined_scan", {"scan_id": scan_id, "message": f"Tuned into ghost run {scan_id[:8]}..."})
+            emit("joined_scan", {"scan_id": scan_id, "message": f"Connected to scan {scan_id[:8]}..."})
             # Send current progress so late-joining browsers can sync immediately.
             with app.app_context():
                 from phantomsignal.core.database import get_db
@@ -131,9 +131,9 @@ def _register_socketio_handlers(app: Flask) -> None:
             app.phantom_engine.abort_scan(scan_id)
             emit("scan_aborted", {"scan_id": scan_id})
 
-    @socketio.on("ping_grid")
+    @socketio.on("ping")
     def on_ping():
-        emit("pong_grid", {"timestamp": datetime.utcnow().isoformat()})
+        emit("pong", {"timestamp": datetime.utcnow().isoformat()})
 
 
 def run_scan_async(app: Flask, scan_id: str) -> None:

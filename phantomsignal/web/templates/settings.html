@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% block title %}Ghost Keys{% endblock %}
+{% block title %}Integrations{% endblock %}
 
 {% block content %}
 <div class="page-header">
   <div class="page-title-block">
-    <h1 class="page-title glitch-text" data-text="GHOST KEY VAULT">GHOST KEY VAULT</h1>
-    <p class="page-subtitle">API credentials and grid configuration</p>
+    <h1 class="page-title glitch-text" data-text="API Keys">API Keys</h1>
+    <p class="page-subtitle">Manage API keys and scan settings</p>
   </div>
 </div>
 
@@ -15,7 +15,7 @@
   <div class="settings-section">
     <div class="section-header">
       <span class="section-icon neon-green">🔑</span>
-      <span class="section-title">API KEYS — INTELLIGENCE SOURCES</span>
+      <span class="section-title">API KEYS — DATA SOURCES</span>
     </div>
     <form action="{{ url_for('settings.save_api_keys') }}" method="POST">
       <div class="api-keys-grid">
@@ -56,7 +56,7 @@
         {% endfor %}
       </div>
       <button type="submit" class="btn btn-primary btn-glow" style="margin-top:1.5rem;">
-        🔑 UPLOAD GHOST KEYS TO VAULT
+        🔑 Save API Keys
       </button>
     </form>
   </div>
@@ -65,7 +65,7 @@
   <div class="settings-section">
     <div class="section-header">
       <span class="section-icon neon-cyan">🕷</span>
-      <span class="section-title">SCRAPER CONFIGURATION</span>
+      <span class="section-title">SCAN SETTINGS</span>
     </div>
     <form action="{{ url_for('settings.save_scraper_settings') }}" method="POST">
       <div class="settings-grid">
@@ -96,7 +96,7 @@
           </label>
         </div>
       </div>
-      <button type="submit" class="btn btn-secondary" style="margin-top:1rem;">SAVE CONFIG</button>
+      <button type="submit" class="btn btn-secondary" style="margin-top:1rem;">Save Settings</button>
     </form>
   </div>
 
@@ -104,7 +104,7 @@
   <div class="settings-section">
     <div class="section-header">
       <span class="section-icon neon-purple">◉</span>
-      <span class="section-title">AVAILABLE INTELLIGENCE SOURCES</span>
+      <span class="section-title">SUPPORTED DATA SOURCES</span>
     </div>
     <div class="api-ref-grid">
       {% for api in apis %}
@@ -145,7 +145,7 @@ function testAPI(apiName, btn) {
       if (data.status === 'ok') {
         btn.textContent = '✓ OK';
         btn.style.color = '#00ff41';
-        showToast(`${apiName} — signal confirmed (${data.result_count} results)`, 'success');
+        showToast(`${apiName} — verified (${data.result_count} results)`, 'success');
       } else if (data.status === 'invalid_key') {
         btn.textContent = '⚠ INVALID';
         btn.style.color = '#ffaa00';

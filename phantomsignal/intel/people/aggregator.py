@@ -125,7 +125,7 @@ class ShadowProfileBuilder:
     }
 
     def _merge_profiles(self, results: List[Dict], search_params: Dict) -> Dict:
-        """Merge multiple API results into one unified shadow profile."""
+        """Merge multiple API results into one unified profile."""
         profile = {
             "search_params": search_params,
             "names": [],

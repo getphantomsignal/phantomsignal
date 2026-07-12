@@ -5,16 +5,16 @@
 <div class="page-header">
   <div class="page-title-block">
     <div style="display:flex;align-items:center;gap:1rem;">
-      <img src="{{ url_for('static', filename='img/phantom-ascii-transparent.png') }}" class="phantom-ascii-heading" alt="">
+      <span class="page-glyph" aria-hidden="true">∿</span>
       <div>
-        <h1 class="page-title glitch-text" data-text="SHADOW GRID">SHADOW GRID</h1>
-        <p class="page-subtitle">Operative command center — all systems nominal</p>
+        <h1 class="page-title glitch-text" data-text="Dashboard">Dashboard</h1>
+        <p class="page-subtitle">Your reconnaissance overview</p>
       </div>
     </div>
   </div>
   <div class="header-actions">
     <a href="{{ url_for('scans.new_scan') }}" class="btn btn-primary btn-glow">
-      <span class="btn-icon">◈</span> LAUNCH GHOST RUN
+      <span class="btn-icon">◈</span> New Scan
     </a>
   </div>
 </div>
@@ -24,31 +24,31 @@
   <div class="stat-card">
     <div class="stat-icon neon-green">◫</div>
     <div class="stat-value neon-green">{{ stats.total_scans }}</div>
-    <div class="stat-label">TOTAL MISSIONS</div>
+    <div class="stat-label">TOTAL SCANS</div>
     <div class="stat-bar"><div class="stat-bar-fill green" style="width: 100%"></div></div>
   </div>
   <div class="stat-card">
     <div class="stat-icon neon-cyan pulse-anim">◉</div>
     <div class="stat-value neon-cyan">{{ stats.active_scans }}</div>
-    <div class="stat-label">ACTIVE GHOSTS</div>
+    <div class="stat-label">RUNNING SCANS</div>
     <div class="stat-bar"><div class="stat-bar-fill cyan" style="width: {{ [stats.active_scans * 20, 100]|min }}%"></div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon neon-purple">⬡</div>
+    <div class="stat-icon neon-purple">▁▃▅</div>
     <div class="stat-value neon-purple">{{ stats.total_results }}</div>
-    <div class="stat-label">SIGNALS CAPTURED</div>
+    <div class="stat-label">FINDINGS</div>
     <div class="stat-bar"><div class="stat-bar-fill purple" style="width: 75%"></div></div>
   </div>
   <div class="stat-card {% if stats.critical_threats > 0 %}threat-card{% endif %}">
     <div class="stat-icon neon-red">⚠</div>
     <div class="stat-value neon-red">{{ stats.critical_threats }}</div>
-    <div class="stat-label">CRITICAL THREATS</div>
+    <div class="stat-label">CRITICAL FINDINGS</div>
     <div class="stat-bar"><div class="stat-bar-fill red" style="width: {{ [stats.critical_threats * 15, 100]|min }}%"></div></div>
   </div>
   <div class="stat-card">
     <div class="stat-icon neon-orange">⚙</div>
     <div class="stat-value neon-orange">{{ configured_apis }}</div>
-    <div class="stat-label">APIS ONLINE</div>
+    <div class="stat-label">CONNECTED SOURCES</div>
     <div class="stat-bar"><div class="stat-bar-fill orange" style="width: {{ [configured_apis * 5, 100]|min }}%"></div></div>
   </div>
 </div>
@@ -59,7 +59,7 @@
   <!-- Recent missions -->
   <div class="dash-panel">
     <div class="panel-header">
-      <span class="panel-title">◫ RECENT GHOST RUNS</span>
+      <span class="panel-title">◫ RECENT SCANS</span>
       <a href="{{ url_for('scans.list_scans') }}" class="panel-link">VIEW ALL →</a>
     </div>
     <div class="panel-body">
@@ -67,7 +67,7 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th>TARGET</th><th>TYPE</th><th>STATUS</th><th>SHADOW SCORE</th><th>THREAT</th><th></th>
+              <th>TARGET</th><th>TYPE</th><th>STATUS</th><th>RISK SCORE</th><th>THREAT</th><th></th>
             </tr>
           </thead>
           <tbody>
@@ -108,9 +108,9 @@
         </table>
       {% else %}
         <div class="empty-state">
-          <img src="{{ url_for('static', filename='img/phantom-ascii-transparent.png') }}" class="phantom-ascii-empty" alt="PhantomSignal">
-          <p>No ghost runs in the grid yet.</p>
-          <a href="{{ url_for('scans.new_scan') }}" class="btn btn-sm btn-primary">LAUNCH FIRST MISSION</a>
+          <div class="empty-ghost" aria-hidden="true">∿</div>
+          <p>No scans yet.</p>
+          <a href="{{ url_for('scans.new_scan') }}" class="btn btn-sm btn-primary">Start Your First Scan</a>
         </div>
       {% endif %}
     </div>
@@ -122,17 +122,17 @@
     <!-- Live terminal feed -->
     <div class="dash-panel terminal-panel">
       <div class="panel-header">
-        <span class="panel-title">◉ LIVE FEED</span>
+        <span class="panel-title">◉ ACTIVITY</span>
         <span class="terminal-blink">█</span>
       </div>
       <div id="live-terminal" class="terminal-output">
         <div class="term-line term-system">
           <span class="term-prompt">[PHANTOMSIGNAL]</span>
-          <span class="term-msg">Signal established. Grid online.</span>
+          <span class="term-msg">Connected. Ready to scan.</span>
         </div>
         <div class="term-line term-system">
           <span class="term-prompt">[SYSTEM]</span>
-          <span class="term-msg">Awaiting operative commands...</span>
+          <span class="term-msg">Waiting for activity...</span>
         </div>
       </div>
     </div>
@@ -140,7 +140,7 @@
     <!-- API status panel -->
     <div class="dash-panel">
       <div class="panel-header">
-        <span class="panel-title">⚙ API GRID STATUS</span>
+        <span class="panel-title">⚙ DATA SOURCES</span>
         <a href="{{ url_for('settings.settings_page') }}" class="panel-link">CONFIGURE →</a>
       </div>
       <div class="panel-body">
@@ -154,7 +154,7 @@
         </div>
         {% if api_status|length > 16 %}
           <p class="text-dim" style="font-size:0.75rem; margin-top:0.5rem;">
-            +{{ api_status|length - 16 }} more APIs available
+            +{{ api_status|length - 16 }} more sources available
           </p>
         {% endif %}
       </div>
@@ -163,7 +163,7 @@
     <!-- Quick launch panel -->
     <div class="dash-panel">
       <div class="panel-header">
-        <span class="panel-title">◈ QUICK PROBE</span>
+        <span class="panel-title">◈ QUICK SCAN</span>
       </div>
       <div class="panel-body">
         <form action="{{ url_for('scans.launch_scan') }}" method="POST" class="quick-form">
@@ -174,9 +174,9 @@
           <input type="hidden" name="modules" value="api_hunt">
           <input type="hidden" name="modules" value="intel">
           <div class="input-group">
-            <input type="text" name="target" placeholder="TARGET // IP · DOMAIN · URL"
+            <input type="text" name="target" placeholder="Target — IP · domain · URL"
                    class="input-field input-dark" required autocomplete="off">
-            <button type="submit" class="btn btn-sm btn-accent">PROBE</button>
+            <button type="submit" class="btn btn-sm btn-accent">Scan</button>
           </div>
         </form>
       </div>

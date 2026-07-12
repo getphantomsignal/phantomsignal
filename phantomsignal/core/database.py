@@ -59,7 +59,7 @@ def init_db() -> None:
 
 
 def drop_db() -> None:
-    """Wipe the grid — destroys all data. Non-reversible."""
+    """Wipe the database — destroys all data. Non-reversible."""
     Base.metadata.drop_all(bind=get_engine())
 
 

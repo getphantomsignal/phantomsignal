@@ -5,59 +5,61 @@
    - Semantic ROLE tokens (surface / ink / accent / severity) are the
      single source of truth; components consume roles, never raw hues.
    - Tints are expressed as rgba(var(--<role>-rgb), a) so one component
-     rule recolours automatically across every theme.
-   - Three themes: dark (default), light, and "cyberpunk" (the legacy
-     neon look, preserved). Unset = follow the OS via prefers-color-scheme.
+     rule recolours automatically from the tokens below.
+   - Single dark theme: a Splunk-dashboard-inspired cool charcoal
+     console (off-white text, dashboard-blue / teal accents, Splunk
+     green / amber / red severities).
    - All text/UI tokens are verified to meet WCAG 2.1 AA contrast.
-   Legacy --neon-*/--dark-bg/--text-* names are kept as aliases so the
+   Legacy --neon, --dark-bg and --text alias names are kept so the
    existing component styles keep working while resolving to roles.
    ============================================================ */
 
 :root {
-  /* ── Layout & type (theme-independent) ── */
+  /* ── Layout & type ── */
   --nav-height:    3.5rem;
   --sidebar-width: 260px;
   --font-mono: 'Courier New', 'Lucida Console', monospace;
   --font-ui:   'Segoe UI', system-ui, -apple-system, sans-serif;
 
-  /* ── ROLE TOKENS — DARK (default) ── */
-  --surface-0:      #0b0f17;   /* app background             */
-  --surface-1:      #131a27;   /* nav, footer, raised chrome */
-  --surface-2:      #161e2e;   /* cards, panels              */
-  --surface-3:      #1e2739;   /* hover / nested elevation   */
-  --surface-sunken: #080b12;   /* code blocks, wells         */
-  --border:         #283349;   /* decorative dividers        */
-  --border-control: #5f7196;   /* form controls (>=3:1)      */
+  /* ── ROLE TOKENS — Splunk-dark console ── */
+  --surface-0:      #0e1013;   /* app background             */
+  --surface-1:      #171a1f;   /* nav, footer, raised chrome */
+  --surface-2:      #1a1d23;   /* cards, panels              */
+  --surface-3:      #23272e;   /* hover / nested elevation   */
+  --surface-sunken: #0a0c0e;   /* code blocks, wells         */
+  --border:         #2b3038;   /* decorative dividers        */
+  --border-control: #68717e;   /* form controls (>=3:1)      */
 
-  --ink:            #c8d2e4;    /* body text     (12.6:1) */
-  --ink-strong:     #f2f6fc;    /* headings      (17.7:1) */
-  --ink-dim:        #93a1ba;    /* secondary     (7.3:1)  */
-  --ink-muted:      #748099;    /* de-emphasised (4.8:1)  */
+  --ink:            #d6dae0;    /* body text     (12.0:1) */
+  --ink-strong:     #f2f4f7;    /* headings      (15.3:1) */
+  --ink-dim:        #a0a7b2;    /* secondary     (7.0:1)  */
+  --ink-muted:      #8b93a0;    /* de-emphasised (4.8:1)  */
 
-  --accent:         #8ea2ff;    /* primary interactive (indigo) */
-  --accent-2:       #38c7e0;    /* secondary accent (cyan)   */
-  --accent-alt:     #b98cff;    /* tertiary accent (violet)  */
-  --success:        #43d17f;
-  --warning:        #f2b03c;
-  --danger:         #ff6a75;
-  --info:           #5cc4ff;
+  --accent:         #4fa8e0;    /* primary interactive (dashboard blue) */
+  --accent-2:       #34c6d3;    /* secondary accent (teal)   */
+  --accent-alt:     #c76ee0;    /* tertiary accent (violet)  */
+  --success:        #5cba3f;    /* Splunk green  */
+  --warning:        #f8be34;    /* Splunk amber  */
+  --danger:         #e5544b;    /* Splunk red    */
+  --info:           #4fa8e0;
 
-  --surface0-rgb: 11,15,23;
-  --surface1-rgb: 19,26,39;
-  --ink-dim-rgb:  147,161,186;
-  --accent-rgb:    142,162,255;
-  --accent2-rgb:   56,199,224;
-  --accentalt-rgb: 185,140,255;
-  --success-rgb:   67,209,127;
-  --warning-rgb:   242,176,60;
-  --danger-rgb:    255,106,117;
-  --info-rgb:      92,196,255;
+  --surface0-rgb: 14,16,19;
+  --surface1-rgb: 23,26,31;
+  --ink-dim-rgb:  160,167,178;
+  --accent-rgb:    79,168,224;
+  --accent2-rgb:   52,198,211;
+  --accentalt-rgb: 199,110,224;
+  --success-rgb:   92,186,63;
+  --warning-rgb:   248,190,52;
+  --danger-rgb:    229,84,75;
+  --info-rgb:      79,168,224;
 
-  --glow-accent:    0 0 10px rgba(var(--accent-rgb),0.35),  0 0 20px rgba(var(--accent-rgb),0.12);
-  --glow-accent2:   0 0 10px rgba(var(--accent2-rgb),0.35), 0 0 20px rgba(var(--accent2-rgb),0.12);
-  --glow-accentalt: 0 0 10px rgba(var(--accentalt-rgb),0.35);
-  --glow-danger:    0 0 10px rgba(var(--danger-rgb),0.35);
-  --glow-success:   0 0 10px rgba(var(--success-rgb),0.35);
+  /* Subtler than neon — a console accent, not a glow-stick */
+  --glow-accent:    0 0 8px rgba(var(--accent-rgb),0.22),  0 0 16px rgba(var(--accent-rgb),0.08);
+  --glow-accent2:   0 0 8px rgba(var(--accent2-rgb),0.22), 0 0 16px rgba(var(--accent2-rgb),0.08);
+  --glow-accentalt: 0 0 8px rgba(var(--accentalt-rgb),0.22);
+  --glow-danger:    0 0 8px rgba(var(--danger-rgb),0.22);
+  --glow-success:   0 0 8px rgba(var(--success-rgb),0.22);
 
   color-scheme: dark;
 
@@ -82,89 +84,6 @@
   --glow-cyan:   var(--glow-accent2);
   --glow-purple: var(--glow-accentalt);
   --glow-red:    var(--glow-danger);
-}
-
-/* ── LIGHT role tokens (explicit user choice) ── */
-:root[data-theme="light"] {
-  --surface-0:      #eef1f7;
-  --surface-1:      #ffffff;
-  --surface-2:      #ffffff;
-  --surface-3:      #e6ebf3;
-  --surface-sunken: #e2e7f0;
-  --border:         #d4dbe8;
-  --border-control: #767f91;
-
-  --ink:        #2f3a4d;   /* 10.1:1 */
-  --ink-strong: #0f1729;   /* 15.8:1 */
-  --ink-dim:    #586377;   /* 5.4:1  */
-  --ink-muted:  #616b7d;   /* 4.8:1  */
-
-  --accent:     #4f46e5;
-  --accent-2:   #0e7490;
-  --accent-alt: #7c3aed;
-  --success:    #1a7f37;
-  --warning:    #b45309;
-  --danger:     #c81e1e;
-  --info:       #0369a1;
-
-  --surface0-rgb: 238,241,247;
-  --surface1-rgb: 255,255,255;
-  --ink-dim-rgb:  88,99,119;
-  --accent-rgb:    79,70,229;
-  --accent2-rgb:   14,116,144;
-  --accentalt-rgb: 124,58,237;
-  --success-rgb:   26,127,55;
-  --warning-rgb:   180,83,9;
-  --danger-rgb:    200,30,30;
-  --info-rgb:      3,105,161;
-
-  --glow-accent:    0 0 6px rgba(var(--accent-rgb),0.20);
-  --glow-accent2:   0 0 6px rgba(var(--accent2-rgb),0.20);
-  --glow-accentalt: 0 0 6px rgba(var(--accentalt-rgb),0.20);
-  --glow-danger:    0 0 6px rgba(var(--danger-rgb),0.20);
-  --glow-success:   0 0 6px rgba(var(--success-rgb),0.20);
-
-  color-scheme: light;
-}
-
-/* Follow the OS when the user has not made an explicit choice */
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme]) {
-    --surface-0: #eef1f7; --surface-1: #ffffff; --surface-2: #ffffff;
-    --surface-3: #e6ebf3; --surface-sunken: #e2e7f0;
-    --border: #d4dbe8; --border-control: #767f91;
-    --ink: #2f3a4d; --ink-strong: #0f1729; --ink-dim: #586377; --ink-muted: #616b7d;
-    --accent: #4f46e5; --accent-2: #0e7490; --accent-alt: #7c3aed;
-    --success: #1a7f37; --warning: #b45309; --danger: #c81e1e; --info: #0369a1;
-    --surface0-rgb: 238,241,247; --surface1-rgb: 255,255,255; --ink-dim-rgb: 88,99,119;
-    --accent-rgb: 79,70,229; --accent2-rgb: 14,116,144; --accentalt-rgb: 124,58,237;
-    --success-rgb: 26,127,55; --warning-rgb: 180,83,9; --danger-rgb: 200,30,30; --info-rgb: 3,105,161;
-    --glow-accent: 0 0 6px rgba(var(--accent-rgb),0.20);
-    --glow-accent2: 0 0 6px rgba(var(--accent2-rgb),0.20);
-    --glow-accentalt: 0 0 6px rgba(var(--accentalt-rgb),0.20);
-    --glow-danger: 0 0 6px rgba(var(--danger-rgb),0.20);
-    --glow-success: 0 0 6px rgba(var(--success-rgb),0.20);
-    color-scheme: light;
-  }
-}
-
-/* ── CYBERPUNK — the legacy neon look, preserved as an opt-in theme ── */
-:root[data-theme="cyberpunk"] {
-  --surface-0: #0a0a0f; --surface-1: #05050a; --surface-2: #0d0d1a;
-  --surface-3: #111122; --surface-sunken: #05050a;
-  --border: #1a1a2e; --border-control: #252540;
-  --ink: #c0c0d0; --ink-strong: #e0e0f0; --ink-dim: #606075; --ink-muted: #40404f;
-  --accent: #00ff41; --accent-2: #00f3ff; --accent-alt: #b026ff;
-  --success: #00ff41; --warning: #ff6b00; --danger: #ff1744; --info: #00f3ff;
-  --surface0-rgb: 10,10,15; --surface1-rgb: 5,5,10; --ink-dim-rgb: 96,96,120;
-  --accent-rgb: 0,255,65; --accent2-rgb: 0,243,255; --accentalt-rgb: 176,38,255;
-  --success-rgb: 0,255,65; --warning-rgb: 255,107,0; --danger-rgb: 255,23,68; --info-rgb: 0,243,255;
-  --glow-accent: 0 0 10px rgba(0,255,65,0.5), 0 0 20px rgba(0,255,65,0.2);
-  --glow-accent2: 0 0 10px rgba(0,243,255,0.5), 0 0 20px rgba(0,243,255,0.2);
-  --glow-accentalt: 0 0 10px rgba(176,38,255,0.5);
-  --glow-danger: 0 0 10px rgba(255,23,68,0.5);
-  --glow-success: 0 0 10px rgba(0,255,65,0.5);
-  color-scheme: dark;
 }
 
 /* ── Reset & Base ───────────────────────────────────────────── */
@@ -192,32 +111,6 @@ a:hover { color: var(--neon-green); }
 ::-webkit-scrollbar-track { background: var(--darker-bg); }
 ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--neon-green); }
-
-/* ── Matrix Canvas ──────────────────────────────────────────── */
-#matrix-canvas {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.04;
-}
-
-/* ── Scanlines ──────────────────────────────────────────────── */
-.scanlines {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  pointer-events: none;
-  z-index: 1;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0,0,0,0.08) 2px,
-    rgba(0,0,0,0.08) 4px
-  );
-}
 
 /* ── Navigation Bar ─────────────────────────────────────────── */
 .nav-bar {
@@ -1429,104 +1322,30 @@ a:hover { color: var(--neon-green); }
 .format-name { font-size: 0.75rem; font-weight: 600; color: var(--text-bright); }
 .format-desc { font-size: 0.65rem; color: var(--text-dim); }
 
-/* ── Phantom ASCII Art Image ────────────────────────────────── */
-.phantom-ascii-nav {
-  width: 120px;
-  height: auto;
-  display: block;
-}
-.phantom-ascii-heading {
-  width: 180px;
-  height: auto;
-  display: block;
-  opacity: 0.92;
-}
-.phantom-ascii-hero {
-  display: block;
-  max-width: 260px;
-  width: 100%;
-  height: auto;
-  margin: 0 0 1.5rem;
-}
-.phantom-ascii-empty {
-  display: block;
-  max-width: 200px;
-  width: 100%;
-  height: auto;
-  margin: 0 auto 0.75rem;
-  opacity: 0.45;
-}
-/* Dark mode: glow to match SHADOW GRID neon green */
-.phantom-ascii-nav,
-.phantom-ascii-heading,
-.phantom-ascii-hero,
-.phantom-ascii-empty {
-  filter: drop-shadow(0 0 6px rgba(var(--accent-rgb),0.45)) drop-shadow(0 0 14px rgba(var(--accent-rgb),0.18));
-}
-/* Light mode: plain black */
-[data-theme="light"] .phantom-ascii-nav,
-[data-theme="light"] .phantom-ascii-heading,
-[data-theme="light"] .phantom-ascii-hero,
-[data-theme="light"] .phantom-ascii-empty {
-  filter: brightness(0);
-}
-
-/* ── Theme Toggle Button ─────────────────────────────────────── */
-.theme-toggle {
-  background: none;
-  border: 1px solid var(--border-light);
-  color: var(--text-dim);
-  cursor: pointer;
-  font-size: 0.85rem;
-  padding: 0.3rem 0.55rem;
-  border-radius: 2px;
-  transition: all 0.2s;
+/* ── Brand / heading glyph marks (font-based, replaces ASCII art) ─ */
+.brand-glyph {
+  font-size: 1.25rem;
   line-height: 1;
+  color: var(--accent);
+  text-shadow: var(--glow-accent);
   flex-shrink: 0;
 }
-.theme-toggle:hover {
-  border-color: var(--neon-yellow);
-  color: var(--neon-yellow);
+.page-glyph {
+  font-size: 1.9rem;
+  line-height: 1;
+  color: var(--accent);
+  text-shadow: var(--glow-accent);
+  flex-shrink: 0;
 }
 
 /* ============================================================
-   THEME-SPECIFIC OVERRIDES
-   Colours flow from role tokens automatically (tints use
-   rgba(var(--role-rgb), a)); only genuinely structural per-theme
-   differences that tokens cannot express live here.
+   GLITCH HEADINGS — neutralised
+   The .glitch-text class survives on page headings as a plain title;
+   its duplicated data-text layers stay hidden and it carries no glow.
    ============================================================ */
-
-/* ── Retro effects: cyberpunk theme only ──
-   The matrix rain, CRT scanlines, and glitch layers belong to the
-   legacy look. The operations console (dark & light) stays clean. */
-#matrix-canvas { display: none; }
-.scanlines     { display: none; }
 .glitch-text::before,
 .glitch-text::after { display: none; }
 .glitch-text { text-shadow: none; }
-
-:root[data-theme="cyberpunk"] #matrix-canvas { display: block; }
-:root[data-theme="cyberpunk"] .scanlines     { display: block; }
-:root[data-theme="cyberpunk"] .glitch-text::before,
-:root[data-theme="cyberpunk"] .glitch-text::after { display: block; }
-:root[data-theme="cyberpunk"] .glitch-text { text-shadow: var(--glow-accent); }
-
-/* ── Light theme: keep the live terminal a dark console (deliberate) ── */
-[data-theme="light"] .terminal-output { background: #12161f; border-color: #263049; }
-[data-theme="light"] .term-prompt            { color: #3ddc84; }
-[data-theme="light"] .term-msg               { color: #c8d0e0; }
-[data-theme="light"] .term-system .term-msg  { color: #46c8ff; }
-[data-theme="light"] .term-warning .term-msg { color: #f5b642; }
-[data-theme="light"] .term-error .term-msg   { color: #ff8d8d; }
-[data-theme="light"] .term-success .term-msg { color: #4ade80; }
-[data-theme="light"] .terminal-blink         { color: #3ddc84; }
-
-/* Neutral select caret + subtle raised chrome shadow on light surfaces */
-[data-theme="light"] .select-field {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%23767f91'/%3E%3C/svg%3E");
-}
-[data-theme="light"] .nav-bar,
-[data-theme="light"] .grid-footer { box-shadow: 0 1px 8px rgba(0,0,0,0.06); }
 
 /* ============================================================
    ACCESSIBILITY — focus visibility & reduced motion (WCAG 2.2)
@@ -1543,7 +1362,6 @@ textarea:focus-visible,
 [tabindex]:focus-visible,
 .btn:focus-visible,
 .nav-link:focus-visible,
-.theme-toggle:focus-visible,
 .tab-btn:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -1556,8 +1374,6 @@ textarea:focus-visible,
 /* 2.2.2 / 2.3.3 — honour the OS "reduce motion" setting: kill the
    ambient animations and cut transitions to a hair. */
 @media (prefers-reduced-motion: reduce) {
-  #matrix-canvas { display: none !important; }
-  .scanlines { display: none !important; }
   .glitch-text::before,
   .glitch-text::after { animation: none !important; }
   *, *::before, *::after {
@@ -1628,7 +1444,7 @@ textarea:focus-visible,
   .nav-link span:not(.nav-icon) { display: none; }
   .nav-icon { display: inline; }
   .nav-link { padding: 0.4rem 0.6rem; }
-  .phantom-ascii-nav { width: 90px; height: auto; }
+  .brand-glyph { font-size: 1.1rem; }
 
   /* Stats: single column */
   .stats-grid { grid-template-columns: 1fr; }

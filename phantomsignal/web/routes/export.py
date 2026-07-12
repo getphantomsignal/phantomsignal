@@ -1,4 +1,4 @@
-"""PhantomSignal Export Routes — Intel Packet Compilation"""
+"""PhantomSignal Export Routes — report generation."""
 from flask import Blueprint, render_template, request, jsonify, send_file, flash, redirect, url_for
 from phantomsignal.exporters.manager import ExportManager
 from phantomsignal.core.database import get_db

@@ -1,14 +1,14 @@
 {% extends "base.html" %}
-{% block title %}Ghost Runs{% endblock %}
+{% block title %}Scans{% endblock %}
 
 {% block content %}
 <div class="page-header">
   <div class="page-title-block">
-    <h1 class="page-title glitch-text" data-text="GHOST RUNS">GHOST RUNS</h1>
-    <p class="page-subtitle">All recon missions in the grid</p>
+    <h1 class="page-title glitch-text" data-text="Scans">Scans</h1>
+    <p class="page-subtitle">All scans</p>
   </div>
   <div class="header-actions">
-    <a href="{{ url_for('scans.new_scan') }}" class="btn btn-primary btn-glow">◈ NEW MISSION</a>
+    <a href="{{ url_for('scans.new_scan') }}" class="btn btn-primary btn-glow">◈ New Scan</a>
   </div>
 </div>
 
@@ -18,7 +18,7 @@
     <thead>
       <tr>
         <th>TARGET</th><th>NAME</th><th>TYPE</th><th>STATUS</th>
-        <th>SHADOW SCORE</th><th>THREAT</th><th>RESULTS</th><th>STARTED</th><th></th>
+        <th>RISK SCORE</th><th>THREAT</th><th>RESULTS</th><th>STARTED</th><th></th>
       </tr>
     </thead>
     <tbody>
@@ -67,10 +67,10 @@
   </table>
   {% else %}
   <div class="empty-state large">
-    <div class="empty-ghost">👻</div>
-    <h3>No ghost runs in the grid</h3>
-    <p>The night is quiet. Launch a mission to break the silence.</p>
-    <a href="{{ url_for('scans.new_scan') }}" class="btn btn-primary btn-glow">LAUNCH FIRST MISSION</a>
+    <div class="empty-ghost" aria-hidden="true">∿</div>
+    <h3>No scans yet</h3>
+    <p>Run your first scan to get started.</p>
+    <a href="{{ url_for('scans.new_scan') }}" class="btn btn-primary btn-glow">Start Your First Scan</a>
   </div>
   {% endif %}
 </div>

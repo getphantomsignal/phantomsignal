@@ -1,4 +1,4 @@
-"""PhantomSignal Scan Routes — Ghost Run Command & Control"""
+"""PhantomSignal Scan Routes — scan launch, listing, and results."""
 from __future__ import annotations
 
 from datetime import datetime
@@ -37,10 +37,10 @@ def launch_scan():
 
     target = request.form.get("target", "").strip()
     if not target:
-        flash("Target required — no ghost run without a mark.", "error")
+        flash("Target required.", "error")
         return redirect(url_for("scans.new_scan"))
 
-    name = request.form.get("name", f"Ghost Run — {target[:30]}")
+    name = request.form.get("name", f"Scan — {target[:30]}")
     scan_type_str = request.form.get("scan_type", "web_recon")
     profile = request.form.get("profile", "standard")
     modules = request.form.getlist("modules")
@@ -52,7 +52,7 @@ def launch_scan():
         "depth": int(request.form.get("depth", 2)),
         "ports": request.form.get("port_profile", "common"),
         "respect_robots": request.form.get("respect_robots") == "on",
-        "ghost_mode": request.form.get("ghost_mode") == "on",
+        "evasive": request.form.get("evasive") == "on",
         # Attack-surface pipeline (Phase 1)
         "recursive": recursive,
         "max_depth": int(request.form.get("max_depth", 2)),
@@ -86,7 +86,7 @@ def launch_scan():
 
     run_scan_async(current_app._get_current_object(), scan_id)
 
-    flash(f"Ghost run initiated. Signal locked on {target}.", "success")
+    flash(f"Scan started for {target}.", "success")
     return redirect(url_for("scans.scan_results", scan_id=scan_id))
 
 
@@ -95,7 +95,7 @@ def scan_results(scan_id):
     with get_db() as db:
         scan = db.query(Scan).filter(Scan.id == scan_id).first()
         if not scan:
-            flash("Ghost run not found in the grid.", "error")
+            flash("Scan not found.", "error")
             return redirect(url_for("scans.list_scans"))
         scan_dict = scan.to_dict()
         results = db.query(ScanResult).filter(
@@ -125,7 +125,7 @@ def delete_scan(scan_id):
         scan = db.query(Scan).filter(Scan.id == scan_id).first()
         if scan:
             db.delete(scan)
-    flash("Ghost run purged from the grid.", "success")
+    flash("Scan deleted.", "success")
     return redirect(url_for("scans.list_scans"))
 
 
@@ -133,5 +133,5 @@ def delete_scan(scan_id):
 def abort_scan(scan_id):
     aborted = current_app.phantom_engine.abort_scan(scan_id)
     if aborted:
-        flash("Ghost run terminated. Signal severed.", "warning")
+        flash("Scan stopped.", "warning")
     return redirect(url_for("scans.scan_results", scan_id=scan_id))

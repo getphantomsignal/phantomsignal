@@ -53,7 +53,7 @@ def _uuid() -> str:
 
 
 class Scan(Base):
-    """A ghost run — one complete recon mission."""
+    """A scan — one complete recon run."""
     __tablename__ = "scans"
 
     id = Column(String(36), primary_key=True, default=_uuid)
@@ -109,7 +109,7 @@ class Scan(Base):
 
 
 class ScanResult(Base):
-    """A single data point harvested during a ghost run."""
+    """A single data point found during a scan."""
     __tablename__ = "scan_results"
 
     id = Column(String(36), primary_key=True, default=_uuid)
@@ -144,7 +144,7 @@ class ScanResult(Base):
 
 
 class ShadowProfile(Base):
-    """Aggregated person intelligence — the full dossier."""
+    """Aggregated person intelligence — the full profile."""
     __tablename__ = "shadow_profiles"
 
     id = Column(String(36), primary_key=True, default=_uuid)
@@ -206,7 +206,7 @@ class ShadowProfile(Base):
 
 
 class APIKeyStore(Base):
-    """Encrypted ghost key vault."""
+    """Encrypted API key store."""
     __tablename__ = "api_keys"
 
     id = Column(String(36), primary_key=True, default=_uuid)
@@ -242,7 +242,7 @@ class Export(Base):
 
 
 class ScheduledMission(Base):
-    """A phantom — a scheduled recurring ghost run."""
+    """A scheduled recurring scan."""
     __tablename__ = "scheduled_missions"
 
     id = Column(String(36), primary_key=True, default=_uuid)

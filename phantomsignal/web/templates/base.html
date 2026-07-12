@@ -4,50 +4,39 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="PhantomSignal — Open Source OSINT Intelligence Framework">
-  <meta name="color-scheme" content="dark light">
+  <meta name="color-scheme" content="dark">
   <title>{% block title %}PhantomSignal{% endblock %} // PHANTOM SIGNAL</title>
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/phantom-ascii-transparent.png') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/phantomsignal.css') }}">
-  <!-- Apply saved theme before first paint (no flash). 'system'/unset falls through to prefers-color-scheme. -->
-  <script>(function(){try{var t=localStorage.getItem('phantomsignal-theme');if(t&&t!=='system')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
   {% block head_extra %}{% endblock %}
 </head>
 <body>
-  <!-- Matrix rain canvas background -->
-  <canvas id="matrix-canvas"></canvas>
-
-  <!-- Scanline overlay -->
-  <div class="scanlines"></div>
-
   <!-- Top navigation bar -->
   <nav class="nav-bar">
     <div class="nav-brand">
       <a href="{{ url_for('dashboard.index') }}" class="brand-link">
-        <img src="{{ url_for('static', filename='img/phantom-ascii-transparent.png') }}" class="phantom-ascii-nav" alt="PhantomSignal">
+        <span class="brand-glyph" aria-hidden="true">∿</span>
         <span class="brand-name">PHANTOM<span class="brand-accent">SIGNAL</span></span>
         <span class="brand-tag">// {{ codename }}</span>
       </a>
     </div>
     <div class="nav-links">
       <a href="{{ url_for('dashboard.index') }}" class="nav-link {% if request.endpoint == 'dashboard.index' %}active{% endif %}">
-        <span class="nav-icon">⬡</span> GRID
+        <span class="nav-icon">⬡</span> Dashboard
       </a>
       <a href="{{ url_for('scans.new_scan') }}" class="nav-link {% if request.endpoint == 'scans.new_scan' %}active{% endif %}">
-        <span class="nav-icon">◈</span> NEW MISSION
+        <span class="nav-icon">◈</span> New Scan
       </a>
       <a href="{{ url_for('scans.list_scans') }}" class="nav-link {% if request.endpoint == 'scans.list_scans' %}active{% endif %}">
-        <span class="nav-icon">◫</span> GHOST RUNS
+        <span class="nav-icon">◫</span> Scans
       </a>
       <a href="{{ url_for('intel.intel_search') }}" class="nav-link {% if 'intel' in (request.endpoint or '') %}active{% endif %}">
-        <span class="nav-icon">◉</span> SHADOW PROFILER
+        <span class="nav-icon">◉</span> Profiler
       </a>
       <a href="{{ url_for('settings.settings_page') }}" class="nav-link {% if 'settings' in (request.endpoint or '') %}active{% endif %}">
-        <span class="nav-icon">⚙</span> GHOST KEYS
+        <span class="nav-icon">⚙</span> Integrations
       </a>
     </div>
-    <button class="theme-toggle" id="theme-toggle" title="Theme: System" aria-label="Change theme (System, Light, Dark, Cyberpunk)">
-      <span id="theme-icon" aria-hidden="true">🖥</span>
-    </button>
     <div class="nav-status">
       <span class="status-dot" id="connection-dot"></span>
       <span class="status-text" id="connection-status">CONNECTING...</span>
@@ -100,7 +89,6 @@
 
   <!-- Core scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.min.js"></script>
-  <script src="{{ url_for('static', filename='js/matrix.js') }}"></script>
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
   {% block scripts %}{% endblock %}
 </body>
