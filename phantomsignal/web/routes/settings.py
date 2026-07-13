@@ -8,10 +8,17 @@ settings_bp = Blueprint("settings", __name__)
 
 @settings_bp.route("/")
 def settings_page():
+    """Integrations — API keys and available data sources."""
     orch = IntelOrchestrator(config)
     all_apis = orch.get_available_apis()
     current_config = config.as_dict()
     return render_template("settings.html", apis=all_apis, config=current_config)
+
+
+@settings_bp.route("/scan")
+def scan_settings():
+    """Settings — scan behaviour, stealth posture, and egress."""
+    return render_template("scan_settings.html", config=config.as_dict())
 
 
 @settings_bp.route("/api-keys", methods=["POST"])
@@ -33,8 +40,26 @@ def save_scraper_settings():
     config.set("scraper", "download_delay", value=float(request.form.get("delay", 1.0)))
     config.set("scraper", "concurrent_requests", value=int(request.form.get("concurrent", 16)))
     config.set("scraper", "tor_enabled", value=request.form.get("tor_enabled") == "on")
+
+    profile = request.form.get("stealth_profile", "off")
+    if profile not in ("off", "quiet", "paranoid"):
+        profile = "off"
+    config.set("scraper", "stealth_profile", value=profile)
+    proxy = (request.form.get("proxy") or "").strip()
+    config.set("scraper", "proxy", value=proxy or None)
+
+    # Rotating egress pool — one proxy URL per line.
+    pool_raw = request.form.get("proxy_pool") or ""
+    pool = [ln.strip() for ln in pool_raw.splitlines() if ln.strip()]
+    config.set("scraper", "proxy_pool", value=pool)
+    rotation = request.form.get("proxy_rotation", "sticky")
+    if rotation not in ("sticky", "every"):
+        rotation = "sticky"
+    config.set("scraper", "proxy_rotation", value=rotation)
+    config.set("scraper", "tls_impersonate", value=request.form.get("tls_impersonate") == "on")
+
     flash("Settings saved.", "success")
-    return redirect(url_for("settings.settings_page"))
+    return redirect(url_for("settings.scan_settings"))
 
 
 @settings_bp.route("/api/test/<api_name>")

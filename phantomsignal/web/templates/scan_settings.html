@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-title-block">
+    <h1 class="page-title glitch-text" data-text="Settings">Settings</h1>
+    <p class="page-subtitle">Scan behaviour, stealth posture, and egress</p>
+  </div>
+</div>
+
+<div class="settings-layout">
+
+  <!-- Scan behaviour -->
+  <div class="settings-section">
+    <div class="section-header">
+      <span class="section-icon neon-cyan">🕷</span>
+      <span class="section-title">SCAN BEHAVIOUR</span>
+    </div>
+    <form action="{{ url_for('settings.save_scraper_settings') }}" method="POST">
+      <div class="settings-grid">
+        <div class="form-group">
+          <label class="form-label">REQUEST DELAY (seconds)</label>
+          <input type="number" name="delay" step="0.5" min="0" max="30"
+                 value="{{ config.scraper.download_delay }}" class="input-field">
+        </div>
+        <div class="form-group">
+          <label class="form-label">CONCURRENT REQUESTS</label>
+          <input type="number" name="concurrent" min="1" max="100"
+                 value="{{ config.scraper.concurrent_requests }}" class="input-field">
+        </div>
+        <div class="toggle-row">
+          <label class="toggle-label">
+            <input type="checkbox" name="respect_robots" class="toggle-check"
+                   {% if config.scraper.respect_robots_txt %}checked{% endif %}>
+            <span class="toggle-switch"></span>
+            <span class="toggle-text">RESPECT ROBOTS.TXT</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="section-header" style="margin-top:1.5rem;">
+        <span class="section-icon neon-purple">🕶</span>
+        <span class="section-title">STEALTH &amp; EGRESS</span>
+      </div>
+      <div class="settings-grid">
+        <div class="form-group">
+          <label class="form-label">STEALTH PROFILE</label>
+          {% set sp = config.scraper.stealth_profile or 'off' %}
+          <select name="stealth_profile" class="input-field">
+            <option value="off"      {% if sp == 'off' %}selected{% endif %}>Off — fast &amp; loud</option>
+            <option value="quiet"    {% if sp == 'quiet' %}selected{% endif %}>Quiet — blend in, adaptive pacing</option>
+            <option value="paranoid" {% if sp == 'paranoid' %}selected{% endif %}>Paranoid — low &amp; slow</option>
+          </select>
+          <span class="form-hint">Controls per-host pacing, jitter, browser identity, and backoff.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">EGRESS PROXY (http/https/socks5)</label>
+          <input type="text" name="proxy" placeholder="e.g. http://127.0.0.1:8080 or socks5://127.0.0.1:9050"
+                 value="{{ config.scraper.proxy or '' }}" class="input-field">
+          <span class="form-hint">Single egress. Overridden by the pool below if that's populated.</span>
+        </div>
+        <div class="form-group form-group-wide">
+          <label class="form-label">ROTATING PROXY POOL (one URL per line)</label>
+          <textarea name="proxy_pool" rows="3" class="input-field" style="font-family:var(--font-mono);resize:vertical;"
+                    placeholder="http://user:pass@proxy1:8080&#10;socks5://proxy2:1080&#10;http://proxy3:3128">{{ (config.scraper.proxy_pool or []) | join('\n') }}</textarea>
+          <span class="form-hint">Burned egresses (blocked / repeatedly failing) are benched and rotated automatically.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">POOL ROTATION</label>
+          {% set pr = config.scraper.proxy_rotation or 'sticky' %}
+          <select name="proxy_rotation" class="input-field">
+            <option value="sticky" {% if pr == 'sticky' %}selected{% endif %}>Sticky — one egress per host, rotate on burn</option>
+            <option value="every"  {% if pr == 'every' %}selected{% endif %}>Every — new egress each request</option>
+          </select>
+        </div>
+        <div class="toggle-row">
+          <label class="toggle-label">
+            <input type="checkbox" name="tls_impersonate" class="toggle-check"
+                   {% if config.scraper.tls_impersonate %}checked{% endif %}>
+            <span class="toggle-switch"></span>
+            <span class="toggle-text">TLS IMPERSONATION — JA3/JA4 (needs curl_cffi)</span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <label class="toggle-label">
+            <input type="checkbox" name="tor_enabled" class="toggle-check"
+                   {% if config.scraper.tor_enabled %}checked{% endif %}>
+            <span class="toggle-switch"></span>
+            <span class="toggle-text">TOR PROXY (port 9050)</span>
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-secondary" style="margin-top:1rem;">Save Settings</button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}
