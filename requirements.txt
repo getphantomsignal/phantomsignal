@@ -25,6 +25,7 @@ playwright>=1.40.0
 # ── HTTP Clients ─────────────────────────────────────────────
 httpx[asyncio]>=0.26.0
 socksio>=1.0.0            # SOCKS5 for optional Tor .onion enrichment (darkweb)
+curl_cffi>=0.7.0          # optional: real browser TLS (JA3/JA4) impersonation
 aiohttp>=3.9.0
 requests>=2.31.0
 urllib3>=2.1.0

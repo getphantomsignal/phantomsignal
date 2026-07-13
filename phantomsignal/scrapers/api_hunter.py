@@ -16,6 +16,8 @@ from urllib.parse import urljoin
 
 import httpx
 
+from phantomsignal.core.http import stealth_client
+
 logger = logging.getLogger("phantomsignal.api_hunter")
 
 API_PATHS = [
@@ -108,10 +110,10 @@ class APIHunter:
         base_url = target if target.startswith("http") else f"https://{target}"
         results = []
 
-        async with httpx.AsyncClient(
+        async with stealth_client(
+            self.config,
             follow_redirects=False,
             timeout=self.timeout,
-            verify=False,
         ) as client:
             semaphore = asyncio.Semaphore(self.concurrency)
 
@@ -160,10 +162,7 @@ class APIHunter:
         async with semaphore:
             url = urljoin(base_url.rstrip("/") + "/", path.lstrip("/"))
             try:
-                response = await client.get(
-                    url,
-                    headers={"User-Agent": "Mozilla/5.0 (compatible; security-scanner/1.0)"},
-                )
+                response = await client.get(url)
                 status = response.status_code
                 content_type = response.headers.get("content-type", "")
                 content_len = len(response.content)

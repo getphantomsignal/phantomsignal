@@ -332,16 +332,15 @@ class WebCrawler:
     async def _fallback_crawl(self, target: str) -> List[Dict]:
         """Fallback crawler using httpx when Scrapy is unavailable."""
         import re
-        import httpx
+
+        from phantomsignal.core.http import stealth_client
 
         results = []
         url = target if target.startswith("http") else f"https://{target}"
 
-        headers = {"User-Agent": "Mozilla/5.0 (compatible; PhantomSignal/1.0; +https://github.com/getphantomsignal/phantomsignal)"}
-
         try:
-            async with httpx.AsyncClient(follow_redirects=True, timeout=30) as client:
-                response = await client.get(url, headers=headers)
+            async with stealth_client(self.config, follow_redirects=True, timeout=30) as client:
+                response = await client.get(url)
                 emails = set(re.findall(
                     r"[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}",
                     response.text
