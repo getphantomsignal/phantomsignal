@@ -38,6 +38,9 @@
       <a href="{{ url_for('intel.intel_search') }}" class="nav-link {% if 'intel' in (request.endpoint or '') %}active{% endif %}">
         <span class="nav-icon">◉</span> Profiler
       </a>
+      <a href="{{ url_for('identity.identity_page') }}" class="nav-link {% if 'identity' in (request.endpoint or '') %}active{% endif %}">
+        <span class="nav-icon">⊙</span> Identity
+      </a>
       <a href="{{ url_for('settings.settings_page') }}" class="nav-link {% if request.endpoint == 'settings.settings_page' %}active{% endif %}">
         <span class="nav-icon">⧉</span> Integrations
       </a>
