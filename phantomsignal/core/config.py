@@ -115,6 +115,12 @@ class PhantomSignalConfig:
                 "delay_jitter": True,
                 "jitter_range": [0.5, 3.0],
             },
+            "geo": {
+                # Locate map: Leaflet + OSM tiles (external) behind this toggle.
+                "map_tiles": True,
+                "tile_url": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                "tile_attribution": "© OpenStreetMap contributors",
+            },
             "neural_profiler": {
                 "enabled": False,
                 "model": "local",

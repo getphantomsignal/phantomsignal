@@ -277,3 +277,88 @@ class ThreatIndicator(Base):
     description = Column(Text, nullable=True)
     raw_data = Column(JSON, default=dict)
     scan_id = Column(String(36), ForeignKey("scans.id"), nullable=True)
+
+
+# ── Geo / Locate (spec: specs/geo-locate.md) ─────────────────────────────────
+class LocateCase(Base):
+    """A person-locate investigation. Person geo work is always case-framed."""
+    __tablename__ = "locate_cases"
+
+    id = Column(String(36), primary_key=True, default=_uuid)
+    subject = Column(String(255), nullable=True)          # display name
+    identifiers = Column(JSON, default=dict)              # {first_name,last_name,email,username}
+    purpose = Column(Text, nullable=True)                 # stated investigative purpose
+    opened_by = Column(String(128), nullable=True)
+    sensitivity = Column(String(16), default="normal")    # normal | minor
+    status = Column(String(16), default="open")           # open | closed
+    profile_id = Column(String(36), ForeignKey("shadow_profiles.id"), nullable=True)
+    last_known = Column(JSON, nullable=True)              # cached aggregate
+    retention_until = Column(String(32), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Deleting a case removes its signals + chain-of-custody so purged cases
+    # leave nothing behind (spec §10 retention/purge).
+    signals = relationship("LocateSignal", back_populates="case",
+                           cascade="all, delete-orphan")
+    audit_events = relationship("AuditEvent", back_populates="case",
+                                cascade="all, delete-orphan")
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "subject": self.subject,
+            "identifiers": self.identifiers or {},
+            "purpose": self.purpose,
+            "opened_by": self.opened_by,
+            "sensitivity": self.sensitivity,
+            "status": self.status,
+            "last_known": self.last_known,
+            "retention_until": self.retention_until,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }
+
+
+class LocateSignal(Base):
+    """A persisted GeoSignal under a case. Confidence stays compound — kind and
+    attribution are stored separately and recombined at read time."""
+    __tablename__ = "locate_signals"
+
+    id = Column(String(36), primary_key=True, default=_uuid)
+    case_id = Column(String(36), ForeignKey("locate_cases.id"), nullable=False, index=True)
+    kind = Column(String(32), nullable=False)
+    polarity = Column(String(8), default="positive")      # positive | negative
+    entry = Column(String(8), default="auto")             # auto | manual
+    place = Column(JSON, default=dict)                    # {city, region, country, zip}
+    place_key = Column(String(128), nullable=True)
+    lat = Column(Float, nullable=True)
+    lon = Column(Float, nullable=True)
+    observed_at = Column(String(32), nullable=True)
+    source = Column(String(128), nullable=True)
+    source_url = Column(String(512), nullable=True)
+    attribution_confidence = Column(Float, default=1.0)
+    raw = Column(JSON, default=dict)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    case = relationship("LocateCase", back_populates="signals")
+
+
+class AuditEvent(Base):
+    """Chain-of-custody: every ingest / edit / export against a case is logged."""
+    __tablename__ = "locate_audit"
+
+    id = Column(String(36), primary_key=True, default=_uuid)
+    case_id = Column(String(36), ForeignKey("locate_cases.id"), nullable=False, index=True)
+    actor = Column(String(128), nullable=True)
+    action = Column(String(64), nullable=False)
+    source = Column(String(128), nullable=True)
+    detail = Column(Text, nullable=True)
+    at = Column(DateTime, default=datetime.utcnow)
+
+    case = relationship("LocateCase", back_populates="audit_events")
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "actor": self.actor, "action": self.action, "source": self.source,
+            "detail": self.detail, "at": self.at.isoformat() if self.at else None,
+        }

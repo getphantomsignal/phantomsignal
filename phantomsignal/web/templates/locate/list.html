@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Locate{% endblock %}
+
+{% block content %}
+<style>
+.lc-notice { font-size:0.72rem; color:var(--text-muted); background:var(--surface-2);
+  border:1px solid var(--border); border-left:3px solid var(--neon-orange);
+  border-radius:4px; padding:0.6rem 0.8rem; margin-bottom:1.25rem; }
+.lc-form { background:var(--card-bg); border:1px solid var(--border); border-radius:5px;
+  padding:1rem 1.1rem; margin-bottom:1.5rem; }
+.lc-grid { display:grid; gap:0.75rem; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); }
+.case-row { display:flex; align-items:center; gap:1rem; padding:0.7rem 0.9rem;
+  background:var(--card-bg); border:1px solid var(--border); border-radius:4px; margin-bottom:0.5rem;
+  transition:border-color 0.15s; }
+.case-row:hover { border-color:var(--border-light); }
+.case-link { display:flex; align-items:center; gap:1rem; flex:1; text-decoration:none; min-width:0; }
+.case-del { background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:0.85rem; padding:0 0.3rem; }
+.case-del:hover { color:var(--neon-red); }
+.case-subj { font-weight:600; color:var(--text-bright); }
+.case-meta { color:var(--text-dim); font-size:0.74rem; }
+.minor-badge { font-size:0.6rem; font-weight:700; letter-spacing:0.05em; padding:0.1rem 0.4rem;
+  border-radius:2px; background:rgba(var(--danger-rgb),0.16); color:var(--neon-red);
+  border:1px solid rgba(var(--danger-rgb),0.4); }
+</style>
+
+<div class="page-header">
+  <div class="page-title-block">
+    <h1 class="page-title glitch-text" data-text="Locate">Locate</h1>
+    <p class="page-subtitle">Reconstruct a subject's geographic footprint from public + licensed signals</p>
+  </div>
+</div>
+
+<div class="lc-notice">
+  Case-framed, historical footprint work (missing-persons / investigative OSINT). Every located point
+  is sourced and confidence-weighted; this is not real-time tracking. Use only within authorized scope.
+</div>
+
+<div class="lc-form">
+  <form action="{{ url_for('locate.new_case') }}" method="POST">
+    <div class="lc-grid">
+      <div class="form-group"><label class="form-label">FIRST NAME</label>
+        <input class="input-field" name="first_name" placeholder="Alex"></div>
+      <div class="form-group"><label class="form-label">LAST NAME</label>
+        <input class="input-field" name="last_name" placeholder="Morgan"></div>
+      <div class="form-group"><label class="form-label">EMAIL</label>
+        <input class="input-field" name="email" placeholder="optional"></div>
+      <div class="form-group"><label class="form-label">USERNAME</label>
+        <input class="input-field" name="username" placeholder="optional"></div>
+      <div class="form-group"><label class="form-label">OPENED BY</label>
+        <input class="input-field" name="opened_by" placeholder="analyst"></div>
+      <div class="form-group" style="grid-column:1 / -1;"><label class="form-label">PURPOSE (case note)</label>
+        <input class="input-field" name="purpose" placeholder="e.g. missing-persons search — LE ref #…"></div>
+    </div>
+    <div class="toggle-row" style="margin-top:0.6rem;">
+      <label class="toggle-label">
+        <input type="checkbox" name="minor" class="toggle-check">
+        <span class="toggle-switch"></span>
+        <span class="toggle-text">SUBJECT IS A MINOR (extra-sensitive handling)</span>
+      </label>
+    </div>
+    <button type="submit" class="btn btn-primary" style="margin-top:0.9rem;">◎ Open case &amp; collect</button>
+  </form>
+</div>
+
+<h3 style="font-size:0.8rem; letter-spacing:0.08em; color:var(--text-dim); margin:0 0 0.6rem;">CASES</h3>
+{% for c in cases %}
+<div class="case-row">
+  <a class="case-link" href="{{ url_for('locate.case_view', case_id=c.id) }}">
+    <span class="case-subj">{{ c.subject or 'subject' }}</span>
+    {% if c.sensitivity == 'minor' %}<span class="minor-badge">MINOR</span>{% endif %}
+    {% if c.last_known %}<span class="case-meta">last-known: {{ c.last_known.label }} ({{ "%.0f"|format((c.last_known.confidence or 0)*100) }}%)</span>{% endif %}
+    <span class="case-meta" style="margin-left:auto;">{{ c.opened_by or '—' }} · {{ c.created_at[:10] if c.created_at }}</span>
+  </a>
+  <form action="{{ url_for('locate.delete_case', case_id=c.id) }}" method="POST" style="display:inline;"
+        onsubmit="return confirm('Purge case for {{ (c.subject or 'subject')|e }}? This cannot be undone.');">
+    <button type="submit" class="case-del" title="Purge case">✕</button>
+  </form>
+</div>
+{% else %}
+<p class="text-dim" style="font-size:0.8rem;">No cases yet — open one above.</p>
+{% endfor %}
+{% endblock %}
