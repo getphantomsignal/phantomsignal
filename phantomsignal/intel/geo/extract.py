@@ -8,6 +8,7 @@ from __future__ import annotations
 import re
 from typing import Dict, List, Optional, Tuple
 
+from phantomsignal.intel.geo.attribution import record_attribution
 from phantomsignal.intel.geo.signals import GeoSignal
 
 # US-ish "…, City, ST 12345" tail; enough to canonicalise, not to over-claim.
@@ -60,11 +61,17 @@ def _has_place(p: Optional[Dict]) -> bool:
 def extract_signals(profile: Dict) -> List[GeoSignal]:
     """Extract attributed GeoSignals from a merged profile dict."""
     signals: List[GeoSignal] = []
-    # Overall match confidence is the attribution baseline for subject-direct data.
+    # Overall match confidence is the prior; each record refines it (attribution.py).
     base_attr = float(profile.get("confidence") or 0.5)
+    params = profile.get("search_params") or {}
 
     def _src_of(item, default="people-search"):
         return (item.get("source") if isinstance(item, dict) else None) or default
+
+    def _attr(record, source, kind):
+        rec = record if isinstance(record, dict) else {"value": record}
+        return record_attribution(rec, source=source, base=base_attr, kind=kind,
+                                  search_params=params)
 
     # Address records — subject-direct, attribution = overall match confidence.
     for addr in profile.get("addresses", []) or []:
@@ -74,7 +81,7 @@ def extract_signals(profile: Dict) -> List[GeoSignal]:
         lat, lon = _coords(addr) if isinstance(addr, dict) else (None, None)
         signals.append(GeoSignal(
             kind="address_record", place=place, lat=lat, lon=lon,
-            source=_src_of(addr), attribution_confidence=base_attr,
+            source=_src_of(addr), attribution_confidence=_attr(addr, _src_of(addr), "address_record"),
             observed_at=(addr.get("date") if isinstance(addr, dict) else None),
             raw=addr if isinstance(addr, dict) else {"value": addr},
         ))
@@ -89,7 +96,7 @@ def extract_signals(profile: Dict) -> List[GeoSignal]:
             kind="exif_gps", place={"country": img.get("country") if isinstance(img, dict) else None},
             lat=lat, lon=lon, source=_src_of(img, "exif"),
             source_url=(img.get("url") if isinstance(img, dict) else None),
-            attribution_confidence=base_attr,
+            attribution_confidence=_attr(img, _src_of(img, "exif"), "exif_gps"),
             observed_at=(img.get("taken_at") or img.get("date")) if isinstance(img, dict) else None,
             raw=img if isinstance(img, dict) else {"value": img},
         ))
@@ -104,7 +111,7 @@ def extract_signals(profile: Dict) -> List[GeoSignal]:
             continue
         signals.append(GeoSignal(
             kind="breach_field", place=place, source=_src_of(breach, "breach"),
-            attribution_confidence=base_attr * 0.9, raw=breach,
+            attribution_confidence=_attr(breach, _src_of(breach, "breach"), "breach_field"), raw=breach,
         ))
 
     # Phone country → coarse inferred region.
@@ -113,7 +120,8 @@ def extract_signals(profile: Dict) -> List[GeoSignal]:
         if country:
             signals.append(GeoSignal(
                 kind="area_code", place={"country": country},
-                source=_src_of(phone, "phone"), attribution_confidence=base_attr * 0.8,
+                source=_src_of(phone, "phone"),
+                attribution_confidence=_attr(phone, _src_of(phone, "phone"), "area_code"),
                 raw=phone if isinstance(phone, dict) else {"value": phone},
             ))
 
@@ -131,7 +139,7 @@ def extract_signals(profile: Dict) -> List[GeoSignal]:
                 continue
             signals.append(GeoSignal(
                 kind="associate", place=place, source=_src_of(person, group),
-                attribution_confidence=base_attr * 0.5,
+                attribution_confidence=_attr(person, _src_of(person, group), "associate"),
                 raw={"name": person.get("name"), "relation": group},
             ))
 
