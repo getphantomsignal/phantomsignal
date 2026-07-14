@@ -21,15 +21,59 @@ def _norm(s) -> str:
     return _WS.sub(" ", str(s or "").strip().lower())
 
 
+# US state / territory full-name → 2-letter, so "Colorado" and "CO" canonicalise
+# together (spec §12). Non-US regions pass through as their normalised name.
+_US_STATES = {
+    "alabama": "al", "alaska": "ak", "arizona": "az", "arkansas": "ar",
+    "california": "ca", "colorado": "co", "connecticut": "ct", "delaware": "de",
+    "florida": "fl", "georgia": "ga", "hawaii": "hi", "idaho": "id",
+    "illinois": "il", "indiana": "in", "iowa": "ia", "kansas": "ks",
+    "kentucky": "ky", "louisiana": "la", "maine": "me", "maryland": "md",
+    "massachusetts": "ma", "michigan": "mi", "minnesota": "mn", "mississippi": "ms",
+    "missouri": "mo", "montana": "mt", "nebraska": "ne", "nevada": "nv",
+    "new hampshire": "nh", "new jersey": "nj", "new mexico": "nm", "new york": "ny",
+    "north carolina": "nc", "north dakota": "nd", "ohio": "oh", "oklahoma": "ok",
+    "oregon": "or", "pennsylvania": "pa", "rhode island": "ri", "south carolina": "sc",
+    "south dakota": "sd", "tennessee": "tn", "texas": "tx", "utah": "ut",
+    "vermont": "vt", "virginia": "va", "washington": "wa", "west virginia": "wv",
+    "wisconsin": "wi", "wyoming": "wy", "district of columbia": "dc",
+    "washington dc": "dc", "washington d.c.": "dc",
+}
+_COUNTRY_ALIASES = {
+    "usa": "us", "united states": "us", "united states of america": "us",
+    "u.s.": "us", "u.s.a.": "us", "america": "us",
+    "uk": "gb", "united kingdom": "gb", "great britain": "gb", "england": "gb",
+}
+
+
+def _norm_region(r) -> str:
+    n = _norm(r)
+    return _US_STATES.get(n, n)
+
+
+def _norm_country(c) -> str:
+    n = _norm(c)
+    return _COUNTRY_ALIASES.get(n, n)
+
+
 def canonical_key(place: Optional[Dict], lat: Optional[float], lon: Optional[float]) -> str:
-    """Stable clustering key. Coordinates (rounded to ~city grid) take priority."""
+    """Stable clustering key. Coordinates (rounded to ~city grid) take priority;
+    otherwise city + normalised region, so the same place written different ways
+    (CO / Colorado, with or without country) collapses to one cluster (§12)."""
     if lat is not None and lon is not None:
         return f"@{round(lat, 1)},{round(lon, 1)}"
     place = place or {}
-    parts = [_norm(place.get(k)) for k in ("city", "region", "country")]
-    key = "|".join(p for p in parts if p)
-    if key:
-        return key
+    city, region = _norm(place.get("city")), _norm_region(place.get("region"))
+    country = _norm_country(place.get("country"))
+    if city and region:
+        return f"{city}|{region}"        # city+region discriminates; country omitted
+    if city and country:
+        return f"{city}|{country}"
+    if city:
+        return city
+    tail = "|".join(p for p in (region, country) if p)
+    if tail:
+        return tail
     zp = _norm(place.get("zip"))
     return f"zip:{zp}" if zp else "unknown"
 

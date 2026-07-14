@@ -61,6 +61,67 @@ def test_extract_from_profile():
     assert assoc.effective_confidence < addr.effective_confidence
 
 
+def test_extract_captures_stated_location_and_timezone():
+    profile = {
+        "confidence": 0.7,
+        "locations": [
+            {"value": "Denver, CO", "source": "twitter"},          # string bio location
+            {"city": "Boulder", "country": "US", "source": "facebook"},  # structured
+        ],
+        "timezones": [{"value": "America/Denver", "source": "flickr"}],
+    }
+    sigs = extract_signals(profile)
+    kinds = [s.kind for s in sigs]
+    assert kinds.count("stated_location") == 2
+    assert "timezone" in kinds
+    stated = next(s for s in sigs if s.kind == "stated_location" and s.place.get("city") == "Denver")
+    assert stated.source == "twitter"
+    tz = next(s for s in sigs if s.kind == "timezone")
+    assert tz.place["region"] == "America/Denver"
+    # stated location outranks a bare timezone hint.
+    assert stated.effective_confidence > tz.effective_confidence
+
+
+def test_canonical_key_normalises_state_and_country():
+    from phantomsignal.intel.geo.places import canonical_key as ck
+    a = ck({"city": "Denver", "region": "CO", "country": "US"}, None, None)
+    b = ck({"city": "Denver", "region": "Colorado"}, None, None)
+    c = ck({"city": "Denver", "region": "CO"}, None, None)
+    assert a == b == c                                   # all collapse to one place
+    # Different region does NOT collapse (Paris TX vs Paris France).
+    assert ck({"city": "Paris", "region": "TX"}, None, None) != \
+        ck({"city": "Paris", "country": "France"}, None, None)
+
+
+def test_stated_location_corroborates_structured_address():
+    signals = [
+        _sig("address_record", place={"city": "Denver", "region": "CO", "country": "US"}, attr=0.7),
+        _sig("stated_location", place=parse_address("Denver, CO"), attr=0.6, source="twitter"),
+        _sig("stated_location", place=parse_address("Denver, Colorado"), attr=0.6, source="github"),
+    ]
+    clusters = aggregate.cluster(signals)
+    assert len(clusters) == 1                            # one Denver, three sources
+    assert clusters[0]["signal_count"] == 3
+    assert clusters[0]["combined_confidence"] > 0.6      # corroboration beats any single
+
+
+def test_aggregator_harvests_location_and_timezone():
+    from phantomsignal.intel.people.aggregator import ShadowProfileBuilder
+    builder = ShadowProfileBuilder(config=None)
+    results = [
+        {"source": "twitter", "type": "twitter_profile",
+         "data": {"username": "axm", "location": "Denver, CO", "timezone": "America/Denver"}},
+        {"source": "github", "type": "github_profile",
+         "data": {"login": "axm", "location": "Denver, Colorado"}},
+        {"source": "keybase", "type": "keybase_identity", "data": {"location": ""}},  # empty ignored
+    ]
+    profile = builder._merge_profiles(results, {"username": "axm"})
+    locs = {loc["value"] for loc in profile["locations"]}
+    assert "Denver, CO" in locs and "Denver, Colorado" in locs
+    assert not any(loc.get("value") == "" for loc in profile["locations"])
+    assert any(tz["value"] == "America/Denver" for tz in profile["timezones"])
+
+
 def test_cluster_and_last_known_prefers_corroborated_hard_fix():
     signals = [
         _sig("exif_gps", place={"city": "Denver", "region": "CO", "country": "US"},

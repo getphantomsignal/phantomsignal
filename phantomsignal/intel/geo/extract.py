@@ -15,6 +15,9 @@ from phantomsignal.intel.geo.signals import GeoSignal
 _ADDR_TAIL = re.compile(
     r",\s*([A-Za-z .'-]+?),?\s+([A-Z]{2})\s+(\d{5})(?:-\d{4})?\s*(?:,\s*([A-Za-z .]+))?\s*$"
 )
+# "Denver, CO" / "Austin, Texas" / "London, UK" — city + region/country, one
+# comma, no street number (digits excluded from the city part).
+_CITY_REGION = re.compile(r"^([A-Za-z][A-Za-z .'\-]+),\s*([A-Za-z][A-Za-z .]{1,31})$")
 
 
 def _num(v) -> Optional[float]:
@@ -45,12 +48,19 @@ def parse_address(addr) -> Optional[Dict]:
             "country": addr.get("country") or addr.get("country_name"),
         }
     if isinstance(addr, str) and addr.strip():
-        m = _ADDR_TAIL.search(addr)
+        s = addr.strip()
+        m = _ADDR_TAIL.search(s)
         if m:
             return {"city": m.group(1).strip(), "region": m.group(2),
                     "zip": m.group(3), "country": m.group(4) or "US"}
+        # "City, Region" / "City, Country" bio form (no street number) — split so
+        # it clusters with structured addresses instead of being one opaque city.
+        m2 = _CITY_REGION.match(s)
+        if m2:
+            return {"city": m2.group(1).strip(), "region": m2.group(2).strip(),
+                    "zip": None, "country": None}
         # Fall back to a whole-string place we can still geocode/cluster.
-        return {"city": addr.strip(), "region": None, "zip": None, "country": None}
+        return {"city": s, "region": None, "zip": None, "country": None}
     return None
 
 
@@ -99,6 +109,31 @@ def extract_signals(profile: Dict) -> List[GeoSignal]:
             attribution_confidence=_attr(img, _src_of(img, "exif"), "exif_gps"),
             observed_at=(img.get("taken_at") or img.get("date")) if isinstance(img, dict) else None,
             raw=img if isinstance(img, dict) else {"value": img},
+        ))
+
+    # Stated locations — bio / profile "location" fields from social sources.
+    for loc in profile.get("locations", []) or []:
+        src = _src_of(loc, "social")
+        place = parse_address(loc.get("value") if isinstance(loc, dict) and "value" in loc else loc)
+        if not _has_place(place):
+            continue
+        signals.append(GeoSignal(
+            kind="stated_location", place=place, source=src,
+            attribution_confidence=_attr(loc, src, "stated_location"),
+            raw=loc if isinstance(loc, dict) else {"value": loc},
+        ))
+
+    # Timezone — coarse inferred region hint; surfaced even though it rarely
+    # maps to a precise point, so it can corroborate a stated location.
+    for tz in profile.get("timezones", []) or []:
+        value = tz.get("value") if isinstance(tz, dict) else tz
+        if not value:
+            continue
+        src = _src_of(tz, "session")
+        signals.append(GeoSignal(
+            kind="timezone", place={"region": str(value)}, source=src,
+            attribution_confidence=_attr(tz, src, "timezone"),
+            raw=tz if isinstance(tz, dict) else {"value": tz},
         ))
 
     # Breach-data location/country fields — inferred, low confidence.

@@ -139,6 +139,8 @@ class ShadowProfileBuilder:
             "relatives": [],
             "breach_data": [],
             "images": [],
+            "locations": [],
+            "timezones": [],
             "sources": [],
             "confidence": 0.0,
             "raw_results": results,
@@ -190,6 +192,26 @@ class ShadowProfileBuilder:
             for addr in (data.get("addresses") or []):
                 if addr not in profile["addresses"]:
                     profile["addresses"].append(addr)
+
+            # Stated location — a bio / profile "location" field (Twitter,
+            # GitHub, Keybase, Flickr, LinkedIn, Facebook, ...). Classic OSINT
+            # geo signal; can be a string ("Denver, CO") or a structured dict.
+            loc = data.get("location") or data.get("current_location")
+            if isinstance(loc, str) and loc.strip():
+                entry = {"value": loc.strip(), "source": source}
+                if entry not in profile["locations"]:
+                    profile["locations"].append(entry)
+            elif isinstance(loc, dict) and any(loc.values()):
+                entry = {**loc, "source": source}
+                if entry not in profile["locations"]:
+                    profile["locations"].append(entry)
+
+            # Timezone — a coarse longitude-band hint (inferred tier).
+            tz = data.get("timezone") or data.get("time_zone")
+            if tz and str(tz).strip():
+                entry = {"value": str(tz).strip(), "source": source}
+                if entry not in profile["timezones"]:
+                    profile["timezones"].append(entry)
 
             # Names — also pull from native profile fields
             for name in (data.get("names") or []):
