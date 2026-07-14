@@ -362,3 +362,16 @@ class AuditEvent(Base):
             "actor": self.actor, "action": self.action, "source": self.source,
             "detail": self.detail, "at": self.at.isoformat() if self.at else None,
         }
+
+
+class GeoCache(Base):
+    """Persistent forward-geocode cache (spec §12 — Nominatim rate limits bite
+    immediately). ``hit=False`` is a negative cache: a query we confirmed has no
+    result, so we don't re-hit the geocoder for it."""
+    __tablename__ = "geo_cache"
+
+    query = Column(String(512), primary_key=True)
+    lat = Column(Float, nullable=True)
+    lon = Column(Float, nullable=True)
+    hit = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)

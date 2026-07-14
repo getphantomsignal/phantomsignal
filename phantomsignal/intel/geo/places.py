@@ -44,17 +44,53 @@ def display_place(place: Optional[Dict]) -> str:
     return label or "unknown"
 
 
+# Process-local fast path in front of the persistent DB cache.
 _GEO_CACHE: Dict[str, Optional[Tuple[float, float]]] = {}
 
 
+def _db_cache_get(query: str):
+    """Return (coords, found) from the persistent cache. ``found`` distinguishes
+    a cached negative (no result) from an absent entry. Never raises."""
+    try:
+        from phantomsignal.core.database import get_db
+        from phantomsignal.core.models import GeoCache
+        with get_db() as db:
+            row = db.query(GeoCache).filter(GeoCache.query == query).first()
+            if row is not None:
+                return ((row.lat, row.lon) if row.hit else None), True
+    except Exception:
+        pass
+    return None, False
+
+
+def _db_cache_put(query: str, coords: Optional[Tuple[float, float]]) -> None:
+    """Persist a forward-geocode result (including a negative). Never raises."""
+    try:
+        from phantomsignal.core.database import get_db
+        from phantomsignal.core.models import GeoCache
+        with get_db() as db:
+            if db.query(GeoCache).filter(GeoCache.query == query).first():
+                return
+            db.add(GeoCache(query=query[:512], hit=coords is not None,
+                            lat=coords[0] if coords else None,
+                            lon=coords[1] if coords else None))
+    except Exception:
+        pass
+
+
 async def geocode(config, place: Dict) -> Optional[Tuple[float, float]]:
-    """Best-effort forward geocode of a place dict → (lat, lon). Cached; routed
-    through the stealth client; returns None on any problem."""
+    """Best-effort forward geocode of a place dict → (lat, lon). Cached in
+    memory and in the DB (incl. negatives); routed through the stealth client;
+    returns None on any problem."""
     query = display_place(place)
     if not query or query == "unknown":
         return None
     if query in _GEO_CACHE:
         return _GEO_CACHE[query]
+    cached, found = _db_cache_get(query)
+    if found:
+        _GEO_CACHE[query] = cached
+        return cached
 
     coords: Optional[Tuple[float, float]] = None
     try:
@@ -70,4 +106,5 @@ async def geocode(config, place: Dict) -> Optional[Tuple[float, float]]:
     except Exception:
         coords = None
     _GEO_CACHE[query] = coords
+    _db_cache_put(query, coords)
     return coords
