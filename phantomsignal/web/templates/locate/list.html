@@ -21,6 +21,9 @@
 .minor-badge { font-size:0.6rem; font-weight:700; letter-spacing:0.05em; padding:0.1rem 0.4rem;
   border-radius:2px; background:rgba(var(--danger-rgb),0.16); color:var(--neon-red);
   border:1px solid rgba(var(--danger-rgb),0.4); }
+.ret-badge { font-size:0.58rem; font-weight:600; letter-spacing:0.03em; padding:0.1rem 0.4rem;
+  border-radius:2px; background:var(--surface-2); color:var(--text-muted); border:1px solid var(--border); }
+.ret-expired { background:rgba(var(--danger-rgb),0.14); color:var(--neon-red); border-color:rgba(var(--danger-rgb),0.4); }
 </style>
 
 <div class="page-header">
@@ -50,6 +53,11 @@
         <input class="input-field" name="opened_by" placeholder="analyst"></div>
       <div class="form-group" style="grid-column:1 / -1;"><label class="form-label">PURPOSE (case note)</label>
         <input class="input-field" name="purpose" placeholder="e.g. missing-persons search — LE ref #…"></div>
+      <div class="form-group"><label class="form-label">RETENTION</label>
+        <select name="retention_days" class="input-field">
+          <option value="">Keep until purged</option>
+          {% for d in presets %}<option value="{{ d }}">{{ d }} days</option>{% endfor %}
+        </select></div>
     </div>
     <div class="toggle-row" style="margin-top:0.6rem;">
       <label class="toggle-label">
@@ -62,12 +70,24 @@
   </form>
 </div>
 
+{% if expired %}
+<div class="lc-notice" style="border-left-color:var(--neon-red); display:flex; align-items:center; gap:1rem;">
+  <span><b>{{ expired }}</b> case(s) past their retention horizon.</span>
+  <form action="{{ url_for('locate.purge_expired') }}" method="POST" style="margin-left:auto;"
+        onsubmit="return confirm('Purge all {{ expired }} case(s) past retention? This cannot be undone.');">
+    <button type="submit" class="btn btn-danger btn-sm">✕ Purge expired</button>
+  </form>
+</div>
+{% endif %}
+
 <h3 style="font-size:0.8rem; letter-spacing:0.08em; color:var(--text-dim); margin:0 0 0.6rem;">CASES</h3>
 {% for c in cases %}
 <div class="case-row">
   <a class="case-link" href="{{ url_for('locate.case_view', case_id=c.id) }}">
     <span class="case-subj">{{ c.subject or 'subject' }}</span>
     {% if c.sensitivity == 'minor' %}<span class="minor-badge">MINOR</span>{% endif %}
+    {% if c.retention.expired %}<span class="ret-badge ret-expired" title="Past retention {{ c.retention.until }}">RETENTION EXPIRED</span>
+    {% elif c.retention.set %}<span class="ret-badge" title="Retention until {{ c.retention.until }}">{{ c.retention.days_left }}d left</span>{% endif %}
     {% if c.last_known %}<span class="case-meta">last-known: {{ c.last_known.label }} ({{ "%.0f"|format((c.last_known.confidence or 0)*100) }}%)</span>{% endif %}
     <span class="case-meta" style="margin-left:auto;">{{ c.opened_by or '—' }} · {{ c.created_at[:10] if c.created_at }}</span>
   </a>

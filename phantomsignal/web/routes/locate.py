@@ -9,7 +9,7 @@ from flask import (
 
 from phantomsignal.core.config import config
 from phantomsignal.core.database import get_db
-from phantomsignal.intel.geo import exif, store
+from phantomsignal.intel.geo import exif, retention, store
 from phantomsignal.intel.geo.engine import GeoEngine
 from phantomsignal.intel.geo.export import to_geojson, to_kml, to_report
 
@@ -32,7 +32,9 @@ def _map_cfg():
 def list_cases():
     with get_db() as db:
         cases = store.list_cases(db)
-    return render_template("locate/list.html", cases=cases)
+    expired = sum(1 for c in cases if c.get("retention", {}).get("expired"))
+    return render_template("locate/list.html", cases=cases, expired=expired,
+                           presets=retention.PRESETS)
 
 
 @locate_bp.route("/new", methods=["POST"])
@@ -48,6 +50,13 @@ def new_case():
     sensitivity = "minor" if request.form.get("minor") == "on" else "normal"
     subject = " ".join(filter(None, [ids.get("first_name"), ids.get("last_name")])) \
         or ids.get("email") or ids.get("username") or "subject"
+
+    # Retention horizon (§10). Minor subjects default to a conservative window
+    # when the operator picks none.
+    retention_days = request.form.get("retention_days")
+    retention_until = retention.until_iso(retention_days)
+    if retention_until is None and sensitivity == "minor":
+        retention_until = retention.until_iso(retention.MINOR_DEFAULT_DAYS)
 
     # Collection: run the Profiler (degrades to public fallback without keys),
     # then extract + geocode geo signals. Best-effort; the case opens regardless.
@@ -72,7 +81,8 @@ def new_case():
 
     with get_db() as db:
         case_id = store.open_case(db, subject=subject, identifiers=ids, purpose=purpose,
-                                  opened_by=opened_by, sensitivity=sensitivity)
+                                  opened_by=opened_by, sensitivity=sensitivity,
+                                  retention_until=retention_until)
         n = store.persist_signals(db, case_id, signals, actor=opened_by) if signals else 0
     flash(f"Case opened for {subject} — {n} geo signal(s) collected.", "success")
     return redirect(url_for("locate.case_view", case_id=case_id))
@@ -153,6 +163,15 @@ def delete_signal(case_id, signal_id):
     flash("Signal removed." if removed else "Signal not found.",
           "success" if removed else "error")
     return redirect(url_for("locate.case_view", case_id=case_id))
+
+
+@locate_bp.route("/purge-expired", methods=["POST"])
+def purge_expired():
+    with get_db() as db:
+        n = store.purge_expired(db, actor="operator")
+    flash(f"Purged {n} case(s) past retention." if n else "No cases past retention.",
+          "success" if n else "info")
+    return redirect(url_for("locate.list_cases"))
 
 
 @locate_bp.route("/<case_id>/delete", methods=["POST"])

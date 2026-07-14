@@ -10,7 +10,7 @@ from __future__ import annotations
 from typing import Dict, List, Optional
 
 from phantomsignal.core.models import AuditEvent, LocateCase, LocateSignal
-from phantomsignal.intel.geo import aggregate, patterns
+from phantomsignal.intel.geo import aggregate, patterns, retention
 from phantomsignal.intel.geo.places import canonical_key
 from phantomsignal.intel.geo.signals import GeoSignal
 
@@ -43,15 +43,18 @@ def audit(db, case_id: str, actor: Optional[str], action: str,
 
 def open_case(db, *, subject: str, identifiers: Dict, purpose: str,
               opened_by: str, sensitivity: str = "normal",
+              retention_until: Optional[str] = None,
               profile_id: Optional[str] = None) -> str:
     case = LocateCase(
         subject=subject, identifiers=identifiers or {}, purpose=purpose,
         opened_by=opened_by, sensitivity=sensitivity, profile_id=profile_id,
+        retention_until=retention_until,
     )
     db.add(case)
     db.flush()
     audit(db, case.id, opened_by, "case_opened",
-          detail=f"subject={subject!r} purpose={purpose!r} sensitivity={sensitivity}")
+          detail=f"subject={subject!r} purpose={purpose!r} sensitivity={sensitivity}"
+                 f"{' retention_until=' + retention_until if retention_until else ''}")
     return case.id
 
 
@@ -104,14 +107,20 @@ def footprint_for_case(db, case_id: str, *, subject: str = "subject") -> Dict:
     patterns.classify_places(clusters, signal_dicts)
     grid = patterns.search_grid(clusters, signal_dicts)
 
+    sensitivity = "normal"
+    ret = retention.status(None)
     case = db.query(LocateCase).filter(LocateCase.id == case_id).first()
     if case is not None:
         case.last_known = lk
+        sensitivity = case.sensitivity or "normal"
+        ret = retention.status(case.retention_until)
         if not subject or subject == "subject":
             subject = case.subject or "subject"
 
     return {
         "subject": subject,
+        "sensitivity": sensitivity,
+        "retention": ret,
         "signals": signal_dicts,
         "clusters": clusters,
         "last_known": lk,
@@ -152,7 +161,23 @@ def delete_signal(db, case_id: str, signal_id: str, *, actor: Optional[str] = No
 
 def list_cases(db) -> List[Dict]:
     rows = db.query(LocateCase).order_by(LocateCase.created_at.desc()).limit(100).all()
-    return [c.to_dict() for c in rows]
+    out = []
+    for c in rows:
+        d = c.to_dict()
+        d["retention"] = retention.status(c.retention_until)
+        out.append(d)
+    return out
+
+
+def purge_expired(db, *, actor: str = "system") -> int:
+    """Delete every case past its retention horizon (§10). Cascade removes each
+    case's signals + audit. Returns the number purged."""
+    n = 0
+    for c in db.query(LocateCase).all():
+        if retention.status(c.retention_until)["expired"]:
+            db.delete(c)
+            n += 1
+    return n
 
 
 def list_audit(db, case_id: str) -> List[Dict]:

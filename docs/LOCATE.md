@@ -197,12 +197,18 @@ From the case header:
 
 - **`AuditEvent` chain of custody** — every ingest, manual add, edit, export, and
   delete is logged (what, when, by whom), so the output is defensible.
+- **Retention horizon** — set a retention period (30/90/180/365 days, or keep
+  until purged) when opening a case. A case past its horizon is flagged
+  **RETENTION EXPIRED** on the list and in the header, and **Purge expired** on
+  the Locate list removes all past-retention cases in one action. Evidence isn't
+  kept indefinitely.
 - **Purge case** (case header) — deletes the case and *all* its signals and audit
   trail; nothing is left behind.
 - **Delete signal** (✕ in the signal table) — removes one signal, keeps the case,
   and logs the removal.
-- **Minor subjects** — the `minor` flag drives a prominent badge and
-  extra-conservative handling.
+- **Minor subjects** — the `minor` flag drives a prominent badge, a case banner
+  and a report notice (handle per child-protection protocol), and a conservative
+  default retention horizon (90 days) when none is chosen.
 
 ---
 

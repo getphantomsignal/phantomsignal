@@ -55,6 +55,17 @@ def to_report(footprint: Dict) -> str:
     subj = footprint.get("subject", "subject")
     lines.append(f"# Location footprint — {subj}")
     lines.append("")
+    if footprint.get("sensitivity") == "minor":
+        lines.append("> **⚠ MINOR SUBJECT — extra-sensitive.** Handle per child-protection "
+                     "protocol: minimize distribution and route to law enforcement.")
+        lines.append("")
+    ret = footprint.get("retention") or {}
+    if ret.get("expired"):
+        lines.append(f"> **⚑ Past retention** ({ret['until']}) — this case is due for purge.")
+        lines.append("")
+    elif ret.get("set"):
+        lines.append(f"_Retention until {ret['until']} ({ret['days_left']} days left)._")
+        lines.append("")
     lk = footprint.get("last_known")
     if lk:
         lines.append(f"**Last-known:** {lk['label']} — confidence {lk['confidence']:.2f}, "
