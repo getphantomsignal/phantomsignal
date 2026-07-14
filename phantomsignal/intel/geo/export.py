@@ -87,6 +87,16 @@ def to_report(footprint: Dict) -> str:
                      f"{c['signal_count']} signal(s) [{', '.join(c['kinds'])}]")
     lines.append("")
 
+    scrubbed = [s for s in footprint.get("signals", []) if s.get("scrubbed")]
+    if scrubbed:
+        lines.append("## ⚑ Scrubbed locations (archived, now removed)")
+        for s in scrubbed:
+            loc = s["place"] or {}
+            label = ", ".join(str(v) for v in (loc.get("city"), loc.get("region"), loc.get("country")) if v) or "—"
+            lines.append(f"- **{label}** — seen {s.get('observed_at') or 'undated'} in {s['source']}"
+                         f"{', ' + s['source_url'] if s.get('source_url') else ''}, absent from the current profile.")
+        lines.append("")
+
     lines.append("## Signals (sourced)")
     for s in footprint.get("signals", []):
         loc = s["place"] or {}
@@ -94,7 +104,8 @@ def to_report(footprint: Dict) -> str:
         src = s["source"] + (f" — {s['source_url']}" if s.get("source_url") else "")
         when = s.get("observed_at") or "undated"
         pol = "NEG " if s.get("polarity") == "negative" else ""
-        lines.append(f"- {pol}[{s['kind']}] {label} · eff {s['effective_confidence']:.2f} "
+        flag = " ⚑scrubbed" if s.get("scrubbed") else ""
+        lines.append(f"- {pol}[{s['kind']}]{flag} {label} · eff {s['effective_confidence']:.2f} "
                      f"(kind {s['kind_confidence']:.2f} × attr {s['attribution_confidence']:.2f}) · "
                      f"{when} · {src}")
     lines.append("")

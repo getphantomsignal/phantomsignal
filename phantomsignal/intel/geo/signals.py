@@ -98,6 +98,9 @@ class GeoSignal:
             "effective_confidence": self.effective_confidence,
             "corroborated_by": self.corroborated_by,
             "place_key": self.place_key,
+            # A location present in an archive but gone from the current profile
+            # (spec §8) — important, not more certain; drives the UI/report flag.
+            "scrubbed": bool((self.raw or {}).get("scrubbed")),
         }
 
 

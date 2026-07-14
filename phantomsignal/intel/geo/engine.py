@@ -12,7 +12,7 @@ import asyncio
 import logging
 from typing import Dict, List, Optional
 
-from phantomsignal.intel.geo import aggregate, patterns, places
+from phantomsignal.intel.geo import aggregate, archive, patterns, places
 from phantomsignal.intel.geo.extract import extract_signals
 from phantomsignal.intel.geo.signals import GeoSignal, round_to_confidence
 
@@ -40,10 +40,17 @@ class GeoEngine:
                 s.lat = round_to_confidence(s.kind, res[0])
                 s.lon = round_to_confidence(s.kind, res[1])
 
-    async def signals_for(self, profile: Dict, *, geocode: bool = True) -> List[GeoSignal]:
+    async def signals_for(self, profile: Dict, *, geocode: bool = True,
+                          archived: bool = True) -> List[GeoSignal]:
         """Extract (and optionally geocode-fill) signals from a profile — the
-        collection step, split out so the store can persist them."""
+        collection step, split out so the store can persist them. ``archived``
+        adds best-effort Wayback scrubbed-location mining (network)."""
         signals = extract_signals(profile)
+        if archived:
+            try:
+                signals.extend(await archive.mine_archived_locations(self.config, profile))
+            except Exception:
+                pass
         if geocode:
             await self._geocode_fill(signals)
         return signals
