@@ -61,7 +61,7 @@
 {% if result is not none %}
   {% if result.error %}
   <div class="gr-notice" style="border-left-color:var(--neon-red);">
-    Shodan error — check your API key under <b>Integrations</b>.<br>{{ result.error }}
+    <b>Geo Recon couldn't run.</b><br>{{ result.error }}
   </div>
   {% elif not result.configured %}
   <div class="gr-notice" style="border-left-color:var(--neon-red);">

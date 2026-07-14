@@ -155,8 +155,19 @@ class ShodanAPI(BaseIntelAPI):
                 params={"key": self._api_key, "query": query, "minify": "false"},
             )
         except Exception as e:
-            # Key present but rejected/errored — configured, but unusable.
-            return {"total": 0, "matches": [], "configured": True, "error": str(e)}
+            # A 403 on search usually means a *valid* free-tier key without search
+            # access, not a bad key — check api-info to give an accurate reason.
+            detail = str(e)
+            try:
+                info = await self.get_api_info()
+                if isinstance(info, dict) and "plan" in info:
+                    qc = info.get("query_credits", 0)
+                    detail = (f"Shodan search needs query credits / a paid plan — this key is the "
+                              f"'{info.get('plan')}' tier with {qc} query credits. "
+                              f"Free keys can do host lookups but not geo search.")
+            except Exception:
+                detail = "Shodan key rejected — check the key under Integrations."
+            return {"total": 0, "matches": [], "configured": True, "error": detail}
         if "error" in data or "matches" not in data:
             return {"total": 0, "matches": [], "configured": True, "error": data.get("error")}
         matches = []
