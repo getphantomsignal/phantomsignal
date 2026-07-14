@@ -114,6 +114,7 @@ class PhantomEngine:
         from phantomsignal.scrapers.js_miner import JSMiner
         from phantomsignal.scrapers.archive_miner import ArchiveURLMiner
         from phantomsignal.scrapers.infra_pivot import InfraPivot
+        from phantomsignal.scrapers.origin_pivot import OriginPivot
         from phantomsignal.scrapers.service_enum import ServiceEnumerator
         from phantomsignal.scrapers.doc_metadata import DocMetadataExtractor
         from phantomsignal.scrapers.username_enum import UsernameEnumerator
@@ -133,6 +134,7 @@ class PhantomEngine:
             "js_mine": lambda: ("js_mine", JSMiner(config).run(target)),
             "archive_mine": lambda: ("archive_mine", ArchiveURLMiner(config).run(target)),
             "infra_pivot": lambda: ("infra_pivot", InfraPivot(config).run(target)),
+            "origin_pivot": lambda: ("origin_pivot", OriginPivot(config).run(target)),
             "service_enum": lambda: ("service_enum", ServiceEnumerator(config).run(target)),
             "doc_metadata": lambda: ("doc_metadata", DocMetadataExtractor(config).run(target)),
             "username_enum": lambda: ("username_enum", UsernameEnumerator(config).run(target)),

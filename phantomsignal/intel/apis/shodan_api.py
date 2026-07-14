@@ -144,6 +144,48 @@ class ShodanAPI(BaseIntelAPI):
         )]
         return results
 
+    async def geo_search(self, query: str, *, limit: int = 100) -> Dict:
+        """Geo/asset search that KEEPS per-match location (lat/lon/city) so Geo
+        Recon can map results. Returns {total, matches, configured, error?}."""
+        if not self.is_configured:
+            return {"total": 0, "matches": [], "configured": False}
+        try:
+            data = await self._get(
+                f"{self.BASE_URL}/shodan/host/search",
+                params={"key": self._api_key, "query": query, "minify": "false"},
+            )
+        except Exception as e:
+            # A 403 on search usually means a *valid* free-tier key without search
+            # access, not a bad key — check api-info to give an accurate reason.
+            detail = str(e)
+            try:
+                info = await self.get_api_info()
+                if isinstance(info, dict) and "plan" in info:
+                    qc = info.get("query_credits", 0)
+                    detail = (f"Shodan search needs query credits / a paid plan — this key is the "
+                              f"'{info.get('plan')}' tier with {qc} query credits. "
+                              f"Free keys can do host lookups but not geo search.")
+            except Exception:
+                detail = "Shodan key rejected — check the key under Integrations."
+            return {"total": 0, "matches": [], "configured": True, "error": detail}
+        if "error" in data or "matches" not in data:
+            return {"total": 0, "matches": [], "configured": True, "error": data.get("error")}
+        matches = []
+        for m in data.get("matches", [])[:limit]:
+            loc = m.get("location", {}) or {}
+            matches.append({
+                "ip": m.get("ip_str"), "port": m.get("port"),
+                "transport": m.get("transport", "tcp"),
+                "org": m.get("org"), "isp": m.get("isp"),
+                "product": m.get("product", ""), "version": m.get("version", ""),
+                "hostnames": m.get("hostnames", []),
+                "country": loc.get("country_name"), "city": loc.get("city"),
+                "lat": loc.get("latitude"), "lon": loc.get("longitude"),
+                "vulns": list(m.get("vulns", {}).keys()),
+                "banner": (m.get("data", "") or "")[:200],
+            })
+        return {"total": data.get("total", 0), "matches": matches, "configured": True}
+
     async def dns_resolve(self, hostnames: List[str]) -> Dict:
         data = await self._get(
             f"{self.BASE_URL}/dns/resolve",

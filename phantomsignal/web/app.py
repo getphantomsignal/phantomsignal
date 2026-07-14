@@ -49,6 +49,9 @@ def create_app(config_path: Optional[str] = None) -> Flask:
     from phantomsignal.web.routes.settings import settings_bp
     from phantomsignal.web.routes.export import export_bp
     from phantomsignal.web.routes.api import api_bp
+    from phantomsignal.web.routes.identity import identity_bp
+    from phantomsignal.web.routes.locate import locate_bp
+    from phantomsignal.web.routes.geo import geo_bp
 
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(scans_bp, url_prefix="/scans")
@@ -56,6 +59,9 @@ def create_app(config_path: Optional[str] = None) -> Flask:
     app.register_blueprint(settings_bp, url_prefix="/settings")
     app.register_blueprint(export_bp, url_prefix="/export")
     app.register_blueprint(api_bp, url_prefix="/api/v1")
+    app.register_blueprint(identity_bp, url_prefix="/identity")
+    app.register_blueprint(locate_bp, url_prefix="/locate")
+    app.register_blueprint(geo_bp, url_prefix="/geo")
 
     @app.context_processor
     def inject_globals():

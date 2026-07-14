@@ -71,6 +71,18 @@ class PhantomSignalConfig:
                 "proxy": None,
                 "tor_enabled": False,
                 "tor_port": 9050,
+                # Stealth posture for target-facing HTTP: off | quiet | paranoid.
+                # Consumed by core.http; "off" preserves legacy fast behaviour.
+                "stealth_profile": "off",
+                # Rotating egress pool (list of http/https/socks5 URLs). Empty =
+                # use single `proxy` above, or direct. proxy_rotation:
+                # sticky (per-host, rotate on burn) | every (per-request).
+                "proxy_pool": [],
+                "proxy_rotation": "sticky",
+                # Present a real browser TLS (JA3/JA4) + HTTP/2 fingerprint via
+                # curl_cffi, matched to the per-host browser identity. Needs the
+                # optional `curl_cffi` package; degrades to standard TLS without.
+                "tls_impersonate": False,
             },
             "port_scanner": {
                 "default_ports": [
@@ -102,6 +114,14 @@ class PhantomSignalConfig:
                 "header_spoofing": True,
                 "delay_jitter": True,
                 "jitter_range": [0.5, 3.0],
+            },
+            "geo": {
+                # Locate map: Leaflet + CARTO basemaps (external) behind this
+                # toggle. Light/dark tilesets swap with the site theme.
+                "map_tiles": True,
+                "tile_url": "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                "tile_url_dark": "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+                "tile_attribution": "© OpenStreetMap contributors © CARTO",
             },
             "neural_profiler": {
                 "enabled": False,

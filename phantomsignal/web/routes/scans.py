@@ -118,6 +118,143 @@ def scan_results(scan_id):
     )
 
 
+# ── Semantic categories for the single-page summary view ──────────────────
+# Groups the ~30 raw result_types into a handful of human-facing buckets so the
+# summary page reads by subject area rather than by which module produced it.
+# Ordered to mirror an external recon → attack workflow that both red and blue
+# teams recognise: footprint the namespace, map the perimeter, pivot on certs,
+# enumerate the web surface, fingerprint the stack, probe mail/services,
+# corroborate with external intel, and finish on the actionable exposures.
+# label / icon / accent drive the section chrome in scans/summary.html.
+RESULT_CATEGORIES = [
+    ("dns",      "DNS & Domains",            "⊚", "cyan", {
+        "dns_records", "dnssec", "zone_transfer", "subdomain",
+        "subdomain_summary",
+    }),
+    ("network",  "Network & Infrastructure", "◈", "cyan", {
+        "ip_address", "ip_geolocation", "reverse_dns", "open_port",
+        "port_scan_summary", "os_detection", "infra_sibling", "shodan_host",
+        "cdn_detected", "origin_candidate",
+    }),
+    ("tls",      "TLS & Certificates",       "⛨", "green", {
+        "tls_certificate", "cert_transparency", "tls_cert_fingerprint",
+        "jarm_fingerprint", "favicon_hash",
+    }),
+    ("web",      "Web & Endpoints",          "⌘", "cyan", {
+        "web_resource", "api_endpoint", "graphql_schema", "http_headers",
+        "js_endpoint", "js_mine_summary", "archive_url", "archive_summary",
+    }),
+    ("tech",     "Technology Stack",         "⚙", "cyan", {
+        "technology",
+    }),
+    ("email",    "Email & Services",         "✉", "orange", {
+        "email_security", "smtp_users", "smtp_open_relay", "snmp_community",
+    }),
+    ("intel",    "Threat Intelligence",      "◎", "purple", {
+        "otx_indicator", "urlscan_result", "whois_record",
+        "securitytrails_whois",
+    }),
+    ("findings", "Findings & Exposure",      "⚠", "red", {
+        "signature_match", "dork", "security_posture", "js_secret",
+        "takeover_vulnerable", "takeover_candidate", "origin_confirmed",
+    }),
+]
+
+# Severity ranking for the Findings & Exposure category — drives worst-first
+# sort order and the Critical/High/Medium/Low breakdowns in the header, tile,
+# and jump-nav chip.
+_SEV_ORDER = ["critical", "high", "medium", "low", "info"]
+_SEV_RANK = {lvl: i for i, lvl in enumerate(_SEV_ORDER)}
+
+
+def _finding_severity(result: dict) -> str:
+    """Normalise a Findings result to one of _SEV_ORDER."""
+    data = result.get("data") or {}
+    rtype = result.get("result_type")
+    sev = str(data.get("severity") or "").lower()
+    if sev in _SEV_RANK:
+        return sev
+    if rtype == "takeover_vulnerable":
+        return "high"
+    if rtype == "takeover_candidate":
+        return "medium"
+    if rtype == "security_posture":
+        rating = str(data.get("rating") or "").upper()
+        return {"F": "critical", "D": "high", "C": "medium",
+                "B": "low", "A": "info"}.get(rating, "medium")
+    return "info"
+
+
+_TYPE_TO_CATEGORY = {
+    rtype: key
+    for key, _label, _icon, _accent, types in RESULT_CATEGORIES
+    for rtype in types
+}
+_CATEGORY_META = {
+    key: {"label": label, "icon": icon, "accent": accent}
+    for key, label, icon, accent, _types in RESULT_CATEGORIES
+}
+_CATEGORY_ORDER = [key for key, *_ in RESULT_CATEGORIES] + ["other"]
+
+
+@scans_bp.route("/<scan_id>/summary")
+def scan_summary(scan_id):
+    """Single-page view: every result at once, grouped into semantic categories."""
+    with get_db() as db:
+        scan = db.query(Scan).filter(Scan.id == scan_id).first()
+        if not scan:
+            flash("Scan not found.", "error")
+            return redirect(url_for("scans.list_scans"))
+        scan_dict = scan.to_dict()
+        results = db.query(ScanResult).filter(
+            ScanResult.scan_id == scan_id
+        ).order_by(ScanResult.relevance_score.desc()).all()
+        results_list = [r.to_dict() for r in results]
+
+    # Bucket results into categories, preserving the relevance ordering above.
+    categories = []
+    seen = {}
+    for r in results_list:
+        key = _TYPE_TO_CATEGORY.get(r.get("result_type"), "other")
+        seen.setdefault(key, []).append(r)
+
+    for key in _CATEGORY_ORDER:
+        items = seen.get(key)
+        if not items:
+            continue
+        meta = _CATEGORY_META.get(key, {"label": "Other", "icon": "▪", "accent": "cyan"})
+
+        # Findings get a severity grade, a worst-first sort, and a histogram
+        # that feeds the section header, the overview tile, and the nav chip.
+        severity = None
+        if key == "findings":
+            for it in items:
+                it["severity"] = _finding_severity(it)
+            items.sort(key=lambda it: _SEV_RANK.get(it["severity"], 99))
+            severity = {lvl: sum(1 for it in items if it["severity"] == lvl)
+                        for lvl in _SEV_ORDER}
+
+        categories.append({
+            "key": key,
+            "label": meta["label"],
+            "icon": meta["icon"],
+            "accent": meta["accent"],
+            "entries": items,
+            "count": len(items),
+            "anomaly_count": sum(1 for i in items if i.get("is_anomaly")),
+            "severity": severity,
+        })
+
+    return render_template(
+        "scans/summary.html",
+        scan=scan_dict,
+        results=results_list,
+        categories=categories,
+        anomaly_count=sum(1 for r in results_list if r.get("is_anomaly")),
+        is_live=scan_dict["status"] == "running",
+    )
+
+
 @scans_bp.route("/<scan_id>/delete", methods=["POST"])
 def delete_scan(scan_id):
     with get_db() as db:

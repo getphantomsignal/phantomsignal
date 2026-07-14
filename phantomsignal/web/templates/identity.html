@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+{% block title %}Identity{% endblock %}
+
+{% block content %}
+<style>
+.id-grid { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); }
+.id-card { background:var(--card-bg); border:1px solid var(--border); border-radius:5px; padding:1rem 1.1rem; }
+.id-card h3 { display:flex; align-items:center; gap:0.5rem; margin:0 0 0.75rem; font-size:0.82rem;
+  letter-spacing:0.08em; text-transform:uppercase; color:var(--text-bright); }
+.id-card h3 .id-ic { color:var(--neon-cyan); font-size:1rem; }
+.id-row { display:flex; justify-content:space-between; gap:1rem; padding:0.3rem 0;
+  border-bottom:1px solid rgba(var(--ink-dim-rgb),0.08); font-size:0.78rem; align-items:baseline; }
+.id-row:last-child { border-bottom:0; }
+.id-k { color:var(--text-dim); white-space:nowrap; }
+.id-v { color:var(--text-bright); text-align:right; word-break:break-word; font-family:var(--font-mono); font-size:0.76rem; }
+.id-v.mut { color:var(--text-muted); font-family:var(--font-ui); }
+.id-hero { display:flex; flex-wrap:wrap; align-items:center; gap:1.25rem; padding:1rem 1.25rem;
+  background:var(--card-bg); border:1px solid var(--border); border-radius:5px; margin-bottom:1.25rem; }
+.id-hero .ip { font-family:var(--font-mono); font-size:1.5rem; font-weight:700; color:var(--neon-cyan); }
+.id-hero .loc { color:var(--text); font-size:0.9rem; }
+.id-flag { font-size:0.62rem; font-weight:700; letter-spacing:0.05em; padding:0.1rem 0.45rem; border-radius:2px;
+  text-transform:uppercase; }
+.id-flag.on { background:rgba(var(--warning-rgb),0.16); color:var(--neon-orange); border:1px solid rgba(var(--warning-rgb),0.45); }
+.id-flag.off { background:rgba(var(--success-rgb),0.14); color:var(--neon-green); border:1px solid rgba(var(--success-rgb),0.4); }
+.risk { font-size:0.6rem; font-weight:700; letter-spacing:0.04em; padding:0.05rem 0.35rem; border-radius:2px; margin-left:0.4rem; }
+.risk-high { background:rgba(var(--danger-rgb),0.16); color:var(--neon-red); border:1px solid rgba(var(--danger-rgb),0.4); }
+.risk-med  { background:rgba(var(--warning-rgb),0.15); color:var(--neon-orange); border:1px solid rgba(var(--warning-rgb),0.4); }
+.id-note { font-size:0.7rem; color:var(--text-muted); margin-top:0.6rem; }
+.id-spin { color:var(--text-dim); font-size:0.8rem; }
+.mono-wrap { font-family:var(--font-mono); font-size:0.72rem; word-break:break-all; color:var(--text); }
+</style>
+
+<div class="page-header">
+  <div class="page-title-block">
+    <h1 class="page-title glitch-text" data-text="Identity">Identity</h1>
+    <p class="page-subtitle">What you leak when you're online — your egress, your browser, your fingerprint</p>
+  </div>
+  <div class="header-actions">
+    <button id="id-refresh" class="btn btn-secondary" type="button">↻ Re-check egress</button>
+  </div>
+</div>
+
+<!-- Egress hero (populated from /identity/egress) -->
+<div class="id-hero" id="id-hero">
+  <div>
+    <div class="id-spin" id="id-hero-loading">◌ Checking egress through your configured scan path…</div>
+    <div id="id-hero-body" style="display:none;">
+      <div class="ip" id="hero-ip">—</div>
+      <div class="loc" id="hero-loc">—</div>
+    </div>
+  </div>
+  <div style="margin-left:auto; display:flex; gap:0.5rem; flex-wrap:wrap;" id="hero-flags"></div>
+</div>
+
+<div class="id-grid">
+
+  <!-- Egress / network detail -->
+  <div class="id-card">
+    <h3><span class="id-ic">◈</span> Egress &amp; Network <span id="eg-src" class="id-k" style="font-weight:400;text-transform:none;letter-spacing:0"></span></h3>
+    <div id="eg-body"><div class="id-spin">loading…</div></div>
+    <div class="id-note">Fetched live through your current scan egress (profile / proxy / TLS settings), so this is what a target sees.</div>
+  </div>
+
+  <!-- TLS fingerprint + stealth posture -->
+  <div class="id-card">
+    <h3><span class="id-ic">⛨</span> TLS Fingerprint &amp; Posture</h3>
+    <div id="tls-body"><div class="id-spin">loading…</div></div>
+  </div>
+
+  <!-- This browser (client-side) -->
+  <div class="id-card">
+    <h3><span class="id-ic">◐</span> This Browser</h3>
+    <div id="browser-body"></div>
+  </div>
+
+  <!-- WebRTC + advanced fingerprint -->
+  <div class="id-card">
+    <h3><span class="id-ic">◎</span> Fingerprint Surface</h3>
+    <div id="fp-body"></div>
+  </div>
+
+  <!-- Request headers (server-rendered) -->
+  <div class="id-card" style="grid-column:1 / -1;">
+    <h3><span class="id-ic">≡</span> Request Headers <span class="id-k" style="font-weight:400;text-transform:none;letter-spacing:0">— what this browser sent to PhantomSignal</span></h3>
+    {% for name, val in req_headers %}
+    <div class="id-row"><span class="id-k">{{ name }}</span><span class="id-v">{{ val }}</span></div>
+    {% endfor %}
+    <div class="id-row"><span class="id-k">Observed source IP</span><span class="id-v">{{ remote_addr }}</span></div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const row = (k, v, risk) => {
+  if (v === undefined || v === null || v === "") v = "—";
+  const r = risk ? `<span class="risk risk-${risk}">${risk === 'high' ? 'HIGH' : 'MED'}</span>` : "";
+  return `<div class="id-row"><span class="id-k">${k}${r}</span><span class="id-v">${v}</span></div>`;
+};
+
+// ── Client-side browser fingerprint ──────────────────────────────────────────
+(function browser() {
+  const n = navigator, s = screen;
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "—";
+  const langs = (n.languages || [n.language]).join(", ");
+  let html = "";
+  html += row("User-Agent", n.userAgent);
+  html += row("Platform", n.platform || "—");
+  html += row("Languages", langs);
+  html += row("Timezone", tz, "med");
+  html += row("Screen", `${s.width}×${s.height} @${window.devicePixelRatio}x, ${s.colorDepth}-bit`);
+  html += row("CPU cores", n.hardwareConcurrency ?? "—");
+  html += row("Device memory", n.deviceMemory ? n.deviceMemory + " GB" : "—");
+  html += row("Do Not Track", n.doNotTrack === "1" ? "on" : "off");
+  html += row("Cookies", n.cookieEnabled ? "enabled" : "disabled");
+  if (n.connection && n.connection.effectiveType)
+    html += row("Connection", n.connection.effectiveType);
+  document.getElementById("browser-body").innerHTML = html;
+})();
+
+// ── WebGL, canvas, WebRTC (the strong fingerprint surface) ───────────────────
+(function fingerprint() {
+  const body = document.getElementById("fp-body");
+  let html = "";
+
+  // WebGL unmasked renderer — a very stable device fingerprint.
+  let gpu = "—";
+  try {
+    const gl = document.createElement("canvas").getContext("webgl");
+    const dbg = gl && gl.getExtension("WEBGL_debug_renderer_info");
+    if (dbg) gpu = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL);
+  } catch (e) {}
+  html += row("WebGL renderer", gpu, "high");
+
+  // Canvas fingerprint hash.
+  let canvasHash = "—";
+  try {
+    const c = document.createElement("canvas");
+    const ctx = c.getContext("2d");
+    ctx.textBaseline = "top"; ctx.font = "14px 'Arial'";
+    ctx.fillStyle = "#f60"; ctx.fillRect(0, 0, 100, 20);
+    ctx.fillStyle = "#069"; ctx.fillText("PhantomSignal ⌘ identity", 2, 2);
+    const data = c.toDataURL();
+    let h = 0; for (let i = 0; i < data.length; i++) { h = (h * 31 + data.charCodeAt(i)) >>> 0; }
+    canvasHash = ("00000000" + h.toString(16)).slice(-8);
+  } catch (e) {}
+  html += row("Canvas hash", canvasHash, "med");
+
+  html += `<div id="webrtc-slot">${row("WebRTC local IPs", "probing…")}</div>`;
+  body.innerHTML = html;
+
+  // WebRTC local-IP leak — reveals private (and sometimes public) IPs even
+  // behind a VPN/proxy, so it's a classic deanonymisation vector.
+  try {
+    const ips = new Set();
+    const pc = new RTCPeerConnection({ iceServers: [] });
+    pc.createDataChannel("");
+    pc.onicecandidate = (e) => {
+      if (!e.candidate) return;
+      const m = /((?:[0-9]{1,3}\.){3}[0-9]{1,3}|(?:[a-f0-9]{1,4}:){3,}[a-f0-9:]+)/i.exec(e.candidate.candidate);
+      if (m) ips.add(m[1]);
+    };
+    pc.createOffer().then((o) => pc.setLocalDescription(o));
+    setTimeout(() => {
+      pc.close();
+      const list = [...ips];
+      const pub = list.filter((ip) => !/^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|127\.|169\.254\.|fe80:|::1)/i.test(ip));
+      const val = list.length ? list.join("<br>") : "none exposed";
+      const risk = pub.length ? "high" : (list.length ? "med" : null);
+      document.getElementById("webrtc-slot").innerHTML = row("WebRTC local IPs", val, risk);
+    }, 1600);
+  } catch (e) {
+    document.getElementById("webrtc-slot").innerHTML = row("WebRTC local IPs", "blocked / unavailable");
+  }
+})();
+
+// ── Egress check (server, through the stealth client) ────────────────────────
+async function loadEgress() {
+  document.getElementById("id-hero-loading").style.display = "";
+  document.getElementById("id-hero-body").style.display = "none";
+  document.getElementById("eg-body").innerHTML = '<div class="id-spin">loading…</div>';
+  document.getElementById("tls-body").innerHTML = '<div class="id-spin">loading…</div>';
+  try {
+    const res = await fetch("/identity/egress").then((r) => r.json());
+    if (res.status !== "ok") throw new Error(res.message || "failed");
+    const d = res.data, eg = d.egress, tls = d.tls, st = d.stealth;
+
+    // Hero
+    if (eg) {
+      document.getElementById("hero-ip").textContent = eg.ip || "—";
+      document.getElementById("hero-loc").textContent =
+        [eg.city, eg.region, eg.country].filter(Boolean).join(", ") + (eg.zip ? " · " + eg.zip : "");
+      const flags = document.getElementById("hero-flags");
+      const chip = (label, on) => `<span class="id-flag ${on ? "on" : "off"}">${on ? "" : "no "}${label}</span>`;
+      flags.innerHTML = chip("proxy", eg.flags.proxy) + chip("hosting", eg.flags.hosting) + chip("mobile", eg.flags.mobile);
+    }
+    document.getElementById("id-hero-loading").style.display = "none";
+    document.getElementById("id-hero-body").style.display = "";
+
+    // Egress detail
+    let eh = "";
+    if (eg) {
+      eh += row("Public IP", eg.ip);
+      eh += row("City / Region", [eg.city, eg.region].filter(Boolean).join(", "));
+      eh += row("Postal / ZIP", eg.zip);
+      eh += row("Country", `${eg.country || "—"} ${eg.country_code ? "(" + eg.country_code + ")" : ""}`);
+      eh += row("Coordinates", (eg.lat != null && eg.lon != null) ? `${eg.lat}, ${eg.lon}` : "—", "med");
+      eh += row("Timezone", eg.timezone);
+      eh += row("ISP", eg.isp);
+      eh += row("Org", eg.org);
+      eh += row("ASN", eg.asn);
+    } else {
+      eh = '<div class="id-spin">egress lookup unavailable</div>';
+    }
+    document.getElementById("eg-body").innerHTML = eh;
+    document.getElementById("eg-src").textContent = st.proxied ? "· via proxy" : "· direct";
+
+    // TLS + posture
+    let th = "";
+    th += row("JA3", tls && tls.ja3 ? tls.ja3 : "—");
+    th += row("JA4", tls && tls.ja4 ? tls.ja4 : "—");
+    th += row("UA seen by target", tls && tls.seen_ua ? tls.seen_ua : "—");
+    th += `<div class="id-row" style="border-top:1px solid rgba(var(--ink-dim-rgb),0.16);margin-top:0.4rem;padding-top:0.5rem;"><span class="id-k">Stealth profile</span><span class="id-v mut">${st.profile}</span></div>`;
+    th += row("TLS impersonation", st.impersonate ? "on — " + (st.impersonate_as || "browser") : "off (standard TLS fingerprint)", st.impersonate ? null : "med");
+    th += row("Egress", st.proxied ? `proxied (${st.proxy_count})${st.rotation ? " · " + st.rotation : ""}` : "direct");
+    document.getElementById("tls-body").innerHTML = th;
+
+    if (d.errors && d.errors.length)
+      document.getElementById("eg-src").textContent += " · " + d.errors.join(", ");
+  } catch (e) {
+    document.getElementById("id-hero-loading").textContent = "Egress check failed: " + e.message;
+    document.getElementById("eg-body").innerHTML = '<div class="id-spin">unavailable</div>';
+    document.getElementById("tls-body").innerHTML = '<div class="id-spin">unavailable</div>';
+  }
+}
+document.getElementById("id-refresh").addEventListener("click", loadEgress);
+loadEgress();
+</script>
+{% endblock %}

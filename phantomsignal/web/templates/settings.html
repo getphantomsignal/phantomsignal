@@ -4,8 +4,8 @@
 {% block content %}
 <div class="page-header">
   <div class="page-title-block">
-    <h1 class="page-title glitch-text" data-text="API Keys">API Keys</h1>
-    <p class="page-subtitle">Manage API keys and scan settings</p>
+    <h1 class="page-title glitch-text" data-text="Integrations">Integrations</h1>
+    <p class="page-subtitle">API keys and available data sources</p>
   </div>
 </div>
 
@@ -58,45 +58,6 @@
       <button type="submit" class="btn btn-primary btn-glow" style="margin-top:1.5rem;">
         🔑 Save API Keys
       </button>
-    </form>
-  </div>
-
-  <!-- Scraper settings -->
-  <div class="settings-section">
-    <div class="section-header">
-      <span class="section-icon neon-cyan">🕷</span>
-      <span class="section-title">SCAN SETTINGS</span>
-    </div>
-    <form action="{{ url_for('settings.save_scraper_settings') }}" method="POST">
-      <div class="settings-grid">
-        <div class="form-group">
-          <label class="form-label">REQUEST DELAY (seconds)</label>
-          <input type="number" name="delay" step="0.5" min="0" max="30"
-                 value="{{ config.scraper.download_delay }}" class="input-field">
-        </div>
-        <div class="form-group">
-          <label class="form-label">CONCURRENT REQUESTS</label>
-          <input type="number" name="concurrent" min="1" max="100"
-                 value="{{ config.scraper.concurrent_requests }}" class="input-field">
-        </div>
-        <div class="toggle-row">
-          <label class="toggle-label">
-            <input type="checkbox" name="respect_robots" class="toggle-check"
-                   {% if config.scraper.respect_robots_txt %}checked{% endif %}>
-            <span class="toggle-switch"></span>
-            <span class="toggle-text">RESPECT ROBOTS.TXT</span>
-          </label>
-        </div>
-        <div class="toggle-row">
-          <label class="toggle-label">
-            <input type="checkbox" name="tor_enabled" class="toggle-check"
-                   {% if config.scraper.tor_enabled %}checked{% endif %}>
-            <span class="toggle-switch"></span>
-            <span class="toggle-text">TOR PROXY (port 9050)</span>
-          </label>
-        </div>
-      </div>
-      <button type="submit" class="btn btn-secondary" style="margin-top:1rem;">Save Settings</button>
     </form>
   </div>
 

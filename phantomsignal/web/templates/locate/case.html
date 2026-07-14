@@ -1,0 +1,442 @@
+{% extends "base.html" %}
+{% block title %}{{ case.subject }} — Locate{% endblock %}
+
+{% block content %}
+<style>
+.lk-card { display:flex; flex-wrap:wrap; align-items:center; gap:1.25rem; padding:1rem 1.25rem;
+  background:var(--card-bg); border:1px solid var(--border); border-left:3px solid var(--neon-cyan);
+  border-radius:5px; margin-bottom:1.25rem; }
+.lk-place { font-size:1.35rem; font-weight:700; color:var(--neon-cyan); }
+.lk-sub { color:var(--text-dim); font-size:0.8rem; }
+.lc-map { height:380px; border:1px solid var(--border); border-radius:5px; margin-bottom:1.25rem; }
+.lc-map-off { padding:1.5rem; text-align:center; color:var(--text-muted); font-size:0.8rem;
+  background:var(--surface-2); border:1px dashed var(--border); border-radius:5px; margin-bottom:1.25rem; }
+.lc-sec { margin-bottom:1.5rem; }
+.lc-sec h3 { font-size:0.8rem; letter-spacing:0.08em; color:var(--text-dim); margin:0 0 0.6rem; text-transform:uppercase; }
+.area-row { display:flex; align-items:center; gap:0.75rem; padding:0.45rem 0.7rem; margin-bottom:0.35rem;
+  background:var(--card-bg); border:1px solid var(--border); border-radius:4px; }
+.area-row.elim { opacity:0.6; border-color:rgba(var(--danger-rgb),0.35); }
+.area-row.locatable { cursor:pointer; transition:border-color 0.15s, box-shadow 0.15s; }
+.area-row.locatable:hover { border-color:var(--neon-cyan); }
+.area-row.active { border-color:var(--neon-cyan); box-shadow:0 0 0 1px var(--neon-cyan) inset; }
+.area-caret { color:var(--text-muted); font-size:0.7rem; transition:transform 0.15s; display:inline-block; }
+.area-row.active .area-caret { transform:rotate(90deg); color:var(--neon-cyan); }
+.area-detail { margin:-0.2rem 0 0.5rem 0.4rem; padding:0.4rem 0.7rem; border-left:2px solid var(--border-light);
+  background:var(--surface-2); border-radius:0 4px 4px 0; }
+.area-detail table { width:100%; border-collapse:collapse; font-size:0.7rem; }
+.area-detail td { padding:0.2rem 0.4rem; color:var(--text-dim); vertical-align:top; }
+.area-detail .ad-kind { color:var(--neon-cyan); }
+.area-detail .ad-src a { color:var(--text-dim); }
+/* Pattern-of-life badges */
+.pol-badge { font-size:0.58rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase;
+  padding:0.1rem 0.4rem; border-radius:2px; border:1px solid transparent; }
+.pol-home { background:rgba(var(--accent2-rgb),0.14); color:var(--neon-cyan); border-color:rgba(var(--accent2-rgb),0.35); }
+.pol-work { background:rgba(var(--warning-rgb,224,166,58),0.14); color:var(--warning); border-color:rgba(var(--warning-rgb,224,166,58),0.35); }
+.pol-frequented { background:rgba(var(--success-rgb,77,214,140),0.12); color:var(--success); }
+.pol-seen { background:var(--surface-2); color:var(--text-muted); }
+/* Prioritized search grid */
+.grid-row { display:flex; align-items:center; gap:0.6rem; padding:0.45rem 0.7rem; margin-bottom:0.35rem;
+  background:var(--card-bg); border:1px solid var(--border); border-left:3px solid var(--neon-cyan);
+  border-radius:4px; cursor:pointer; transition:border-color 0.15s; }
+.grid-row:hover { border-color:var(--neon-cyan); }
+.grid-rank { font-family:var(--font-mono); font-weight:700; color:var(--neon-cyan); width:1.2rem; text-align:center; }
+.grid-score { font-family:var(--font-mono); font-size:0.74rem; color:var(--text-bright); margin-left:auto; }
+/* Timeline scrubber */
+.lc-timeline { display:flex; align-items:center; gap:0.8rem; padding:0.5rem 0.8rem; margin-bottom:1.25rem;
+  background:var(--card-bg); border:1px solid var(--border); border-radius:5px; }
+.tl-play { background:var(--surface-2); border:1px solid var(--border); color:var(--neon-cyan); cursor:pointer;
+  border-radius:3px; width:1.8rem; height:1.8rem; font-size:0.7rem; flex-shrink:0; }
+.tl-play:hover { border-color:var(--neon-cyan); }
+.tl-range { flex:1; accent-color:var(--neon-cyan); }
+.tl-label { font-family:var(--font-mono); font-size:0.72rem; color:var(--text-dim); min-width:6.5rem; text-align:right; }
+.area-label { font-weight:600; color:var(--text-bright); min-width:180px; }
+.conf-bar { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; max-width:220px; }
+.conf-fill { height:100%; background:linear-gradient(90deg, var(--warning), var(--success)); }
+.conf-num { font-family:var(--font-mono); font-size:0.74rem; color:var(--text-bright); width:3rem; text-align:right; }
+.sig-tbl { width:100%; border-collapse:collapse; font-size:0.74rem; }
+.sig-tbl th { text-align:left; color:var(--text-dim); font-weight:500; padding:0.3rem 0.5rem; border-bottom:1px solid var(--border); font-size:0.66rem; letter-spacing:0.05em; }
+.sig-tbl td { padding:0.35rem 0.5rem; border-bottom:1px solid rgba(var(--ink-dim-rgb),0.08); color:var(--text); vertical-align:top; }
+.sig-neg { color:var(--neon-red); }
+.scrub-badge { font-size:0.58rem; font-weight:700; letter-spacing:0.03em; padding:0.05rem 0.35rem;
+  border-radius:2px; background:rgba(var(--danger-rgb),0.14); color:var(--neon-red);
+  border:1px solid rgba(var(--danger-rgb),0.4); }
+.sig-del { background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:0.8rem; padding:0 0.25rem; line-height:1; }
+.sig-del:hover { color:var(--neon-red); }
+.kbadge { font-size:0.6rem; padding:0.05rem 0.35rem; border-radius:2px; background:rgba(var(--accent2-rgb),0.1); color:var(--neon-cyan); border:1px solid rgba(var(--accent2-rgb),0.25); }
+.conflict { background:rgba(var(--danger-rgb),0.06); border:1px solid rgba(var(--danger-rgb),0.3);
+  border-radius:4px; padding:0.5rem 0.75rem; margin-bottom:0.4rem; font-size:0.76rem; color:var(--text); }
+.audit-row { font-size:0.7rem; color:var(--text-dim); padding:0.2rem 0; font-family:var(--font-mono); }
+.audit-row .a-act { color:var(--neon-green); }
+.two-col { display:grid; gap:1.25rem; grid-template-columns:1.4fr 1fr; align-items:start; }
+@media (max-width:820px){ .two-col { grid-template-columns:1fr; } }
+.mini-form .form-group { margin-bottom:0.5rem; }
+.minor-banner { background:rgba(var(--danger-rgb),0.10); border:1px solid rgba(var(--danger-rgb),0.45);
+  border-left:4px solid var(--neon-red); border-radius:5px; padding:0.75rem 1rem; margin-bottom:1.25rem;
+  font-size:0.8rem; color:var(--text-bright); }
+.minor-banner b { color:var(--neon-red); }
+.ret-line { font-size:0.72rem; color:var(--text-dim); margin-top:0.25rem; }
+.ret-line .ret-x { color:var(--neon-red); font-weight:600; }
+</style>
+
+{% if case.sensitivity == 'minor' %}
+<div class="minor-banner">
+  <b>⚠ MINOR SUBJECT — extra-sensitive.</b> Handle per child-protection protocol:
+  minimize distribution, route findings to law enforcement, and purge on resolution.
+  This case defaults to a conservative retention horizon.
+</div>
+{% endif %}
+
+<div class="page-header">
+  <div class="page-title-block">
+    <div class="breadcrumb"><a href="{{ url_for('locate.list_cases') }}" class="bc-link">Locate</a>
+      <span class="bc-sep">›</span><span class="bc-current">{{ case.subject }}</span></div>
+    <h1 class="page-title">
+      <span class="target-sigil">⌖</span> {{ case.subject }}
+      {% if case.sensitivity == 'minor' %}<span class="minor-badge" style="font-size:0.62rem;">MINOR</span>{% endif %}
+    </h1>
+    {% if case.purpose %}<p class="page-subtitle">{{ case.purpose }}</p>{% endif %}
+    {% if footprint.retention.set %}
+    <p class="ret-line">
+      {% if footprint.retention.expired %}<span class="ret-x">⚑ Retention expired {{ footprint.retention.until }}</span> — purge recommended
+      {% else %}Retention until {{ footprint.retention.until }} ({{ footprint.retention.days_left }} days left){% endif %}
+    </p>
+    {% endif %}
+  </div>
+  <div class="header-actions">
+    <a class="btn btn-secondary" href="{{ url_for('locate.export', case_id=case.id, fmt='bundle') }}" title="Report + GeoJSON + KML + chain of custody, zipped">↓ Bundle</a>
+    <a class="btn btn-ghost" href="{{ url_for('locate.export', case_id=case.id, fmt='report') }}">↓ Report</a>
+    <a class="btn btn-ghost" href="{{ url_for('locate.export', case_id=case.id, fmt='geojson') }}">↓ GeoJSON</a>
+    <a class="btn btn-ghost" href="{{ url_for('locate.export', case_id=case.id, fmt='kml') }}">↓ KML</a>
+    <form action="{{ url_for('locate.delete_case', case_id=case.id) }}" method="POST" style="display:inline;"
+          onsubmit="return confirm('Purge this case and all its signals + audit trail? This cannot be undone.');">
+      <button type="submit" class="btn btn-danger">✕ Purge case</button>
+    </form>
+  </div>
+</div>
+
+<!-- Last-known -->
+{% set lk = footprint.last_known %}
+{% if lk %}
+<div class="lk-card">
+  <div>
+    <div class="lk-sub">LAST-KNOWN</div>
+    <div class="lk-place">{{ lk.label }}</div>
+    <div class="lk-sub">±{{ "%.0f"|format(lk.radius_km) }} km · {{ lk.corroboration }} corroborating signal(s){% if lk.as_of %} · as of {{ lk.as_of[:10] }}{% endif %}</div>
+  </div>
+  <div style="margin-left:auto; text-align:right;">
+    <div class="lk-place" style="font-size:1.6rem;">{{ "%.0f"|format((lk.confidence or 0)*100) }}%</div>
+    <div class="lk-sub">confidence</div>
+  </div>
+</div>
+{% else %}
+<div class="lc-map-off">Insufficient signal for a last-known estimate. Add a known signal below.</div>
+{% endif %}
+
+<!-- Map -->
+{% if mapcfg.enabled %}
+<div id="lc-map" class="lc-map"></div>
+<div id="lc-map-empty" class="lc-map-off" style="display:none;">No mappable coordinates yet (signals lack geocoded points).</div>
+<div id="lc-timeline" class="lc-timeline" style="display:none;">
+  <button id="tl-play" class="tl-play" title="Play footprint over time">▶</button>
+  <input id="tl-range" type="range" min="0" max="100" value="100" class="tl-range" aria-label="Timeline">
+  <span id="tl-label" class="tl-label"></span>
+</div>
+{% endif %}
+
+<!-- Conflicts -->
+{% if footprint.conflicts %}
+<div class="lc-sec">
+  <h3>⚠ Conflicts</h3>
+  {% for cf in footprint.conflicts %}
+  <div class="conflict">{{ cf.detail }}{% if cf.places %} — <b>{{ cf.places | join(' vs ') }}</b>{% endif %}</div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="two-col">
+  <div>
+    <!-- Prioritized search grid (Phase 2 deliverable) -->
+    {% if footprint.search_grid %}
+    <div class="lc-sec">
+      <h3>◎ Search grid — where to look next</h3>
+      {% for g in footprint.search_grid %}
+      <div class="grid-row" {% if g.lat is not none and g.lon is not none %}data-lat="{{ g.lat }}" data-lon="{{ g.lon }}" data-radius="{{ g.radius_km }}" data-key="{{ g.place_key }}" title="Show on map"{% endif %}>
+        <span class="grid-rank">{{ loop.index }}</span>
+        <span class="pol-badge pol-{{ g.pol }}">{{ g.pol }}</span>
+        <span class="area-label">{{ g.label }}</span>
+        <span class="lk-sub">{{ g.pol_reason }}</span>
+        <span class="grid-score" title="priority score">{{ "%.0f"|format(g.score*100) }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Ranked candidate areas -->
+    <div class="lc-sec">
+      <h3>Candidate areas — {{ footprint.counts.signals }} signals across {{ footprint.counts.clusters }} places</h3>
+      {% for c in footprint.clusters %}
+      <div class="area-row {% if c.eliminated %}elim{% endif %}{% if c.lat is not none and c.lon is not none %} locatable{% endif %}"
+           data-detail="detail-{{ loop.index }}"
+           {% if c.lat is not none and c.lon is not none %}data-lat="{{ c.lat }}" data-lon="{{ c.lon }}" data-radius="{{ c.radius_km }}" data-key="{{ c.place_key }}" title="Show on map + sources"{% endif %}>
+        <span class="area-caret">▸</span>
+        {% if c.pol %}<span class="pol-badge pol-{{ c.pol }}" title="{{ c.pol_reason }}">{{ c.pol }}</span>{% endif %}
+        <span class="area-label">{{ c.label }}{% if c.eliminated %} ✕{% endif %}</span>
+        <div class="conf-bar"><div class="conf-fill" style="width:{{ (c.combined_confidence or 0)*100 }}%"></div></div>
+        <span class="conf-num">{{ "%.0f"|format((c.combined_confidence or 0)*100) }}%</span>
+        <span class="lk-sub">{{ c.signal_count }} · {{ c.kinds | join(', ') }} · ±{{ "%.0f"|format(c.radius_km) }}km</span>
+        {% if c.lat is not none and c.lon is not none %}<span class="lk-sub" style="margin-left:auto;">⌖</span>{% endif %}
+      </div>
+      <div class="area-detail" id="detail-{{ loop.index }}" hidden>
+        <table>
+          {% for s in footprint.signals if s.id in c.signal_ids %}
+          <tr>
+            <td class="ad-kind">{{ s.kind }}{% if s.polarity == 'negative' %} <span class="sig-neg">NEG</span>{% endif %}</td>
+            <td>eff {{ "%.2f"|format(s.effective_confidence) }} <span class="lk-sub">({{ "%.2f"|format(s.kind_confidence) }}×{{ "%.2f"|format(s.attribution_confidence) }})</span></td>
+            <td class="ad-src">{% if s.source_url %}<a href="{{ s.source_url }}" target="_blank" rel="noopener">{{ s.source }} ↗</a>{% else %}{{ s.source }}{% endif %}</td>
+            <td>{{ s.observed_at[:10] if s.observed_at else 'undated' }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Sourced signals -->
+    <div class="lc-sec">
+      <h3>Signals (sourced)</h3>
+      <table class="sig-tbl">
+        <tr><th>Kind</th><th>Place</th><th>Eff (kind×attr)</th><th>Source</th><th>Observed</th><th></th></tr>
+        {% for s in footprint.signals %}
+        <tr>
+          <td><span class="kbadge">{{ s.kind }}</span>{% if s.polarity == 'negative' %} <span class="sig-neg">NEG</span>{% endif %}{% if s.entry == 'manual' %} ✎{% endif %}{% if s.scrubbed %} <span class="scrub-badge" title="Present in an archived snapshot but removed from the current profile">⚑ scrubbed</span>{% endif %}</td>
+          <td>{{ s.place.city or s.place.region or s.place.country or '—' }}{% if s.place.zip %} {{ s.place.zip }}{% endif %}</td>
+          <td>{{ "%.2f"|format(s.effective_confidence) }} <span class="lk-sub">({{ "%.2f"|format(s.kind_confidence) }}×{{ "%.2f"|format(s.attribution_confidence) }})</span></td>
+          <td>{% if s.source_url %}<a href="{{ s.source_url }}" target="_blank" rel="noopener" class="bc-link">{{ s.source }} ↗</a>{% else %}{{ s.source }}{% endif %}</td>
+          <td>{{ s.observed_at[:10] if s.observed_at else '—' }}</td>
+          <td style="text-align:right;">
+            <form action="{{ url_for('locate.delete_signal', case_id=case.id, signal_id=s.id) }}" method="POST" style="display:inline;"
+                  onsubmit="return confirm('Remove this signal from the case?');">
+              <input type="hidden" name="opened_by" value="{{ case.opened_by or 'operator' }}">
+              <button type="submit" class="sig-del" title="Remove signal">✕</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+
+  <div>
+    <!-- Add manual / negative signal -->
+    <div class="lc-sec">
+      <h3>Add a known signal</h3>
+      <form class="mini-form" action="{{ url_for('locate.add_signal', case_id=case.id) }}" method="POST">
+        <div class="form-group"><label class="form-label">KIND</label>
+          <select name="kind" class="input-field">
+            <option value="checkin">check-in (hard)</option>
+            <option value="stated_location">stated location</option>
+            <option value="address_record">address record</option>
+            <option value="news_mention">news mention</option>
+          </select></div>
+        <div class="form-group"><label class="form-label">CITY</label><input class="input-field" name="city"></div>
+        <div class="form-group"><label class="form-label">REGION / STATE</label><input class="input-field" name="region"></div>
+        <div class="form-group"><label class="form-label">COUNTRY</label><input class="input-field" name="country"></div>
+        <div class="form-group"><label class="form-label">OBSERVED (YYYY-MM-DD)</label><input class="input-field" name="observed_at" placeholder="optional"></div>
+        <div class="toggle-row">
+          <label class="toggle-label"><input type="checkbox" name="polarity" value="negative" class="toggle-check">
+            <span class="toggle-switch"></span><span class="toggle-text">NEGATIVE — confirmed NOT here (alibi)</span></label>
+        </div>
+        <input type="hidden" name="opened_by" value="{{ case.opened_by or 'operator' }}">
+        <button type="submit" class="btn btn-secondary" style="margin-top:0.5rem;">+ Add signal</button>
+      </form>
+    </div>
+
+    <!-- Extract EXIF GPS from an image URL -->
+    <div class="lc-sec">
+      <h3>Add location from photo (EXIF)</h3>
+      <form class="mini-form" action="{{ url_for('locate.add_image', case_id=case.id) }}" method="POST">
+        <div class="form-group">
+          <label class="form-label">IMAGE URL</label>
+          <input class="input-field" name="image_url" placeholder="https://…/original-photo.jpg" required>
+        </div>
+        <p class="lk-sub" style="margin:0 0 0.5rem;">Fetches the image and reads GPS EXIF if present.
+          Most social platforms strip EXIF on re-upload — use the original file.</p>
+        <input type="hidden" name="opened_by" value="{{ case.opened_by or 'operator' }}">
+        <button type="submit" class="btn btn-secondary">⌖ Extract EXIF location</button>
+      </form>
+    </div>
+
+    <!-- Chain of custody -->
+    <div class="lc-sec">
+      <h3>Chain of custody</h3>
+      {% for a in audit %}
+      <div class="audit-row">{{ a.at[:19] if a.at }} · <span class="a-act">{{ a.action }}</span>{% if a.source %} [{{ a.source }}]{% endif %}{% if a.detail %} — {{ a.detail }}{% endif %} · {{ a.actor or '—' }}</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if mapcfg.enabled %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+{% endif %}
+<script>
+const CLUSTERS = {{ footprint.clusters | tojson }};
+const SIGNALS = {{ footprint.signals | tojson }};
+const CONFLICTS = {{ footprint.conflicts | tojson }};
+const LAST = {{ footprint.last_known | tojson }};
+const MAP_CFG = {{ mapcfg | tojson }};
+
+(function initMap() {
+  if (!MAP_CFG.enabled || typeof L === "undefined") return;
+  const pts = CLUSTERS.filter(c => c.lat != null && c.lon != null);
+  const wireExpanders = () => {
+    // Card expand works even without map coordinates (drill into sources).
+    document.querySelectorAll(".area-row[data-detail]").forEach(row => {
+      row.addEventListener("click", () => toggleRow(row));
+    });
+  };
+  const toggleRow = (row) => {
+    const wasActive = row.classList.contains("active");
+    document.querySelectorAll(".area-row.active").forEach(r => r.classList.remove("active"));
+    document.querySelectorAll(".area-detail").forEach(d => d.hidden = true);
+    if (wasActive) return null;              // second click collapses
+    row.classList.add("active");
+    const detail = document.getElementById(row.dataset.detail);
+    if (detail) detail.hidden = false;
+    return row;
+  };
+
+  if (!pts.length) {
+    document.getElementById("lc-map").style.display = "none";
+    document.getElementById("lc-map-empty").style.display = "";
+    wireExpanders();
+    return;
+  }
+
+  const isLight = () => document.documentElement.getAttribute("data-theme") === "light";
+  const map = L.map("lc-map");
+  const tiles = L.tileLayer(isLight() ? MAP_CFG.tile_url : MAP_CFG.tile_url_dark,
+    { attribution: MAP_CFG.attribution, maxZoom: 19 }).addTo(map);
+  // Swap the basemap live when the site theme toggles (no reload).
+  new MutationObserver(() => tiles.setUrl(isLight() ? MAP_CFG.tile_url : MAP_CFG.tile_url_dark))
+    .observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+  const bounds = [];
+  const markers = {};                        // place_key -> {marker, circle, appears}
+  const parseT = (s) => { const t = s ? Date.parse(String(s).replace(" ", "T")) : NaN; return Number.isNaN(t) ? null : t; };
+
+  // Earliest observation per place — when its footprint "appears" on the timeline.
+  const earliest = {};
+  SIGNALS.forEach(s => {
+    if (s.polarity === "negative") return;
+    const t = parseT(s.observed_at);
+    const k = s.place_key;
+    if (t === null) { earliest[k] = -Infinity; }          // undated: always visible
+    else if (earliest[k] !== -Infinity) earliest[k] = Math.min(earliest[k] ?? Infinity, t);
+  });
+
+  pts.forEach(c => {
+    const conf = c.combined_confidence || 0;
+    const color = c.eliminated ? "#e26d6d" : (conf >= 0.6 ? "#4d9fd6" : "#e0a63a");
+    const circle = L.circle([c.lat, c.lon], { radius: (c.radius_km || 25) * 1000,
+      color: color, fillColor: color, fillOpacity: 0.07, weight: 1, dashArray: "4 4" }).addTo(map);
+    const m = L.circleMarker([c.lat, c.lon], {
+      radius: 6 + conf * 10, color: color, fillColor: color, fillOpacity: 0.5, weight: 2,
+    }).addTo(map).bindPopup(
+      `<b>${c.label}</b><br>${c.pol ? c.pol + " · " : ""}confidence ${(conf*100).toFixed(0)}%<br>` +
+      `${c.signal_count} signal(s) · ±${(c.radius_km||0).toFixed(0)} km<br>${(c.sources||[]).join(", ")}`
+    );
+    markers[c.place_key] = { marker: m, circle: circle, appears: earliest[c.place_key] ?? -Infinity };
+    // Fit to the point here (circle.getBounds() would throw before the map has
+    // a view); the uncertainty circle is included via padding/maxZoom below.
+    bounds.push([c.lat, c.lon]);
+  });
+  if (LAST && LAST.lat != null && LAST.lon != null) {
+    L.circle([LAST.lat, LAST.lon], { radius: (LAST.radius_km || 5) * 1000,
+      color: "#4d9fd6", fillColor: "#4d9fd6", fillOpacity: 0.08, weight: 1 }).addTo(map);
+  }
+
+  // Movement track: chronological line between timed, located positive fixes;
+  // travel-infeasible segments (from the conflict engine) drawn red.
+  const infeasible = new Set();
+  (CONFLICTS || []).forEach(cf => {
+    if (cf.type === "travel_infeasible" && cf.signals) infeasible.add(cf.signals.slice().sort().join("|"));
+  });
+  const track = SIGNALS
+    .filter(s => s.polarity !== "negative" && s.lat != null && s.lon != null && parseT(s.observed_at) !== null)
+    .map(s => ({ id: s.id, lat: s.lat, lon: s.lon, t: parseT(s.observed_at) }))
+    .sort((a, b) => a.t - b.t);
+  const trackLayer = L.layerGroup().addTo(map);
+  const drawTrack = (upto) => {
+    trackLayer.clearLayers();
+    const pts2 = track.filter(p => p.t <= upto);
+    for (let i = 1; i < pts2.length; i++) {
+      const a = pts2[i - 1], b = pts2[i];
+      const bad = infeasible.has([a.id, b.id].sort().join("|"));
+      L.polyline([[a.lat, a.lon], [b.lat, b.lon]], {
+        color: bad ? "#e26d6d" : "#7aa7c7", weight: bad ? 3 : 2,
+        opacity: 0.8, dashArray: bad ? null : "6 5",
+      }).addTo(trackLayer);
+    }
+  };
+
+  // Timeline scrub: reveal places (and the track) cumulatively up to time T.
+  const render = (upto) => {
+    Object.values(markers).forEach(e => {
+      const show = e.appears <= upto;
+      if (show && !map.hasLayer(e.marker)) { e.marker.addTo(map); e.circle.addTo(map); }
+      else if (!show && map.hasLayer(e.marker)) { map.removeLayer(e.marker); map.removeLayer(e.circle); }
+    });
+    drawTrack(upto);
+  };
+
+  const dated = track.map(p => p.t);
+  const tmin = dated.length ? Math.min(...dated) : 0;
+  const tmax = dated.length ? Math.max(...dated) : 0;
+  const tl = document.getElementById("lc-timeline");
+  const range = document.getElementById("tl-range");
+  const label = document.getElementById("tl-label");
+  const fmt = (t) => new Date(t).toISOString().slice(0, 10);
+
+  render(Infinity);                            // start with the full footprint
+  map.fitBounds(bounds, { padding: [40, 40], maxZoom: 12 });
+
+  if (dated.length >= 2 && tmax > tmin) {
+    tl.style.display = "flex";
+    range.min = tmin; range.max = tmax; range.value = tmax; range.step = 86400000;
+    label.textContent = "through " + fmt(tmax);
+    const apply = () => { const v = +range.value; render(v); label.textContent = "through " + fmt(v); };
+    range.addEventListener("input", apply);
+    let timer = null;
+    document.getElementById("tl-play").addEventListener("click", (e) => {
+      if (timer) { clearInterval(timer); timer = null; e.target.textContent = "▶"; return; }
+      e.target.textContent = "❚❚";
+      if (+range.value >= tmax) range.value = tmin;
+      timer = setInterval(() => {
+        range.value = Math.min(tmax, +range.value + (tmax - tmin) / 40);
+        apply();
+        if (+range.value >= tmax) { clearInterval(timer); timer = null; e.target.textContent = "▶"; }
+      }, 120);
+    });
+  }
+
+  // Fly-to for both candidate cards (with source expand) and search-grid rows.
+  const flyTo = (key) => {
+    const entry = markers[key];
+    if (!entry) return;
+    if (!map.hasLayer(entry.marker)) { entry.marker.addTo(map); entry.circle.addTo(map); }
+    map.flyToBounds(entry.circle.getBounds(), { padding: [50, 50], maxZoom: 14, duration: 0.6 });
+    entry.marker.openPopup();
+  };
+  document.querySelectorAll(".area-row[data-detail]").forEach(row => {
+    row.addEventListener("click", () => { if (toggleRow(row)) flyTo(row.dataset.key); });
+  });
+  document.querySelectorAll(".grid-row[data-key]").forEach(row => {
+    row.addEventListener("click", () => flyTo(row.dataset.key));
+  });
+})();
+</script>
+{% endblock %}

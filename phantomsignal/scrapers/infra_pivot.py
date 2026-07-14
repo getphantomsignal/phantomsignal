@@ -38,6 +38,8 @@ from urllib.parse import urljoin
 
 import httpx
 
+from phantomsignal.core.http import stealth_client
+
 logger = logging.getLogger("phantomsignal.scrapers.infra_pivot")
 
 _LINK_ICON = re.compile(
@@ -177,9 +179,8 @@ class InfraPivot:
     async def _favicon_hash(self, host: str) -> Optional[int]:
         base = f"https://{host}"
         try:
-            async with httpx.AsyncClient(
-                timeout=10, follow_redirects=True,
-                headers={"User-Agent": "PhantomSignal-OSINT/1.0"},
+            async with stealth_client(
+                self.config, timeout=10, follow_redirects=True,
             ) as client:
                 page = await client.get(base)
                 r = await client.get(find_favicon_url(page.text, base))

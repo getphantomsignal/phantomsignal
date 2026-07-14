@@ -13,7 +13,7 @@ import re
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
 
-import httpx
+from phantomsignal.core.http import stealth_client
 
 logger = logging.getLogger("phantomsignal.tech_detector")
 
@@ -272,15 +272,12 @@ class TechDetector:
         results = []
 
         try:
-            async with httpx.AsyncClient(
+            async with stealth_client(
+                self.config,
                 follow_redirects=True,
                 timeout=20,
-                verify=False,
             ) as client:
-                response = await client.get(
-                    url,
-                    headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"},
-                )
+                response = await client.get(url)
 
                 headers_lower = {k.lower(): v for k, v in response.headers.items()}
                 cookies_str = "; ".join(f"{k}={v}" for k, v in response.cookies.items())

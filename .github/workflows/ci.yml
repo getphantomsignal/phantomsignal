@@ -59,4 +59,4 @@ jobs:
         run: pip install flake8 -q
 
       - name: Flake8
-        run: flake8 phantomsignal/ --max-line-length=120 --ignore=E501,W503,E203
+        run: flake8 phantomsignal/ --max-line-length=120 --extend-ignore=E501,W503,E203

@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% block title %}Geo Recon{% endblock %}
+
+{% block content %}
+<style>
+.gr-notice { font-size:0.72rem; color:var(--text-muted); background:var(--surface-2);
+  border:1px solid var(--border); border-left:3px solid var(--neon-orange);
+  border-radius:4px; padding:0.6rem 0.8rem; margin-bottom:1.25rem; }
+.gr-form { background:var(--card-bg); border:1px solid var(--border); border-radius:5px; padding:1rem 1.1rem; margin-bottom:1.5rem; }
+.gr-grid { display:grid; gap:0.75rem; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); }
+.gr-tiles { display:grid; gap:0.75rem; grid-template-columns:repeat(auto-fit, minmax(130px,1fr)); margin-bottom:1.25rem; }
+.gr-tile { background:var(--card-bg); border:1px solid var(--border); border-radius:5px; padding:0.7rem 0.9rem; }
+.gr-tile .n { font-size:1.5rem; font-weight:700; color:var(--neon-cyan); font-family:var(--font-mono); }
+.gr-tile.warn .n { color:var(--neon-red); }
+.gr-tile .l { font-size:0.66rem; letter-spacing:0.05em; color:var(--text-dim); text-transform:uppercase; }
+.gr-map { height:340px; border:1px solid var(--border); border-radius:5px; margin-bottom:1.25rem; }
+.gr-map-off { padding:1.25rem; text-align:center; color:var(--text-muted); font-size:0.8rem;
+  background:var(--surface-2); border:1px dashed var(--border); border-radius:5px; margin-bottom:1.25rem; }
+.asset-tbl { width:100%; border-collapse:collapse; font-size:0.74rem; }
+.asset-tbl th { text-align:left; color:var(--text-dim); font-weight:500; padding:0.3rem 0.5rem; border-bottom:1px solid var(--border); font-size:0.66rem; letter-spacing:0.05em; }
+.asset-tbl td { padding:0.35rem 0.5rem; border-bottom:1px solid rgba(var(--ink-dim-rgb),0.08); color:var(--text); vertical-align:top; }
+.vuln-chip { font-size:0.6rem; color:var(--neon-red); border:1px solid rgba(var(--danger-rgb),0.4); border-radius:2px; padding:0.02rem 0.3rem; }
+.mono { font-family:var(--font-mono); }
+.chips span { display:inline-block; font-size:0.66rem; color:var(--text-dim); background:var(--surface-2);
+  border:1px solid var(--border); border-radius:2px; padding:0.05rem 0.4rem; margin:0 0.25rem 0.25rem 0; }
+</style>
+
+<div class="page-header">
+  <div class="page-title-block">
+    <h1 class="page-title glitch-text" data-text="Geo Recon">Geo Recon</h1>
+    <p class="page-subtitle">Geocode a place → internet-facing assets in that area (Shodan)</p>
+  </div>
+</div>
+
+<div class="gr-notice">
+  <b>Infrastructure recon — not people.</b> Scope every run to a target/org you are
+  authorized to assess. This answers <i>location → what assets</i>; the inverse
+  (<i>who is there</i>) is out of scope by design.
+</div>
+
+<div class="gr-form">
+  <form method="POST">
+    <div class="form-group" style="margin-bottom:0.75rem;"><label class="form-label">SOURCE</label>
+      <select name="mode" class="input-field" onchange="grMode(this.value)">
+        <option value="free" {% if form.mode != 'shodan' %}selected{% endif %}>Free / passive — no key (domain or ASN scope)</option>
+        <option value="shodan" {% if form.mode == 'shodan' %}selected{% endif %}>Shodan — paid index (city / lat,lon)</option>
+      </select></div>
+
+    <div class="gr-grid">
+      <div class="form-group" data-mode="free"><label class="form-label">DOMAIN</label>
+        <input class="input-field" name="domain" value="{{ form.domain or '' }}" placeholder="example.com"></div>
+      <div class="form-group" data-mode="free"><label class="form-label">ASN</label>
+        <input class="input-field" name="asn" value="{{ form.asn or '' }}" placeholder="AS13335"></div>
+      <div class="form-group"><label class="form-label"><span data-mode="free">CITY (filter)</span><span data-mode="shodan" style="display:none;">CITY</span></label>
+        <input class="input-field" name="city" value="{{ form.city or '' }}" placeholder="Denver"></div>
+      <div class="form-group"><label class="form-label">COUNTRY</label>
+        <input class="input-field" name="country" value="{{ form.country or '' }}" placeholder="US"></div>
+      <div class="form-group" data-mode="shodan"><label class="form-label">LAT,LON</label>
+        <input class="input-field" name="coords" value="{{ form.coords or '' }}" placeholder="39.7392,-104.9903"></div>
+      <div class="form-group" data-mode="shodan"><label class="form-label">RADIUS (km)</label>
+        <input class="input-field" name="radius_km" value="{{ form.radius_km or '' }}" placeholder="25"></div>
+      <div class="form-group" data-mode="shodan"><label class="form-label">ORG SCOPE</label>
+        <input class="input-field" name="org" value="{{ form.org or '' }}" placeholder="Acme Corp"></div>
+    </div>
+
+    <p class="lk-sub" id="gr-hint" style="font-size:0.7rem; margin:0.5rem 0 0;">
+      Free mode: give a <b>domain</b> or <b>ASN</b> (e.g. AS13335); it resolves IPs, enriches each via
+      Shodan InternetDB + geoIP (no key), and optionally filters to a city/country.</p>
+    <button type="submit" class="btn btn-primary" style="margin-top:0.8rem;">◎ Run geo recon</button>
+  </form>
+</div>
+<script>
+function grMode(m){
+  document.querySelectorAll('[data-mode="free"]').forEach(e => e.style.display = m==="shodan" ? "none":"");
+  document.querySelectorAll('[data-mode="shodan"]').forEach(e => e.style.display = m==="shodan" ? "":"none");
+  document.getElementById("gr-hint").style.display = m==="shodan" ? "none":"block";
+}
+grMode("{{ form.mode or 'free' }}");
+</script>
+
+{% if result is not none %}
+  {% if result.error %}
+  <div class="gr-notice" style="border-left-color:var(--neon-red);">
+    <b>Geo Recon couldn't run.</b><br>{{ result.error }}
+  </div>
+  {% elif not result.configured %}
+  <div class="gr-notice" style="border-left-color:var(--neon-red);">
+    Shodan is not configured — add a Shodan API key under <b>Integrations</b> to run Geo Recon.
+  </div>
+  {% elif not result.query %}
+  <div class="gr-map-off">Provide at least a city, country, or lat,lon to scope the search.</div>
+  {% else %}
+  <p class="lk-sub" style="font-size:0.72rem; color:var(--text-dim); margin-bottom:0.75rem;">
+    {% if result.mode == 'free' %}
+    Scope: <code class="mono">{{ result.query }}</code> · {{ result.summary.hosts }} host(s) enriched via
+    Shodan InternetDB + geoIP (free, passive).
+    {% else %}
+    Query: <code class="mono">{{ result.query }}</code> · Shodan reports
+    <b>{{ "{:,}".format(result.total) }}</b> total matching hosts (showing top {{ result.assets|length }}).
+    {% endif %}</p>
+
+  <div class="gr-tiles">
+    <div class="gr-tile"><div class="n">{{ result.summary.hosts }}</div><div class="l">Hosts</div></div>
+    <div class="gr-tile"><div class="n">{{ result.summary.assets }}</div><div class="l">Services</div></div>
+    <div class="gr-tile {% if result.summary.vuln_hosts %}warn{% endif %}"><div class="n">{{ result.summary.vuln_hosts }}</div><div class="l">Vulnerable hosts</div></div>
+    <div class="gr-tile"><div class="n">{{ result.summary.orgs|length }}</div><div class="l">Orgs</div></div>
+  </div>
+
+  {% if mapcfg.enabled %}<div id="gr-map" class="gr-map"></div>
+  <div id="gr-map-empty" class="gr-map-off" style="display:none;">No mappable asset coordinates.</div>{% endif %}
+
+  {% if result.summary.ports %}
+  <div class="chips" style="margin-bottom:1rem;">
+    <span style="background:none;border:none;color:var(--text-dim);">Top ports:</span>
+    {% for port, n in result.summary.ports %}<span>{{ port }} ×{{ n }}</span>{% endfor %}
+  </div>
+  {% endif %}
+
+  <table class="asset-tbl">
+    <tr><th>IP</th><th>Port</th><th>Product</th><th>Org</th><th>City</th><th>Vulns</th></tr>
+    {% for a in result.assets %}
+    <tr>
+      <td class="mono">{{ a.ip }}{% if a.hostnames %}<br><span class="lk-sub">{{ a.hostnames[0] }}</span>{% endif %}</td>
+      <td class="mono">{{ a.port }}/{{ a.transport }}</td>
+      <td>{{ a.product }}{% if a.version %} {{ a.version }}{% endif %}</td>
+      <td>{{ a.org or '—' }}</td>
+      <td>{{ a.city or a.country or '—' }}</td>
+      <td>{% for v in a.vulns %}<span class="vuln-chip">{{ v }}</span> {% endfor %}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="lk-sub">No assets returned for this scope.</td></tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if mapcfg.enabled and result is not none and result.assets %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const ASSETS = {{ result.assets | tojson }};
+const CENTER = {{ result.center | tojson }};
+const MAP_CFG = {{ mapcfg | tojson }};
+(function () {
+  if (!MAP_CFG.enabled || typeof L === "undefined") return;
+  const pts = ASSETS.filter(a => a.lat != null && a.lon != null);
+  if (!pts.length && !CENTER) {
+    document.getElementById("gr-map").style.display = "none";
+    document.getElementById("gr-map-empty").style.display = "";
+    return;
+  }
+  const isLight = () => document.documentElement.getAttribute("data-theme") === "light";
+  const map = L.map("gr-map");
+  const tiles = L.tileLayer(isLight() ? MAP_CFG.tile_url : MAP_CFG.tile_url_dark,
+    { attribution: MAP_CFG.attribution, maxZoom: 19 }).addTo(map);
+  new MutationObserver(() => tiles.setUrl(isLight() ? MAP_CFG.tile_url : MAP_CFG.tile_url_dark))
+    .observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  const bounds = [];
+  pts.forEach(a => {
+    const vuln = (a.vulns || []).length > 0;
+    const color = vuln ? "#e26d6d" : "#4d9fd6";
+    L.circleMarker([a.lat, a.lon], { radius: 5, color, fillColor: color, fillOpacity: 0.5, weight: 1.5 })
+      .addTo(map)
+      .bindPopup(`<b>${a.ip}:${a.port}</b><br>${a.product || ""} ${a.version || ""}<br>${a.org || ""}` +
+                 (vuln ? `<br><b style="color:#e26d6d">${a.vulns.join(", ")}</b>` : ""));
+    bounds.push([a.lat, a.lon]);
+  });
+  if (CENTER) bounds.push(CENTER);
+  if (bounds.length) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 12 });
+})();
+</script>
+{% endif %}
+{% endblock %}

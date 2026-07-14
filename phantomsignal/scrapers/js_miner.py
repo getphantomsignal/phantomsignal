@@ -29,6 +29,8 @@ from urllib.parse import urljoin, urlparse
 
 import httpx
 
+from phantomsignal.core.http import stealth_client
+
 logger = logging.getLogger("phantomsignal.scrapers.js_miner")
 
 # Bound the crawl so a script-heavy page can't blow up the scan.
@@ -173,9 +175,8 @@ class JSMiner:
         host = urlparse(base).netloc
         logger.info("JS mining %s", base)
 
-        async with httpx.AsyncClient(
-            timeout=12, follow_redirects=True,
-            headers={"User-Agent": "PhantomSignal-OSINT/1.0"},
+        async with stealth_client(
+            self.config, timeout=12, follow_redirects=True,
         ) as client:
             html = await self._fetch(client, base)
             if not html:

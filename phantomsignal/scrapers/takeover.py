@@ -21,7 +21,7 @@ import asyncio
 import logging
 from typing import Dict, List, Optional
 
-import httpx
+from phantomsignal.core.http import stealth_client
 
 try:
     import dns.resolver
@@ -215,9 +215,8 @@ class TakeoverDetector:
     async def _fetch_body(self, host: str) -> str:
         for scheme in ("https", "http"):
             try:
-                async with httpx.AsyncClient(
-                    timeout=8, follow_redirects=True,
-                    headers={"User-Agent": "PhantomSignal-OSINT/1.0"},
+                async with stealth_client(
+                    self.config, timeout=8, follow_redirects=True,
                 ) as client:
                     resp = await client.get(f"{scheme}://{host}")
                     return resp.text or ""
