@@ -10,7 +10,7 @@ from __future__ import annotations
 from typing import Dict, List, Optional
 
 from phantomsignal.core.models import AuditEvent, LocateCase, LocateSignal
-from phantomsignal.intel.geo import aggregate
+from phantomsignal.intel.geo import aggregate, patterns
 from phantomsignal.intel.geo.places import canonical_key
 from phantomsignal.intel.geo.signals import GeoSignal
 
@@ -100,6 +100,9 @@ def footprint_for_case(db, case_id: str, *, subject: str = "subject") -> Dict:
     clusters = aggregate.cluster(signals)
     lk = aggregate.last_known(clusters, signals)
     conf = aggregate.conflicts(clusters, signals)
+    signal_dicts = [s.to_dict() for s in signals]
+    patterns.classify_places(clusters, signal_dicts)
+    grid = patterns.search_grid(clusters, signal_dicts)
 
     case = db.query(LocateCase).filter(LocateCase.id == case_id).first()
     if case is not None:
@@ -109,10 +112,11 @@ def footprint_for_case(db, case_id: str, *, subject: str = "subject") -> Dict:
 
     return {
         "subject": subject,
-        "signals": [s.to_dict() for s in signals],
+        "signals": signal_dicts,
         "clusters": clusters,
         "last_known": lk,
         "conflicts": conf,
+        "search_grid": grid,
         "counts": {
             "signals": len(signals), "clusters": len(clusters),
             "hard": sum(1 for s in signals if s.tier == "hard"),

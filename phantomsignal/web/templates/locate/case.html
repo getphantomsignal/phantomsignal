@@ -27,6 +27,28 @@
 .area-detail td { padding:0.2rem 0.4rem; color:var(--text-dim); vertical-align:top; }
 .area-detail .ad-kind { color:var(--neon-cyan); }
 .area-detail .ad-src a { color:var(--text-dim); }
+/* Pattern-of-life badges */
+.pol-badge { font-size:0.58rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase;
+  padding:0.1rem 0.4rem; border-radius:2px; border:1px solid transparent; }
+.pol-home { background:rgba(var(--accent2-rgb),0.14); color:var(--neon-cyan); border-color:rgba(var(--accent2-rgb),0.35); }
+.pol-work { background:rgba(var(--warning-rgb,224,166,58),0.14); color:var(--warning); border-color:rgba(var(--warning-rgb,224,166,58),0.35); }
+.pol-frequented { background:rgba(var(--success-rgb,77,214,140),0.12); color:var(--success); }
+.pol-seen { background:var(--surface-2); color:var(--text-muted); }
+/* Prioritized search grid */
+.grid-row { display:flex; align-items:center; gap:0.6rem; padding:0.45rem 0.7rem; margin-bottom:0.35rem;
+  background:var(--card-bg); border:1px solid var(--border); border-left:3px solid var(--neon-cyan);
+  border-radius:4px; cursor:pointer; transition:border-color 0.15s; }
+.grid-row:hover { border-color:var(--neon-cyan); }
+.grid-rank { font-family:var(--font-mono); font-weight:700; color:var(--neon-cyan); width:1.2rem; text-align:center; }
+.grid-score { font-family:var(--font-mono); font-size:0.74rem; color:var(--text-bright); margin-left:auto; }
+/* Timeline scrubber */
+.lc-timeline { display:flex; align-items:center; gap:0.8rem; padding:0.5rem 0.8rem; margin-bottom:1.25rem;
+  background:var(--card-bg); border:1px solid var(--border); border-radius:5px; }
+.tl-play { background:var(--surface-2); border:1px solid var(--border); color:var(--neon-cyan); cursor:pointer;
+  border-radius:3px; width:1.8rem; height:1.8rem; font-size:0.7rem; flex-shrink:0; }
+.tl-play:hover { border-color:var(--neon-cyan); }
+.tl-range { flex:1; accent-color:var(--neon-cyan); }
+.tl-label { font-family:var(--font-mono); font-size:0.72rem; color:var(--text-dim); min-width:6.5rem; text-align:right; }
 .area-label { font-weight:600; color:var(--text-bright); min-width:180px; }
 .conf-bar { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; max-width:220px; }
 .conf-fill { height:100%; background:linear-gradient(90deg, var(--warning), var(--success)); }
@@ -90,6 +112,11 @@
 {% if mapcfg.enabled %}
 <div id="lc-map" class="lc-map"></div>
 <div id="lc-map-empty" class="lc-map-off" style="display:none;">No mappable coordinates yet (signals lack geocoded points).</div>
+<div id="lc-timeline" class="lc-timeline" style="display:none;">
+  <button id="tl-play" class="tl-play" title="Play footprint over time">▶</button>
+  <input id="tl-range" type="range" min="0" max="100" value="100" class="tl-range" aria-label="Timeline">
+  <span id="tl-label" class="tl-label"></span>
+</div>
 {% endif %}
 
 <!-- Conflicts -->
@@ -104,6 +131,22 @@
 
 <div class="two-col">
   <div>
+    <!-- Prioritized search grid (Phase 2 deliverable) -->
+    {% if footprint.search_grid %}
+    <div class="lc-sec">
+      <h3>◎ Search grid — where to look next</h3>
+      {% for g in footprint.search_grid %}
+      <div class="grid-row" {% if g.lat is not none and g.lon is not none %}data-lat="{{ g.lat }}" data-lon="{{ g.lon }}" data-radius="{{ g.radius_km }}" data-key="{{ g.place_key }}" title="Show on map"{% endif %}>
+        <span class="grid-rank">{{ loop.index }}</span>
+        <span class="pol-badge pol-{{ g.pol }}">{{ g.pol }}</span>
+        <span class="area-label">{{ g.label }}</span>
+        <span class="lk-sub">{{ g.pol_reason }}</span>
+        <span class="grid-score" title="priority score">{{ "%.0f"|format(g.score*100) }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
     <!-- Ranked candidate areas -->
     <div class="lc-sec">
       <h3>Candidate areas — {{ footprint.counts.signals }} signals across {{ footprint.counts.clusters }} places</h3>
@@ -112,6 +155,7 @@
            data-detail="detail-{{ loop.index }}"
            {% if c.lat is not none and c.lon is not none %}data-lat="{{ c.lat }}" data-lon="{{ c.lon }}" data-radius="{{ c.radius_km }}" data-key="{{ c.place_key }}" title="Show on map + sources"{% endif %}>
         <span class="area-caret">▸</span>
+        {% if c.pol %}<span class="pol-badge pol-{{ c.pol }}" title="{{ c.pol_reason }}">{{ c.pol }}</span>{% endif %}
         <span class="area-label">{{ c.label }}{% if c.eliminated %} ✕{% endif %}</span>
         <div class="conf-bar"><div class="conf-fill" style="width:{{ (c.combined_confidence or 0)*100 }}%"></div></div>
         <span class="conf-num">{{ "%.0f"|format((c.combined_confidence or 0)*100) }}%</span>
@@ -201,6 +245,8 @@
 {% endif %}
 <script>
 const CLUSTERS = {{ footprint.clusters | tojson }};
+const SIGNALS = {{ footprint.signals | tojson }};
+const CONFLICTS = {{ footprint.conflicts | tojson }};
 const LAST = {{ footprint.last_known | tojson }};
 const MAP_CFG = {{ mapcfg | tojson }};
 
@@ -240,39 +286,116 @@ const MAP_CFG = {{ mapcfg | tojson }};
     .observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
   const bounds = [];
-  const markers = {};                        // place_key -> {marker, circle}
+  const markers = {};                        // place_key -> {marker, circle, appears}
+  const parseT = (s) => { const t = s ? Date.parse(String(s).replace(" ", "T")) : NaN; return Number.isNaN(t) ? null : t; };
+
+  // Earliest observation per place — when its footprint "appears" on the timeline.
+  const earliest = {};
+  SIGNALS.forEach(s => {
+    if (s.polarity === "negative") return;
+    const t = parseT(s.observed_at);
+    const k = s.place_key;
+    if (t === null) { earliest[k] = -Infinity; }          // undated: always visible
+    else if (earliest[k] !== -Infinity) earliest[k] = Math.min(earliest[k] ?? Infinity, t);
+  });
+
   pts.forEach(c => {
     const conf = c.combined_confidence || 0;
     const color = c.eliminated ? "#e26d6d" : (conf >= 0.6 ? "#4d9fd6" : "#e0a63a");
-    // Uncertainty circle — the honest area, sized to the cluster's radius.
     const circle = L.circle([c.lat, c.lon], { radius: (c.radius_km || 25) * 1000,
       color: color, fillColor: color, fillOpacity: 0.07, weight: 1, dashArray: "4 4" }).addTo(map);
     const m = L.circleMarker([c.lat, c.lon], {
       radius: 6 + conf * 10, color: color, fillColor: color, fillOpacity: 0.5, weight: 2,
     }).addTo(map).bindPopup(
-      `<b>${c.label}</b><br>confidence ${(conf*100).toFixed(0)}%<br>` +
+      `<b>${c.label}</b><br>${c.pol ? c.pol + " · " : ""}confidence ${(conf*100).toFixed(0)}%<br>` +
       `${c.signal_count} signal(s) · ±${(c.radius_km||0).toFixed(0)} km<br>${(c.sources||[]).join(", ")}`
     );
-    markers[c.place_key] = { marker: m, circle: circle };
+    markers[c.place_key] = { marker: m, circle: circle, appears: earliest[c.place_key] ?? -Infinity };
     bounds.push([c.lat, c.lon]);
-    circle.getBounds().isValid() && bounds.push(circle.getBounds());
+    if (circle.getBounds().isValid()) bounds.push(circle.getBounds());
   });
   if (LAST && LAST.lat != null && LAST.lon != null) {
     L.circle([LAST.lat, LAST.lon], { radius: (LAST.radius_km || 5) * 1000,
       color: "#4d9fd6", fillColor: "#4d9fd6", fillOpacity: 0.08, weight: 1 }).addTo(map);
   }
+
+  // Movement track: chronological line between timed, located positive fixes;
+  // travel-infeasible segments (from the conflict engine) drawn red.
+  const infeasible = new Set();
+  (CONFLICTS || []).forEach(cf => {
+    if (cf.type === "travel_infeasible" && cf.signals) infeasible.add(cf.signals.slice().sort().join("|"));
+  });
+  const track = SIGNALS
+    .filter(s => s.polarity !== "negative" && s.lat != null && s.lon != null && parseT(s.observed_at) !== null)
+    .map(s => ({ id: s.id, lat: s.lat, lon: s.lon, t: parseT(s.observed_at) }))
+    .sort((a, b) => a.t - b.t);
+  const trackLayer = L.layerGroup().addTo(map);
+  const drawTrack = (upto) => {
+    trackLayer.clearLayers();
+    const pts2 = track.filter(p => p.t <= upto);
+    for (let i = 1; i < pts2.length; i++) {
+      const a = pts2[i - 1], b = pts2[i];
+      const bad = infeasible.has([a.id, b.id].sort().join("|"));
+      L.polyline([[a.lat, a.lon], [b.lat, b.lon]], {
+        color: bad ? "#e26d6d" : "#7aa7c7", weight: bad ? 3 : 2,
+        opacity: 0.8, dashArray: bad ? null : "6 5",
+      }).addTo(trackLayer);
+    }
+  };
+
+  // Timeline scrub: reveal places (and the track) cumulatively up to time T.
+  const render = (upto) => {
+    Object.values(markers).forEach(e => {
+      const show = e.appears <= upto;
+      if (show && !map.hasLayer(e.marker)) { e.marker.addTo(map); e.circle.addTo(map); }
+      else if (!show && map.hasLayer(e.marker)) { map.removeLayer(e.marker); map.removeLayer(e.circle); }
+    });
+    drawTrack(upto);
+  };
+
+  const dated = track.map(p => p.t);
+  const tmin = dated.length ? Math.min(...dated) : 0;
+  const tmax = dated.length ? Math.max(...dated) : 0;
+  const tl = document.getElementById("lc-timeline");
+  const range = document.getElementById("tl-range");
+  const label = document.getElementById("tl-label");
+  const fmt = (t) => new Date(t).toISOString().slice(0, 10);
+
+  render(Infinity);                            // start with the full footprint
   map.fitBounds(bounds, { padding: [40, 40], maxZoom: 12 });
 
-  // Clicking a candidate area: expand its sources, fit the map to its
-  // uncertainty radius, and open the marker popup.
-  document.querySelectorAll(".area-row[data-detail]").forEach(row => {
-    row.addEventListener("click", () => {
-      const activated = toggleRow(row);
-      const entry = activated && markers[row.dataset.key];
-      if (!entry) return;                    // collapsed, or no coordinates
-      map.flyToBounds(entry.circle.getBounds(), { padding: [50, 50], maxZoom: 14, duration: 0.6 });
-      entry.marker.openPopup();
+  if (dated.length >= 2 && tmax > tmin) {
+    tl.style.display = "flex";
+    range.min = tmin; range.max = tmax; range.value = tmax; range.step = 86400000;
+    label.textContent = "through " + fmt(tmax);
+    const apply = () => { const v = +range.value; render(v); label.textContent = "through " + fmt(v); };
+    range.addEventListener("input", apply);
+    let timer = null;
+    document.getElementById("tl-play").addEventListener("click", (e) => {
+      if (timer) { clearInterval(timer); timer = null; e.target.textContent = "▶"; return; }
+      e.target.textContent = "❚❚";
+      if (+range.value >= tmax) range.value = tmin;
+      timer = setInterval(() => {
+        range.value = Math.min(tmax, +range.value + (tmax - tmin) / 40);
+        apply();
+        if (+range.value >= tmax) { clearInterval(timer); timer = null; e.target.textContent = "▶"; }
+      }, 120);
     });
+  }
+
+  // Fly-to for both candidate cards (with source expand) and search-grid rows.
+  const flyTo = (key) => {
+    const entry = markers[key];
+    if (!entry) return;
+    if (!map.hasLayer(entry.marker)) { entry.marker.addTo(map); entry.circle.addTo(map); }
+    map.flyToBounds(entry.circle.getBounds(), { padding: [50, 50], maxZoom: 14, duration: 0.6 });
+    entry.marker.openPopup();
+  };
+  document.querySelectorAll(".area-row[data-detail]").forEach(row => {
+    row.addEventListener("click", () => { if (toggleRow(row)) flyTo(row.dataset.key); });
+  });
+  document.querySelectorAll(".grid-row[data-key]").forEach(row => {
+    row.addEventListener("click", () => flyTo(row.dataset.key));
   });
 })();
 </script>

@@ -12,7 +12,7 @@ import asyncio
 import logging
 from typing import Dict, List, Optional
 
-from phantomsignal.intel.geo import aggregate, places
+from phantomsignal.intel.geo import aggregate, patterns, places
 from phantomsignal.intel.geo.extract import extract_signals
 from phantomsignal.intel.geo.signals import GeoSignal, round_to_confidence
 
@@ -57,6 +57,9 @@ class GeoEngine:
         clusters = aggregate.cluster(signals)
         lk = aggregate.last_known(clusters, signals)
         conf = aggregate.conflicts(clusters, signals)
+        signal_dicts = [s.to_dict() for s in signals]
+        patterns.classify_places(clusters, signal_dicts)
+        grid = patterns.search_grid(clusters, signal_dicts)
 
         subject = " ".join(filter(None, [
             (profile.get("search_params") or {}).get("first_name"),
@@ -65,10 +68,11 @@ class GeoEngine:
 
         return {
             "subject": subject,
-            "signals": [s.to_dict() for s in signals],
+            "signals": signal_dicts,
             "clusters": clusters,
             "last_known": lk,
             "conflicts": conf,
+            "search_grid": grid,
             "counts": {
                 "signals": len(signals),
                 "clusters": len(clusters),

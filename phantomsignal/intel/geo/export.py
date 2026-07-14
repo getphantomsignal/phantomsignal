@@ -64,6 +64,15 @@ def to_report(footprint: Dict) -> str:
         lines.append("**Last-known:** insufficient signal.")
     lines.append("")
 
+    grid = footprint.get("search_grid", [])
+    if grid:
+        lines.append("## Prioritized search grid (where to look next)")
+        for i, g in enumerate(grid, 1):
+            lines.append(f"{i}. **{g['label']}** — {g['pol']} "
+                         f"(score {g['score']:.2f}, confidence {g['confidence']:.2f}"
+                         f"{', ±%.0f km' % g['radius_km'] if g.get('radius_km') else ''}) — {g['why']}")
+        lines.append("")
+
     conflicts = footprint.get("conflicts", [])
     if conflicts:
         lines.append("## ⚠ Conflicts")
