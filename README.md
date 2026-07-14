@@ -296,6 +296,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. Please also review our [C
 ## 📖 Documentation
 
 - **[Usage Guide](docs/USAGE.md)** — full walkthroughs, usage scenarios, CLI reference, and per-platform troubleshooting (Linux / macOS / Windows / Docker)
+- **[Locate Guide](docs/LOCATE.md)** — person geographic-footprint investigations: cases, signal capture (incl. EXIF from a photo URL), confidence model, pattern-of-life, handoff export, and chain of custody
 
 ---
 

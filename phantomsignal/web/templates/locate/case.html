@@ -230,6 +230,21 @@
       </form>
     </div>
 
+    <!-- Extract EXIF GPS from an image URL -->
+    <div class="lc-sec">
+      <h3>Add location from photo (EXIF)</h3>
+      <form class="mini-form" action="{{ url_for('locate.add_image', case_id=case.id) }}" method="POST">
+        <div class="form-group">
+          <label class="form-label">IMAGE URL</label>
+          <input class="input-field" name="image_url" placeholder="https://…/original-photo.jpg" required>
+        </div>
+        <p class="lk-sub" style="margin:0 0 0.5rem;">Fetches the image and reads GPS EXIF if present.
+          Most social platforms strip EXIF on re-upload — use the original file.</p>
+        <input type="hidden" name="opened_by" value="{{ case.opened_by or 'operator' }}">
+        <button type="submit" class="btn btn-secondary">⌖ Extract EXIF location</button>
+      </form>
+    </div>
+
     <!-- Chain of custody -->
     <div class="lc-sec">
       <h3>Chain of custody</h3>

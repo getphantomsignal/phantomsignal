@@ -9,7 +9,7 @@ from flask import (
 
 from phantomsignal.core.config import config
 from phantomsignal.core.database import get_db
-from phantomsignal.intel.geo import store
+from phantomsignal.intel.geo import exif, store
 from phantomsignal.intel.geo.engine import GeoEngine
 from phantomsignal.intel.geo.export import to_geojson, to_kml, to_report
 
@@ -108,6 +108,40 @@ def add_signal(case_id):
                                 source="manual", actor=actor,
                                 observed_at=(request.form.get("observed_at") or None))
     flash("Signal added.", "success")
+    return redirect(url_for("locate.case_view", case_id=case_id))
+
+
+@locate_bp.route("/<case_id>/image", methods=["POST"])
+def add_image(case_id):
+    """Operator supplies an image URL; fetch it and, if it carries GPS EXIF,
+    add the location as a hard fix. High attribution — the operator asserts the
+    image belongs to the subject."""
+    url = (request.form.get("image_url") or "").strip()
+    actor = (request.form.get("opened_by") or "operator").strip()
+    if not url.startswith("http"):
+        flash("A valid http(s) image URL is required.", "error")
+        return redirect(url_for("locate.case_view", case_id=case_id))
+
+    profile = {"confidence": 0.9, "search_params": {}, "images": [url]}
+    loop = asyncio.new_event_loop()
+    try:
+        signals = loop.run_until_complete(exif.mine_image_exif(config, profile))
+    except Exception:
+        signals = []
+    finally:
+        loop.close()
+
+    if not signals:
+        flash("No GPS EXIF found in that image (most social platforms strip it; "
+              "try the original file).", "warning")
+        return redirect(url_for("locate.case_view", case_id=case_id))
+
+    for s in signals:
+        s.entry = "manual"
+    with get_db() as db:
+        n = store.persist_signals(db, case_id, signals, actor=actor, source_label="manual-image")
+    flash(f"Extracted {n} EXIF location(s) from the image." if n
+          else "That EXIF location is already on the case.", "success" if n else "warning")
     return redirect(url_for("locate.case_view", case_id=case_id))
 
 
