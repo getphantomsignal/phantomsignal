@@ -17,11 +17,14 @@ locate_bp = Blueprint("locate", __name__)
 
 
 def _map_cfg():
+    light = config.get("geo", "tile_url",
+                       default="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png")
     return {
         "enabled": bool(config.get("geo", "map_tiles", default=True)),
-        "tile_url": config.get("geo", "tile_url",
-                               default="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"),
-        "attribution": config.get("geo", "tile_attribution", default="© OpenStreetMap contributors"),
+        "tile_url": light,
+        "tile_url_dark": config.get("geo", "tile_url_dark", default=light),
+        "attribution": config.get("geo", "tile_attribution",
+                                  default="© OpenStreetMap contributors © CARTO"),
     }
 
 

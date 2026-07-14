@@ -37,6 +37,19 @@ def _recency_weight(observed_at: Optional[str], now: datetime) -> float:
     return 0.5 ** (age_days / _HALF_LIFE_DAYS)
 
 
+def _radius_km(kinds: List[str], signal_count: int, confidence: float) -> float:
+    """Uncertainty radius for a place: tight for a corroborated hard fix, wide
+    for a lone or coarse signal (spec §13 — radius circles carry the honesty)."""
+    hard = any(k in ("exif_gps", "geotag", "checkin", "bssid") for k in kinds)
+    if hard and signal_count > 1:
+        return 2.0
+    if hard:
+        return 10.0
+    if confidence >= 0.6:
+        return 25.0
+    return 75.0
+
+
 def cluster(signals: List[GeoSignal]) -> List[Dict]:
     """Group by canonical place; combine confidence within each positive cluster."""
     for s in signals:
@@ -57,6 +70,7 @@ def cluster(signals: List[GeoSignal]) -> List[Dict]:
         # Distinct independent sources strengthen corroboration signal quality.
         sources = sorted({m.source for m in positives})
         place = next((m.place for m in members if any(m.place.values())), members[0].place)
+        kinds = sorted({m.kind for m in positives})
         clusters.append({
             "place_key": key,
             "place": place,
@@ -65,11 +79,12 @@ def cluster(signals: List[GeoSignal]) -> List[Dict]:
             "lon": next((m.lon for m in positives if m.lon is not None), None),
             "combined_confidence": combined,
             "signal_count": len(positives),
+            "radius_km": _radius_km(kinds, len(positives), combined),
             "eliminated": bool(negatives) and not positives,
             "negated_by": [n.id for n in negatives],
             "sources": sources,
             "signal_ids": [m.id for m in members],
-            "kinds": sorted({m.kind for m in positives}),
+            "kinds": kinds,
         })
     clusters.sort(key=lambda c: c["combined_confidence"], reverse=True)
     return clusters
@@ -90,16 +105,8 @@ def last_known(clusters: List[Dict], signals: List[GeoSignal]) -> Optional[Dict]
             best, best_score = c, score
     if not best:
         return None
-    # Radius: tight when we have a corroborated hard fix, wide for lone/coarse.
-    hard = any(k in ("exif_gps", "geotag", "checkin", "bssid") for k in best["kinds"])
-    if hard and best["signal_count"] > 1:
-        radius = 2.0
-    elif hard:
-        radius = 10.0
-    elif best["combined_confidence"] >= 0.6:
-        radius = 25.0
-    else:
-        radius = 75.0
+    radius = best.get("radius_km") or _radius_km(
+        best["kinds"], best["signal_count"], best["combined_confidence"])
     as_of = max((by_id[i].observed_at for i in best["signal_ids"]
                  if i in by_id and by_id[i].observed_at), default=None)
     return {

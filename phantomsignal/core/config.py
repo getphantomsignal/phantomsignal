@@ -116,10 +116,12 @@ class PhantomSignalConfig:
                 "jitter_range": [0.5, 3.0],
             },
             "geo": {
-                # Locate map: Leaflet + OSM tiles (external) behind this toggle.
+                # Locate map: Leaflet + CARTO basemaps (external) behind this
+                # toggle. Light/dark tilesets swap with the site theme.
                 "map_tiles": True,
-                "tile_url": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                "tile_attribution": "© OpenStreetMap contributors",
+                "tile_url": "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                "tile_url_dark": "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+                "tile_attribution": "© OpenStreetMap contributors © CARTO",
             },
             "neural_profiler": {
                 "enabled": False,

@@ -16,6 +16,17 @@
 .area-row { display:flex; align-items:center; gap:0.75rem; padding:0.45rem 0.7rem; margin-bottom:0.35rem;
   background:var(--card-bg); border:1px solid var(--border); border-radius:4px; }
 .area-row.elim { opacity:0.6; border-color:rgba(var(--danger-rgb),0.35); }
+.area-row.locatable { cursor:pointer; transition:border-color 0.15s, box-shadow 0.15s; }
+.area-row.locatable:hover { border-color:var(--neon-cyan); }
+.area-row.active { border-color:var(--neon-cyan); box-shadow:0 0 0 1px var(--neon-cyan) inset; }
+.area-caret { color:var(--text-muted); font-size:0.7rem; transition:transform 0.15s; display:inline-block; }
+.area-row.active .area-caret { transform:rotate(90deg); color:var(--neon-cyan); }
+.area-detail { margin:-0.2rem 0 0.5rem 0.4rem; padding:0.4rem 0.7rem; border-left:2px solid var(--border-light);
+  background:var(--surface-2); border-radius:0 4px 4px 0; }
+.area-detail table { width:100%; border-collapse:collapse; font-size:0.7rem; }
+.area-detail td { padding:0.2rem 0.4rem; color:var(--text-dim); vertical-align:top; }
+.area-detail .ad-kind { color:var(--neon-cyan); }
+.area-detail .ad-src a { color:var(--text-dim); }
 .area-label { font-weight:600; color:var(--text-bright); min-width:180px; }
 .conf-bar { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; max-width:220px; }
 .conf-fill { height:100%; background:linear-gradient(90deg, var(--warning), var(--success)); }
@@ -97,11 +108,27 @@
     <div class="lc-sec">
       <h3>Candidate areas — {{ footprint.counts.signals }} signals across {{ footprint.counts.clusters }} places</h3>
       {% for c in footprint.clusters %}
-      <div class="area-row {% if c.eliminated %}elim{% endif %}">
+      <div class="area-row {% if c.eliminated %}elim{% endif %}{% if c.lat is not none and c.lon is not none %} locatable{% endif %}"
+           data-detail="detail-{{ loop.index }}"
+           {% if c.lat is not none and c.lon is not none %}data-lat="{{ c.lat }}" data-lon="{{ c.lon }}" data-radius="{{ c.radius_km }}" data-key="{{ c.place_key }}" title="Show on map + sources"{% endif %}>
+        <span class="area-caret">▸</span>
         <span class="area-label">{{ c.label }}{% if c.eliminated %} ✕{% endif %}</span>
         <div class="conf-bar"><div class="conf-fill" style="width:{{ (c.combined_confidence or 0)*100 }}%"></div></div>
         <span class="conf-num">{{ "%.0f"|format((c.combined_confidence or 0)*100) }}%</span>
-        <span class="lk-sub">{{ c.signal_count }} · {{ c.kinds | join(', ') }}</span>
+        <span class="lk-sub">{{ c.signal_count }} · {{ c.kinds | join(', ') }} · ±{{ "%.0f"|format(c.radius_km) }}km</span>
+        {% if c.lat is not none and c.lon is not none %}<span class="lk-sub" style="margin-left:auto;">⌖</span>{% endif %}
+      </div>
+      <div class="area-detail" id="detail-{{ loop.index }}" hidden>
+        <table>
+          {% for s in footprint.signals if s.id in c.signal_ids %}
+          <tr>
+            <td class="ad-kind">{{ s.kind }}{% if s.polarity == 'negative' %} <span class="sig-neg">NEG</span>{% endif %}</td>
+            <td>eff {{ "%.2f"|format(s.effective_confidence) }} <span class="lk-sub">({{ "%.2f"|format(s.kind_confidence) }}×{{ "%.2f"|format(s.attribution_confidence) }})</span></td>
+            <td class="ad-src">{% if s.source_url %}<a href="{{ s.source_url }}" target="_blank" rel="noopener">{{ s.source }} ↗</a>{% else %}{{ s.source }}{% endif %}</td>
+            <td>{{ s.observed_at[:10] if s.observed_at else 'undated' }}</td>
+          </tr>
+          {% endfor %}
+        </table>
       </div>
       {% endfor %}
     </div>
@@ -180,29 +207,73 @@ const MAP_CFG = {{ mapcfg | tojson }};
 (function initMap() {
   if (!MAP_CFG.enabled || typeof L === "undefined") return;
   const pts = CLUSTERS.filter(c => c.lat != null && c.lon != null);
+  const wireExpanders = () => {
+    // Card expand works even without map coordinates (drill into sources).
+    document.querySelectorAll(".area-row[data-detail]").forEach(row => {
+      row.addEventListener("click", () => toggleRow(row));
+    });
+  };
+  const toggleRow = (row) => {
+    const wasActive = row.classList.contains("active");
+    document.querySelectorAll(".area-row.active").forEach(r => r.classList.remove("active"));
+    document.querySelectorAll(".area-detail").forEach(d => d.hidden = true);
+    if (wasActive) return null;              // second click collapses
+    row.classList.add("active");
+    const detail = document.getElementById(row.dataset.detail);
+    if (detail) detail.hidden = false;
+    return row;
+  };
+
   if (!pts.length) {
     document.getElementById("lc-map").style.display = "none";
     document.getElementById("lc-map-empty").style.display = "";
+    wireExpanders();
     return;
   }
+
+  const isLight = () => document.documentElement.getAttribute("data-theme") === "light";
   const map = L.map("lc-map");
-  L.tileLayer(MAP_CFG.tile_url, { attribution: MAP_CFG.attribution, maxZoom: 18 }).addTo(map);
+  const tiles = L.tileLayer(isLight() ? MAP_CFG.tile_url : MAP_CFG.tile_url_dark,
+    { attribution: MAP_CFG.attribution, maxZoom: 19 }).addTo(map);
+  // Swap the basemap live when the site theme toggles (no reload).
+  new MutationObserver(() => tiles.setUrl(isLight() ? MAP_CFG.tile_url : MAP_CFG.tile_url_dark))
+    .observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
   const bounds = [];
+  const markers = {};                        // place_key -> {marker, circle}
   pts.forEach(c => {
     const conf = c.combined_confidence || 0;
     const color = c.eliminated ? "#e26d6d" : (conf >= 0.6 ? "#4d9fd6" : "#e0a63a");
-    L.circleMarker([c.lat, c.lon], {
+    // Uncertainty circle — the honest area, sized to the cluster's radius.
+    const circle = L.circle([c.lat, c.lon], { radius: (c.radius_km || 25) * 1000,
+      color: color, fillColor: color, fillOpacity: 0.07, weight: 1, dashArray: "4 4" }).addTo(map);
+    const m = L.circleMarker([c.lat, c.lon], {
       radius: 6 + conf * 10, color: color, fillColor: color, fillOpacity: 0.5, weight: 2,
     }).addTo(map).bindPopup(
-      `<b>${c.label}</b><br>confidence ${(conf*100).toFixed(0)}%<br>${c.signal_count} signal(s)<br>${(c.sources||[]).join(", ")}`
+      `<b>${c.label}</b><br>confidence ${(conf*100).toFixed(0)}%<br>` +
+      `${c.signal_count} signal(s) · ±${(c.radius_km||0).toFixed(0)} km<br>${(c.sources||[]).join(", ")}`
     );
+    markers[c.place_key] = { marker: m, circle: circle };
     bounds.push([c.lat, c.lon]);
+    circle.getBounds().isValid() && bounds.push(circle.getBounds());
   });
   if (LAST && LAST.lat != null && LAST.lon != null) {
     L.circle([LAST.lat, LAST.lon], { radius: (LAST.radius_km || 5) * 1000,
       color: "#4d9fd6", fillColor: "#4d9fd6", fillOpacity: 0.08, weight: 1 }).addTo(map);
   }
   map.fitBounds(bounds, { padding: [40, 40], maxZoom: 12 });
+
+  // Clicking a candidate area: expand its sources, fit the map to its
+  // uncertainty radius, and open the marker popup.
+  document.querySelectorAll(".area-row[data-detail]").forEach(row => {
+    row.addEventListener("click", () => {
+      const activated = toggleRow(row);
+      const entry = activated && markers[row.dataset.key];
+      if (!entry) return;                    // collapsed, or no coordinates
+      map.flyToBounds(entry.circle.getBounds(), { padding: [50, 50], maxZoom: 14, duration: 0.6 });
+      entry.marker.openPopup();
+    });
+  });
 })();
 </script>
 {% endblock %}
