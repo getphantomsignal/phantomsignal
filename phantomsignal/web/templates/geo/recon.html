@@ -40,23 +40,43 @@
 
 <div class="gr-form">
   <form method="POST">
+    <div class="form-group" style="margin-bottom:0.75rem;"><label class="form-label">SOURCE</label>
+      <select name="mode" class="input-field" onchange="grMode(this.value)">
+        <option value="free" {% if form.mode != 'shodan' %}selected{% endif %}>Free / passive — no key (domain or ASN scope)</option>
+        <option value="shodan" {% if form.mode == 'shodan' %}selected{% endif %}>Shodan — paid index (city / lat,lon)</option>
+      </select></div>
+
     <div class="gr-grid">
-      <div class="form-group"><label class="form-label">COUNTRY (ISO)</label>
-        <input class="input-field" name="country" value="{{ form.country or '' }}" placeholder="US"></div>
-      <div class="form-group"><label class="form-label">CITY</label>
-        <input class="input-field" name="city" value="{{ form.city or '' }}" placeholder="Denver"></div>
-      <div class="form-group"><label class="form-label">LAT,LON</label>
-        <input class="input-field" name="coords" value="{{ form.coords or '' }}" placeholder="39.7392,-104.9903"></div>
-      <div class="form-group"><label class="form-label">RADIUS (km)</label>
-        <input class="input-field" name="radius_km" value="{{ form.radius_km or '' }}" placeholder="25"></div>
-      <div class="form-group"><label class="form-label">ORG SCOPE</label>
-        <input class="input-field" name="org" value="{{ form.org or '' }}" placeholder="Acme Corp"></div>
-      <div class="form-group"><label class="form-label">DOMAIN SCOPE</label>
+      <div class="form-group" data-mode="free"><label class="form-label">DOMAIN</label>
         <input class="input-field" name="domain" value="{{ form.domain or '' }}" placeholder="example.com"></div>
+      <div class="form-group" data-mode="free"><label class="form-label">ASN</label>
+        <input class="input-field" name="asn" value="{{ form.asn or '' }}" placeholder="AS13335"></div>
+      <div class="form-group"><label class="form-label"><span data-mode="free">CITY (filter)</span><span data-mode="shodan" style="display:none;">CITY</span></label>
+        <input class="input-field" name="city" value="{{ form.city or '' }}" placeholder="Denver"></div>
+      <div class="form-group"><label class="form-label">COUNTRY</label>
+        <input class="input-field" name="country" value="{{ form.country or '' }}" placeholder="US"></div>
+      <div class="form-group" data-mode="shodan"><label class="form-label">LAT,LON</label>
+        <input class="input-field" name="coords" value="{{ form.coords or '' }}" placeholder="39.7392,-104.9903"></div>
+      <div class="form-group" data-mode="shodan"><label class="form-label">RADIUS (km)</label>
+        <input class="input-field" name="radius_km" value="{{ form.radius_km or '' }}" placeholder="25"></div>
+      <div class="form-group" data-mode="shodan"><label class="form-label">ORG SCOPE</label>
+        <input class="input-field" name="org" value="{{ form.org or '' }}" placeholder="Acme Corp"></div>
     </div>
+
+    <p class="lk-sub" id="gr-hint" style="font-size:0.7rem; margin:0.5rem 0 0;">
+      Free mode: give a <b>domain</b> or <b>ASN</b> (e.g. AS13335); it resolves IPs, enriches each via
+      Shodan InternetDB + geoIP (no key), and optionally filters to a city/country.</p>
     <button type="submit" class="btn btn-primary" style="margin-top:0.8rem;">◎ Run geo recon</button>
   </form>
 </div>
+<script>
+function grMode(m){
+  document.querySelectorAll('[data-mode="free"]').forEach(e => e.style.display = m==="shodan" ? "none":"");
+  document.querySelectorAll('[data-mode="shodan"]').forEach(e => e.style.display = m==="shodan" ? "":"none");
+  document.getElementById("gr-hint").style.display = m==="shodan" ? "none":"block";
+}
+grMode("{{ form.mode or 'free' }}");
+</script>
 
 {% if result is not none %}
   {% if result.error %}
@@ -71,8 +91,13 @@
   <div class="gr-map-off">Provide at least a city, country, or lat,lon to scope the search.</div>
   {% else %}
   <p class="lk-sub" style="font-size:0.72rem; color:var(--text-dim); margin-bottom:0.75rem;">
+    {% if result.mode == 'free' %}
+    Scope: <code class="mono">{{ result.query }}</code> · {{ result.summary.hosts }} host(s) enriched via
+    Shodan InternetDB + geoIP (free, passive).
+    {% else %}
     Query: <code class="mono">{{ result.query }}</code> · Shodan reports
-    <b>{{ "{:,}".format(result.total) }}</b> total matching hosts (showing top {{ result.assets|length }}).</p>
+    <b>{{ "{:,}".format(result.total) }}</b> total matching hosts (showing top {{ result.assets|length }}).
+    {% endif %}</p>
 
   <div class="gr-tiles">
     <div class="gr-tile"><div class="n">{{ result.summary.hosts }}</div><div class="l">Hosts</div></div>

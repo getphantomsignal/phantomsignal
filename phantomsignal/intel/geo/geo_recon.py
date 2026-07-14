@@ -12,11 +12,12 @@ geocoding + the Shodan call.
 """
 from __future__ import annotations
 
+import asyncio
 import logging
 import re
 from typing import Dict, List, Optional, Tuple
 
-from phantomsignal.intel.geo import places
+from phantomsignal.intel.geo import passive, places
 
 logger = logging.getLogger("phantomsignal.geo.recon")
 
@@ -95,6 +96,55 @@ def summarize(assets: List[Dict]) -> Dict:
 class GeoReconEngine:
     def __init__(self, config):
         self.config = config
+
+    async def recon_passive(self, *, domain=None, asn=None, city=None, country=None) -> Dict:
+        """Free / no-key path: resolve a domain or ASN to IPs, enrich each via
+        Shodan InternetDB (free) + reverse geoIP, optionally filter to a place.
+        Needs a scope (domain or ASN) rather than a blank map."""
+        scope = f"AS{asn}" if asn else (domain or "")
+        place = f" in {city or ''} {country or ''}".rstrip() if (city or country) else ""
+        center = None
+        if city:
+            try:
+                center = await places.geocode(self.config, {"city": city, "country": country})
+            except Exception:
+                center = None
+
+        try:
+            from phantomsignal.core.http import stealth_client
+            async with stealth_client(self.config, timeout=15, verify=True) as client:
+                if asn is not None:
+                    ips = passive.sample_ips_from_prefixes(await passive.asn_prefixes(client, asn))
+                elif domain:
+                    ips = await passive.resolve_domain_ips(domain)
+                else:
+                    return {"query": None, "center": center, "configured": True, "mode": "free",
+                            "total": 0, "assets": [], "summary": summarize([])}
+                ips = ips[:passive._MAX_IPS]
+                geo = await passive.geoip_batch(client, ips) if ips else {}
+                if city or country:
+                    ips = [ip for ip in ips if passive.place_matches(geo.get(ip), city, country)]
+
+                sem = asyncio.Semaphore(12)
+
+                async def _one(ip):
+                    async with sem:
+                        return ip, await passive.internetdb(client, ip)
+
+                results = await asyncio.gather(*[_one(ip) for ip in ips]) if ips else []
+        except Exception as e:  # pragma: no cover
+            logger.debug("passive recon failed: %s", e)
+            return {"query": scope, "center": center, "configured": True, "mode": "free",
+                    "total": 0, "assets": [], "summary": summarize([]), "error": str(e)}
+
+        assets = []
+        for ip, idb in results:
+            if idb:
+                assets.extend(passive.assets_from(ip, idb, geo.get(ip)))
+        assets = dedupe(assets)
+        return {"query": (scope + place) or None, "center": center, "configured": True,
+                "mode": "free", "total": len(assets), "assets": assets,
+                "summary": summarize(assets)}
 
     async def recon(self, *, country=None, city=None, lat=None, lon=None,
                     radius_km=None, org=None, domain=None) -> Dict:

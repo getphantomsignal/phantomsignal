@@ -258,9 +258,16 @@ including negatives) so re-runs don't re-hit it.
 ## Related: Geo Recon (place → assets)
 
 Locate's sibling, **Geo Recon** (nav → *Geo Recon*, `/geo`), answers the
-*infrastructure* question: given a place (country, city, or `lat,lon` + radius,
-optionally scoped to an org/domain), it geocodes and queries **Shodan** for
-internet-facing assets in that area — hosts, ports, products, and known
-vulnerabilities — on the same map. It needs a Shodan API key (set under
-**Integrations**). This is asset recon, not people: *location → what assets*, and
-it too must be scoped to a target you're authorized to assess.
+*infrastructure* question: *location → what assets*. Two sources:
+
+- **Free / passive (no key)** — give a **domain** or **ASN** (e.g. `AS13335`),
+  optionally filtered to a city/country. It resolves IPs (domain A-records or the
+  ASN's announced prefixes), enriches each via **Shodan InternetDB** (free,
+  keyless, passive) for ports/CPEs/vulns/hostnames, and reverse-geoIPs them onto
+  the map. Needs a scope (domain/ASN) rather than a blank map — no account
+  required.
+- **Shodan (paid index)** — a full `city:` / `geo:` search over Shodan's index.
+  Requires a Shodan key **with search access** (a paid plan / query credits); the
+  free "oss" tier can't run geo search.
+
+Asset recon, not people — scope every run to a target you're authorized to assess.
