@@ -375,3 +375,14 @@ class GeoCache(Base):
     lon = Column(Float, nullable=True)
     hit = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class GeoReverseCache(Base):
+    """Persistent reverse-geocode cache (coord → place). ``hit=False`` negatives
+    stop re-hitting Nominatim for a point with no resolvable place."""
+    __tablename__ = "geo_reverse_cache"
+
+    key = Column(String(64), primary_key=True)   # "@rev:<lat>,<lon>"
+    place = Column(JSON, nullable=True)          # {city, region, country}
+    hit = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)

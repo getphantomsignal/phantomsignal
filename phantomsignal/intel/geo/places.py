@@ -57,11 +57,10 @@ def _norm_country(c) -> str:
 
 
 def canonical_key(place: Optional[Dict], lat: Optional[float], lon: Optional[float]) -> str:
-    """Stable clustering key. Coordinates (rounded to ~city grid) take priority;
-    otherwise city + normalised region, so the same place written different ways
-    (CO / Colorado, with or without country) collapses to one cluster (§12)."""
-    if lat is not None and lon is not None:
-        return f"@{round(lat, 1)},{round(lon, 1)}"
+    """Stable clustering key. A named place wins so the same place written
+    different ways (CO / Colorado, with/without country) — and a coordinate that
+    reverse-geocodes to it — all collapse to one cluster (§12). Coordinates key
+    only when there is no usable place name."""
     place = place or {}
     city, region = _norm(place.get("city")), _norm_region(place.get("region"))
     country = _norm_country(place.get("country"))
@@ -71,6 +70,8 @@ def canonical_key(place: Optional[Dict], lat: Optional[float], lon: Optional[flo
         return f"{city}|{country}"
     if city:
         return city
+    if lat is not None and lon is not None:
+        return f"@{round(lat, 1)},{round(lon, 1)}"   # unnamed point → ~city grid
     tail = "|".join(p for p in (region, country) if p)
     if tail:
         return tail
@@ -152,3 +153,70 @@ async def geocode(config, place: Dict) -> Optional[Tuple[float, float]]:
     _GEO_CACHE[query] = coords
     _db_cache_put(query, coords)
     return coords
+
+
+# ── Reverse geocode (coord → place), so EXIF/geotag hard fixes get a real
+# place label and cluster with named locations instead of being coord islands.
+_REV_CACHE: Dict[str, Optional[Dict]] = {}
+
+
+def _rev_db_get(key: str):
+    try:
+        from phantomsignal.core.database import get_db
+        from phantomsignal.core.models import GeoReverseCache
+        with get_db() as db:
+            row = db.query(GeoReverseCache).filter(GeoReverseCache.key == key).first()
+            if row is not None:
+                return (row.place if row.hit else None), True
+    except Exception:
+        pass
+    return None, False
+
+
+def _rev_db_put(key: str, place: Optional[Dict]) -> None:
+    try:
+        from phantomsignal.core.database import get_db
+        from phantomsignal.core.models import GeoReverseCache
+        with get_db() as db:
+            if db.query(GeoReverseCache).filter(GeoReverseCache.key == key).first():
+                return
+            db.add(GeoReverseCache(key=key, place=place, hit=place is not None))
+    except Exception:
+        pass
+
+
+async def reverse_geocode(config, lat: Optional[float], lon: Optional[float]) -> Optional[Dict]:
+    """Best-effort reverse geocode → {city, region, country}. Cached (memory +
+    DB, incl. negatives); routed through the stealth client; None on any problem."""
+    if lat is None or lon is None:
+        return None
+    key = f"@rev:{round(float(lat), 4)},{round(float(lon), 4)}"
+    if key in _REV_CACHE:
+        return _REV_CACHE[key]
+    cached, found = _rev_db_get(key)
+    if found:
+        _REV_CACHE[key] = cached
+        return cached
+
+    place: Optional[Dict] = None
+    try:
+        from phantomsignal.core.http import stealth_client
+        async with stealth_client(config, timeout=8, verify=True) as c:
+            r = await c.get(
+                "https://nominatim.openstreetmap.org/reverse",
+                params={"lat": lat, "lon": lon, "format": "json", "zoom": 10},
+            )
+            addr = (r.json() or {}).get("address", {})
+            if addr:
+                place = {
+                    "city": addr.get("city") or addr.get("town") or addr.get("village") or addr.get("county"),
+                    "region": addr.get("state"),
+                    "country": (addr.get("country_code") or "").upper() or addr.get("country"),
+                }
+                if not any(place.values()):
+                    place = None
+    except Exception:
+        place = None
+    _REV_CACHE[key] = place
+    _rev_db_put(key, place)
+    return place

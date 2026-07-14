@@ -12,7 +12,7 @@ import asyncio
 import logging
 from typing import Dict, List, Optional
 
-from phantomsignal.intel.geo import aggregate, archive, patterns, places
+from phantomsignal.intel.geo import aggregate, archive, exif, patterns, places
 from phantomsignal.intel.geo.extract import extract_signals
 from phantomsignal.intel.geo.signals import GeoSignal, round_to_confidence
 
@@ -41,14 +41,20 @@ class GeoEngine:
                 s.lon = round_to_confidence(s.kind, res[1])
 
     async def signals_for(self, profile: Dict, *, geocode: bool = True,
-                          archived: bool = True) -> List[GeoSignal]:
+                          archived: bool = True, exif_gps: bool = True) -> List[GeoSignal]:
         """Extract (and optionally geocode-fill) signals from a profile — the
         collection step, split out so the store can persist them. ``archived``
-        adds best-effort Wayback scrubbed-location mining (network)."""
+        adds Wayback scrubbed-location mining; ``exif_gps`` fetches the subject's
+        images for GPS EXIF. Both are best-effort (network)."""
         signals = extract_signals(profile)
         if archived:
             try:
                 signals.extend(await archive.mine_archived_locations(self.config, profile))
+            except Exception:
+                pass
+        if exif_gps:
+            try:
+                signals.extend(await exif.mine_image_exif(self.config, profile))
             except Exception:
                 pass
         if geocode:
