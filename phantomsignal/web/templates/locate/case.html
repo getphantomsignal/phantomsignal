@@ -311,8 +311,9 @@ const MAP_CFG = {{ mapcfg | tojson }};
       `${c.signal_count} signal(s) · ±${(c.radius_km||0).toFixed(0)} km<br>${(c.sources||[]).join(", ")}`
     );
     markers[c.place_key] = { marker: m, circle: circle, appears: earliest[c.place_key] ?? -Infinity };
+    // Fit to the point here (circle.getBounds() would throw before the map has
+    // a view); the uncertainty circle is included via padding/maxZoom below.
     bounds.push([c.lat, c.lon]);
-    if (circle.getBounds().isValid()) bounds.push(circle.getBounds());
   });
   if (LAST && LAST.lat != null && LAST.lon != null) {
     L.circle([LAST.lat, LAST.lon], { radius: (LAST.radius_km || 5) * 1000,
