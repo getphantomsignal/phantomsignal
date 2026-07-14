@@ -41,6 +41,9 @@
       <a href="{{ url_for('locate.list_cases') }}" class="nav-link {% if 'locate' in (request.endpoint or '') %}active{% endif %}">
         <span class="nav-icon">⌖</span> Locate
       </a>
+      <a href="{{ url_for('geo.recon') }}" class="nav-link {% if 'geo' in (request.endpoint or '') %}active{% endif %}">
+        <span class="nav-icon">◎</span> Geo Recon
+      </a>
       <a href="{{ url_for('identity.identity_page') }}" class="nav-link {% if 'identity' in (request.endpoint or '') %}active{% endif %}">
         <span class="nav-icon">⊙</span> Identity
       </a>

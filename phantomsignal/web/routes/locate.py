@@ -11,7 +11,7 @@ from phantomsignal.core.config import config
 from phantomsignal.core.database import get_db
 from phantomsignal.intel.geo import exif, retention, store
 from phantomsignal.intel.geo.engine import GeoEngine
-from phantomsignal.intel.geo.export import to_geojson, to_kml, to_report
+from phantomsignal.intel.geo.export import bundle_zip, to_geojson, to_kml, to_report
 
 locate_bp = Blueprint("locate", __name__)
 
@@ -192,6 +192,15 @@ _EXPORTS = {
 
 @locate_bp.route("/<case_id>/export/<fmt>")
 def export(case_id, fmt):
+    if fmt == "bundle":
+        with get_db() as db:
+            footprint = store.footprint_for_case(db, case_id)
+            audit_log = store.list_audit(db, case_id)
+            store.audit(db, case_id, "operator", "exported", source="bundle", detail="case-bundle.zip")
+        body = bundle_zip(footprint, audit_log)
+        return Response(body, mimetype="application/zip",
+                        headers={"Content-Disposition":
+                                 f"attachment; filename={case_id[:8]}-case-bundle.zip"})
     if fmt not in _EXPORTS:
         flash("Unknown export format.", "error")
         return redirect(url_for("locate.case_view", case_id=case_id))

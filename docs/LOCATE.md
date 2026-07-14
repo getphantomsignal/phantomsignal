@@ -186,9 +186,11 @@ is the deliverable — surfaced in the case view and led in the report export.
 
 From the case header:
 
+- **Bundle** (ZIP) — the whole handoff in one file: the report, GeoJSON, KML, and
+  a plain-text chain-of-custody log. This is the artifact to hand an investigator.
 - **Report** (Markdown) — a sourced, LE-ready writeup: last-known, the prioritized
-  search grid, conflicts, a **scrubbed-locations** callout, and every signal with
-  source + timestamp + confidence.
+  search grid, conflicts, a **scrubbed-locations** callout, minor/retention
+  notices, and every signal with source + timestamp + confidence.
 - **GeoJSON** / **KML** — the clustered places for mapping tools.
 
 ---
@@ -250,3 +252,15 @@ including negatives) so re-runs don't re-hit it.
   network policy, set `geo.map_tiles: false` — everything else still works.
 - Locate is **subject-centric** (person → where). The inverse (location → who is
   there) is out of scope by design.
+
+---
+
+## Related: Geo Recon (place → assets)
+
+Locate's sibling, **Geo Recon** (nav → *Geo Recon*, `/geo`), answers the
+*infrastructure* question: given a place (country, city, or `lat,lon` + radius,
+optionally scoped to an org/domain), it geocodes and queries **Shodan** for
+internet-facing assets in that area — hosts, ports, products, and known
+vulnerabilities — on the same map. It needs a Shodan API key (set under
+**Integrations**). This is asset recon, not people: *location → what assets*, and
+it too must be scoped to a target you're authorized to assess.

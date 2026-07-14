@@ -103,7 +103,8 @@
     {% endif %}
   </div>
   <div class="header-actions">
-    <a class="btn btn-secondary" href="{{ url_for('locate.export', case_id=case.id, fmt='report') }}">↓ Report</a>
+    <a class="btn btn-secondary" href="{{ url_for('locate.export', case_id=case.id, fmt='bundle') }}" title="Report + GeoJSON + KML + chain of custody, zipped">↓ Bundle</a>
+    <a class="btn btn-ghost" href="{{ url_for('locate.export', case_id=case.id, fmt='report') }}">↓ Report</a>
     <a class="btn btn-ghost" href="{{ url_for('locate.export', case_id=case.id, fmt='geojson') }}">↓ GeoJSON</a>
     <a class="btn btn-ghost" href="{{ url_for('locate.export', case_id=case.id, fmt='kml') }}">↓ KML</a>
     <form action="{{ url_for('locate.delete_case', case_id=case.id) }}" method="POST" style="display:inline;"

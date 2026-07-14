@@ -4,7 +4,7 @@ import json
 
 from phantomsignal.intel.geo import aggregate
 from phantomsignal.intel.geo.engine import GeoEngine
-from phantomsignal.intel.geo.export import to_geojson, to_kml, to_report
+from phantomsignal.intel.geo.export import bundle_zip, to_geojson, to_kml, to_report
 from phantomsignal.intel.geo.extract import extract_signals, parse_address
 from phantomsignal.intel.geo.signals import GeoSignal, combine_confidence, round_to_confidence
 
@@ -180,3 +180,16 @@ def test_engine_locate_and_exports():
     assert "<kml" in kml and "Denver" in kml
     report = to_report(fp)
     assert "Last-known" in report and "spokeo" in report and "whitepages" in report
+
+
+def test_bundle_zip_contains_all_handoff_artifacts():
+    import io
+    import zipfile
+    fp = {"subject": "X", "clusters": [], "signals": [], "conflicts": [], "search_grid": [],
+          "last_known": None}
+    audit = [{"at": "2026-07-13T10:00:00", "action": "case_opened", "source": None,
+              "detail": "subject=X", "actor": "op"}]
+    z = zipfile.ZipFile(io.BytesIO(bundle_zip(fp, audit)))
+    assert set(z.namelist()) == {"report.md", "footprint.geojson", "footprint.kml",
+                                 "chain-of-custody.txt"}
+    assert "case_opened" in z.read("chain-of-custody.txt").decode()

@@ -5,7 +5,9 @@ point carries its source, timestamp, and confidence.
 """
 from __future__ import annotations
 
+import io
 import json
+import zipfile
 from typing import Dict, List
 
 
@@ -123,6 +125,27 @@ def to_report(footprint: Dict) -> str:
     lines.append("_Historical footprint reconstructed from public/licensed signals. "
                  "Verify before action._")
     return "\n".join(lines)
+
+
+def audit_log_text(audit: List[Dict]) -> str:
+    """Chain of custody as a plain-text log for the handoff bundle."""
+    lines = ["Chain of custody", "================", ""]
+    for a in audit:
+        src = f" [{a['source']}]" if a.get("source") else ""
+        detail = f" — {a['detail']}" if a.get("detail") else ""
+        lines.append(f"{a.get('at', '')} · {a.get('action', '')}{src}{detail} · {a.get('actor') or '—'}")
+    return "\n".join(lines) + "\n"
+
+
+def bundle_zip(footprint: Dict, audit: List[Dict]) -> bytes:
+    """One handoff artifact: sourced report + GeoJSON + KML + chain of custody."""
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("report.md", to_report(footprint))
+        z.writestr("footprint.geojson", to_geojson(footprint))
+        z.writestr("footprint.kml", to_kml(footprint))
+        z.writestr("chain-of-custody.txt", audit_log_text(audit))
+    return buf.getvalue()
 
 
 def _esc(s) -> str:
