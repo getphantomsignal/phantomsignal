@@ -206,6 +206,64 @@ body.sum-compact .cat-grid { grid-template-columns:repeat(auto-fill, minmax(240p
   </div>
 </div>
 
+{% if attribution %}
+{# ── OPSEC Attribution Surface — the flagship "what did this scan leak?" panel ── #}
+<style>
+.opsec-panel { border:1px solid var(--border); border-radius:8px; padding:1rem 1.15rem;
+  margin:0 0 1.5rem; background:rgba(var(--surface-rgb,0,0,0),0.02); }
+.opsec-head { display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;
+  margin-bottom:0.85rem; }
+.opsec-title { font-weight:600; letter-spacing:0.04em; text-transform:uppercase;
+  font-size:0.72rem; color:var(--text-muted); }
+.opsec-grade { font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
+  font-size:0.72rem; padding:0.15rem 0.6rem; border-radius:999px; border:1px solid; }
+.opsec-grade.g-masked  { color:var(--success); border-color:var(--success); }
+.opsec-grade.g-partial { color:var(--warning); border-color:var(--warning); }
+.opsec-grade.g-exposed { color:var(--danger); border-color:var(--danger); }
+.opsec-grade.g-quiet   { color:var(--text-muted); border-color:var(--border); }
+.opsec-note { font-size:0.72rem; color:var(--text-muted); margin-left:auto; }
+.opsec-stats { display:flex; flex-wrap:wrap; gap:1.4rem; margin-bottom:0.85rem; }
+.opsec-stat { display:flex; flex-direction:column; gap:0.15rem; }
+.opsec-stat .n { font-size:1.15rem; font-weight:600; font-variant-numeric:tabular-nums; }
+.opsec-stat .k { font-size:0.62rem; text-transform:uppercase; letter-spacing:0.05em;
+  color:var(--text-muted); }
+.opsec-chips { display:flex; flex-wrap:wrap; gap:0.4rem; }
+.opsec-chip { font-size:0.68rem; padding:0.15rem 0.55rem; border-radius:999px;
+  border:1px solid var(--border); color:var(--text-muted);
+  font-variant-numeric:tabular-nums; }
+.opsec-chip.c-stealth      { color:var(--success); border-color:var(--success); }
+.opsec-chip.c-proxied      { color:var(--warning); border-color:var(--warning); }
+.opsec-chip.c-attributable { color:var(--danger); border-color:var(--danger); }
+</style>
+<div class="opsec-panel">
+  <div class="opsec-head">
+    <span class="opsec-title">◈ OPSEC · Attribution Surface</span>
+    <span class="opsec-grade g-{{ attribution.grade }}">{{ attribution.grade }}</span>
+    <span class="opsec-note">what this scan leaked about your infrastructure</span>
+  </div>
+  <div class="opsec-stats">
+    <div class="opsec-stat"><span class="n">{{ attribution.total_requests }}</span><span class="k">Requests egressed</span></div>
+    <div class="opsec-stat"><span class="n">{{ attribution.proxied_pct }}%</span><span class="k">Proxied ({{ attribution.proxied }}/{{ attribution.total_requests }})</span></div>
+    <div class="opsec-stat"><span class="n">{{ attribution.direct }}</span><span class="k">Direct from your IP</span></div>
+    <div class="opsec-stat"><span class="n">{{ attribution.impersonated }}</span><span class="k">JA3-impersonated</span></div>
+    <div class="opsec-stat"><span class="n">{{ attribution.waf_blocks }}</span><span class="k">WAF challenges</span></div>
+    <div class="opsec-stat"><span class="n">{{ attribution.backoffs }}</span><span class="k">Adaptive backoffs</span></div>
+  </div>
+  <div class="opsec-chips">
+    {% set mbo = attribution.modules_by_opsec or {} %}
+    <span class="opsec-chip c-stealth">stealth-guaranteed · {{ (mbo.stealth_guaranteed or [])|length }}</span>
+    <span class="opsec-chip c-proxied">proxied · {{ (mbo.proxied or [])|length }}</span>
+    <span class="opsec-chip c-attributable">attributable · {{ (mbo.attributable or [])|length }}</span>
+    {% for prof, n in (attribution.ja3_profiles or {}).items() %}
+    <span class="opsec-chip">JA3: {{ prof }} ×{{ n }}</span>
+    {% endfor %}
+    {% for name, n in (attribution.block_names or {}).items() %}
+    <span class="opsec-chip c-proxied">blocked: {{ name }} ×{{ n }}</span>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
 {% if categories %}
 {% set cap = 12 %}
 <!-- Category overview tiles -->

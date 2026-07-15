@@ -211,6 +211,15 @@ def scan_summary(scan_id):
         ).order_by(ScanResult.relevance_score.desc()).all()
         results_list = [r.to_dict() for r in results]
 
+    # The OPSEC attribution surface is operator telemetry, not a target finding —
+    # pull it out so it renders as its own panel instead of a category bucket.
+    attribution = next(
+        (r.get("data") for r in results_list
+         if r.get("result_type") == "attribution_surface"), None
+    )
+    results_list = [r for r in results_list
+                    if r.get("result_type") != "attribution_surface"]
+
     # Bucket results into categories, preserving the relevance ordering above.
     categories = []
     seen = {}
@@ -250,6 +259,7 @@ def scan_summary(scan_id):
         scan=scan_dict,
         results=results_list,
         categories=categories,
+        attribution=attribution,
         anomaly_count=sum(1 for r in results_list if r.get("is_anomaly")),
         is_live=scan_dict["status"] == "running",
     )

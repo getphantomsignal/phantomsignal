@@ -63,34 +63,39 @@ class PhantomEngine:
         await asyncio.sleep(1.0)
 
         try:
+            from phantomsignal.core.http import attribution_scope
+
             modules = scan.modules_enabled or []
             total_modules = len(modules) or 1
             completed = 0
 
-            pipeline = self._build_pipeline(scan, modules)
+            pipeline, opsec_map = self._build_pipeline(scan, modules)
 
-            for module_name, module_coro in pipeline:
-                self._log(scan_id, module_name, f"Module online: {module_name.upper()}")
-                self.emit("module_start", {"scan_id": scan_id, "module": module_name}, scan_id)
-                try:
-                    results = await asyncio.wait_for(module_coro, timeout=300)
-                    await self._store_results(scan_id, module_name, results)
-                    completed += 1
-                    progress = int((completed / total_modules) * 100)
-                    self._update_progress(scan_id, progress)
-                    self.emit("module_complete", {
-                        "scan_id": scan_id,
-                        "module": module_name,
-                        "result_count": len(results) if results else 0,
-                        "progress": progress,
-                    }, scan_id)
-                except asyncio.TimeoutError:
-                    self._log(scan_id, module_name, f"Module timeout: {module_name} — signal lost", level="warning")
-                except Exception as e:
-                    self._log(scan_id, module_name, f"Module error [{module_name}]: {e}", level="error")
-                    logger.exception(f"Module {module_name} failed for scan {scan_id}")
+            # Every StealthClient request made underneath records into this
+            # ledger, so the scan can report its own attribution surface.
+            with attribution_scope() as ledger:
+                for module_name, module_coro, opsec_level in pipeline:
+                    self._log(scan_id, module_name, f"Module online: {module_name.upper()}")
+                    self.emit("module_start", {"scan_id": scan_id, "module": module_name}, scan_id)
+                    try:
+                        results = await asyncio.wait_for(module_coro, timeout=300)
+                        await self._store_results(scan_id, module_name, results, opsec_level)
+                        completed += 1
+                        progress = int((completed / total_modules) * 100)
+                        self._update_progress(scan_id, progress)
+                        self.emit("module_complete", {
+                            "scan_id": scan_id,
+                            "module": module_name,
+                            "result_count": len(results) if results else 0,
+                            "progress": progress,
+                        }, scan_id)
+                    except asyncio.TimeoutError:
+                        self._log(scan_id, module_name, f"Module timeout: {module_name} — signal lost", level="warning")
+                    except Exception as e:
+                        self._log(scan_id, module_name, f"Module error [{module_name}]: {e}", level="error")
+                        logger.exception(f"Module {module_name} failed for scan {scan_id}")
 
-            await self._finalize_scan(scan_id)
+            await self._finalize_scan(scan_id, ledger, opsec_map)
 
         except Exception as e:
             logger.exception(f"Ghost run {scan_id} critically failed")
@@ -103,78 +108,55 @@ class PhantomEngine:
             self.emit("scan_failed", {"scan_id": scan_id, "error": str(e)}, scan_id)
 
     def _build_pipeline(self, scan: Scan, modules: List[str]):
-        """Assemble the module pipeline for a given scan."""
-        from phantomsignal.scrapers.crawler import WebCrawler
-        from phantomsignal.scrapers.port_scanner import PortScanner
-        from phantomsignal.scrapers.tech_detector import TechDetector
-        from phantomsignal.scrapers.api_hunter import APIHunter
-        from phantomsignal.scrapers.dns_recon import DNSRecon
-        from phantomsignal.scrapers.subdomain_enum import SubdomainEnumerator
-        from phantomsignal.scrapers.takeover import TakeoverDetector
-        from phantomsignal.scrapers.js_miner import JSMiner
-        from phantomsignal.scrapers.archive_miner import ArchiveURLMiner
-        from phantomsignal.scrapers.infra_pivot import InfraPivot
-        from phantomsignal.scrapers.origin_pivot import OriginPivot
-        from phantomsignal.scrapers.service_enum import ServiceEnumerator
-        from phantomsignal.scrapers.doc_metadata import DocMetadataExtractor
-        from phantomsignal.scrapers.username_enum import UsernameEnumerator
-        from phantomsignal.intel.people.profile_pivot import ProfilePivotEngine
-        from phantomsignal.scrapers.darkweb import DarkWebMonitor
-        from phantomsignal.scrapers.email_oracle import EmailOracle
-        from phantomsignal.intel.orchestrator import IntelOrchestrator
+        """Assemble the module pipeline for a given scan.
+
+        Returns ``(pipeline, opsec_map)`` where ``pipeline`` is a list of
+        ``(module_name, coroutine, opsec_level)`` and ``opsec_map`` maps each
+        module that will run to its ``OpsecLevel`` value (for the attribution
+        report). Modules are resolved from the scraper registry, so new modules
+        join the pipeline by registering rather than by editing the engine.
+        """
+        from phantomsignal.scrapers.registry import get_registered_modules
+
+        registry = get_registered_modules()
+        target = scan.target
+        # Pass scan_type through options so registry factories keep a uniform
+        # (config, target, opts) signature.
+        opts = {**(scan.options or {}), "_scan_type": scan.scan_type.value}
+
+        # Default full-spectrum if no modules specified.
+        if not modules:
+            modules = list(registry.keys())
 
         pipeline = []
-        target = scan.target
-        opts = scan.options or {}
-
-        module_factories = {
-            "dns_recon": lambda: ("dns_recon", DNSRecon(config).run(target)),
-            "subdomain_enum": lambda: ("subdomain_enum", SubdomainEnumerator(config).run(target)),
-            "takeover": lambda: ("takeover", TakeoverDetector(config).run(target)),
-            "js_mine": lambda: ("js_mine", JSMiner(config).run(target)),
-            "archive_mine": lambda: ("archive_mine", ArchiveURLMiner(config).run(target)),
-            "infra_pivot": lambda: ("infra_pivot", InfraPivot(config).run(target)),
-            "origin_pivot": lambda: ("origin_pivot", OriginPivot(config).run(target)),
-            "service_enum": lambda: ("service_enum", ServiceEnumerator(config).run(target)),
-            "doc_metadata": lambda: ("doc_metadata", DocMetadataExtractor(config).run(target)),
-            "username_enum": lambda: ("username_enum", UsernameEnumerator(config).run(target)),
-            "profile_pivot": lambda: ("profile_pivot", ProfilePivotEngine(config).run(target)),
-            "darkweb": lambda: ("darkweb", DarkWebMonitor(config).run(target)),
-            "email_oracle": lambda: ("email_oracle", EmailOracle(config).run(target)),
-            "port_scan": lambda: ("port_scan", PortScanner(config).scan(
-                target, opts.get("ports"),
-                stealth=opts.get("stealth"),
-                decoys=opts.get("decoys"),
-                zombie=opts.get("zombie"))),
-            "tech_detect": lambda: ("tech_detect", TechDetector(config).detect(target)),
-            "api_hunt": lambda: ("api_hunt", APIHunter(config).hunt(target)),
-            "web_crawl": lambda: ("web_crawl", WebCrawler(config).crawl(target, depth=opts.get("depth", 2))),
-            "intel": lambda: ("intel", IntelOrchestrator(config).run(target, scan.scan_type.value, opts)),
-        }
-
-        # Default full-spectrum if no modules specified
-        if not modules:
-            modules = list(module_factories.keys())
-
+        opsec_map: Dict[str, str] = {}
         for mod in modules:
-            if mod in module_factories:
-                pipeline.append(module_factories[mod]())
+            spec = registry.get(mod)
+            if spec:
+                pipeline.append((mod, spec.factory(config, target, opts), spec.opsec.value))
+                opsec_map[mod] = spec.opsec.value
 
-        return pipeline
+        return pipeline, opsec_map
 
     async def _store_results(
-        self, scan_id: str, module: str, results: Optional[List[Dict]]
+        self, scan_id: str, module: str, results: Optional[List[Dict]],
+        opsec_level: Optional[str] = None,
     ) -> None:
         if not results:
             return
         with get_db() as db:
             for item in results:
+                data = item.get("data", item)
+                # Stamp the module's OPSEC posture onto the finding so the UI and
+                # exports can show how attributable the traffic that found it was.
+                if opsec_level and isinstance(data, dict) and "opsec" not in data:
+                    data = {**data, "opsec": opsec_level}
                 result = ScanResult(
                     scan_id=scan_id,
                     module=module,
                     result_type=item.get("type", "unknown"),
                     source=item.get("source"),
-                    data=item.get("data", item),
+                    data=data,
                     confidence=item.get("confidence", 1.0),
                     relevance_score=item.get("relevance_score", 0.5),
                     tags=item.get("tags", []),
@@ -182,8 +164,25 @@ class PhantomEngine:
                 )
                 db.add(result)
 
-    async def _finalize_scan(self, scan_id: str) -> None:
+    async def _finalize_scan(self, scan_id: str, ledger=None, opsec_map=None) -> None:
         """Wrap up the scan, compute the risk score, notify clients."""
+        # Record the operator's attribution surface for this run — the OPSEC
+        # flagship's headline artifact. Best-effort; never fails the scan.
+        if ledger is not None:
+            try:
+                from phantomsignal.intel.opsec import build_attribution_result
+
+                attribution = build_attribution_result(ledger.summary(), opsec_map or {})
+                await self._store_results(scan_id, "opsec", [attribution])
+                self._log(scan_id, "opsec",
+                          f"Attribution surface: {attribution['data']['grade']} — "
+                          f"{attribution['data']['proxied_pct']}% proxied across "
+                          f"{attribution['data']['total_requests']} request(s)")
+                self.emit("attribution_surface",
+                          {"scan_id": scan_id, **attribution["data"]}, scan_id)
+            except Exception:
+                logger.exception(f"Attribution surface failed for scan {scan_id}")
+
         with get_db() as db:
             scan = db.query(Scan).filter(Scan.id == scan_id).first()
             if not scan:
@@ -291,6 +290,9 @@ class PhantomEngine:
 
         for result in results:
             result_type = result.result_type.lower()
+            # OPSEC telemetry is about the operator, not the target — no weight.
+            if result_type == "attribution_surface":
+                continue
             for key, weight in weights.items():
                 if key in result_type:
                     score += weight * result.confidence
