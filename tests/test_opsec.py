@@ -151,3 +151,71 @@ def test_stealth_client_without_scope_is_noop():
         return r
 
     assert _run(go()).status_code == 200
+
+
+def test_stealth_stream_reads_body_and_records_egress():
+    payload = b"PK\x03\x04 doc bytes"
+    client = _client_with_mock(lambda req: httpx.Response(200, content=payload))
+
+    async def go():
+        with attribution_scope() as led:
+            async with client.stream("GET", "http://target.test/x.docx") as resp:
+                buf = b""
+                async for chunk in resp.aiter_bytes():
+                    buf += chunk
+        await client.aclose()
+        return led, buf
+
+    led, buf = _run(go())
+    assert buf == payload
+    s = led.summary()
+    # streamed download egressed, and is honestly recorded as non-impersonated
+    assert s["total_requests"] == 1 and s["direct"] == 1
+    assert s["impersonated"] == 0
+
+
+def test_doc_metadata_download_routes_through_stealth():
+    """The document-download phase must egress via StealthClient's stream path
+    (proxy/identity/pacing) and record into the active scan ledger — not a raw
+    scanner UA on a raw httpx client."""
+    from phantomsignal.scrapers.doc_metadata import DocMetadataExtractor
+
+    class _Cfg:
+        def get(self, *a, **k):
+            return k.get("default")
+
+    doc_bytes = b"PK\x03\x04 pretend-docx bytes"
+    ext = DocMetadataExtractor(_Cfg())
+    ext.max_bytes = 10 * 1024 * 1024
+
+    client = _client_with_mock(lambda req: httpx.Response(200, content=doc_bytes))
+
+    async def go():
+        with attribution_scope() as led:
+            raw = await ext._fetch_capped(client, "http://target.test/a.docx")
+        await client.aclose()
+        return led, raw
+
+    led, raw = _run(go())
+    assert raw == doc_bytes                      # streamed body reassembled
+    assert led.summary()["total_requests"] == 1  # egress recorded in the scan
+
+
+def test_doc_metadata_download_respects_size_cap():
+    """The zip-bomb guard still fires on the stealth stream path."""
+    from phantomsignal.scrapers.doc_metadata import DocMetadataExtractor
+
+    class _Cfg:
+        def get(self, *a, **k):
+            return k.get("default")
+
+    ext = DocMetadataExtractor(_Cfg())
+    ext.max_bytes = 8
+    client = _client_with_mock(lambda req: httpx.Response(200, content=b"x" * 64))
+
+    async def go():
+        raw = await ext._fetch_capped(client, "http://target.test/big.pdf")
+        await client.aclose()
+        return raw
+
+    assert _run(go()) is None    # oversized → skipped, not truncated

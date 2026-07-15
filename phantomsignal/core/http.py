@@ -680,6 +680,44 @@ class StealthClient:
         assert last_exc is not None
         raise last_exc
 
+    @contextlib.asynccontextmanager
+    async def stream(self, method: str, url: str, *, headers: Optional[Dict] = None, **kw):
+        """Stealth-routed streaming request, so callers can size-cap or abort a
+        body mid-flight (e.g. document downloads with a zip-bomb guard).
+
+        Single attempt — no retry/rotate loop, since the caller owns the body.
+        The request is proxied and carries the host's sticky browser identity +
+        adaptive pacing; TLS/JA3 impersonation is *not* applied to streamed
+        bodies (curl_cffi streaming differs), and the ledger records the request
+        honestly as non-impersonated.
+        """
+        host = urlparse(url).netloc
+        proxy = self._pool.for_host(host)
+        led = _current_ledger.get()
+        sem = await self._limiter.acquire(host)
+        try:
+            merged = self._headers_for(host, headers)
+            async with self._client_for(proxy).stream(method, url, headers=merged, **kw) as resp:
+                if led is not None:
+                    led.record_request(host, proxy, None)
+                # Body isn't read yet, so judge a block by status/headers only —
+                # don't sniff resp.text (it would consume the stream).
+                blocked = resp.status_code in (429, 503) or bool(resp.headers.get("cf-mitigated"))
+                if blocked:
+                    self.last_block = f"http-{resp.status_code}"
+                    if led is not None:
+                        led.record_block(self.last_block)
+                    self._limiter.penalize(host, _retry_after_seconds(resp, self._profile.interval_cap))
+                    self._pool.penalize(proxy)
+                    self._pool.rotate_host(host)
+                    self._limiter.reroll_identity(host)
+                else:
+                    self._limiter.reward(host)
+                    self._pool.reward(proxy)
+                yield resp
+        finally:
+            sem.release()
+
     def _backoff_delay(self, attempt: int) -> float:
         """Exponential backoff with full jitter."""
         base = min(self._profile.interval_cap, (2 ** attempt) * 0.5)

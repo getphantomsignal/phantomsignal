@@ -1,6 +1,9 @@
 # PhantomSignal
 
-> **Open-source OSINT intelligence framework** — _"Map the surface. Own the signal."_
+> **The OPSEC-native OSINT framework** — _"Map the surface. Own the signal."_
+>
+> Recon that doesn't burn your infrastructure — a stealth egress layer under every
+> module, and an honest per-scan report of exactly what you leaked.
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-4d9fd6?style=flat-square&logo=python)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-7fb8dd?style=flat-square)](LICENSE)
@@ -15,22 +18,38 @@
 
 ---
 
-## ⚡ What's New in v1.24.0
+## ⚡ What's New in v1.25.0 — OPSEC Core
 
-### Streamlined to two themes
-The web console now ships **two** carefully tuned themes built on semantic role tokens — **Dark** (a deep-slate federal console, the default) and **Light** (clean and print-friendly). Switch from the ☀ / ☾ segmented control in the nav; your choice persists in the browser and is applied before first paint, so there's no flash on reload. Every token in both themes is validated to **WCAG AA** contrast.
+**PhantomSignal now reports its own attribution surface.** No other open-source
+OSINT framework tells you what a scan leaked about *you*.
 
-### Plain-language interface
-The web UI was rewritten from codenames to clear, function-first labels — **Dashboard, New Scan, Scans, Profiler, Integrations** — so a first-time user can tell what everything does. Findings, Risk Score, Data Sources, and consistent severity language throughout.
+### 🛰 Attribution Surface — "what did this scan leak?"
+Every scan ends with an honest OPSEC grade — **masked**, **partial**, **exposed**,
+or **quiet** — computed from real egress telemetry, not marketing:
 
-### Roboto type + signal mark
-Roboto for UI text (tables, terminal, and code stay monospace for alignment), a font-based `∿` signal glyph replacing the old ASCII logo, and a PS-monogram favicon.
+- **% proxied vs. direct** — how many requests left through the proxy pool vs.
+  straight from your IP.
+- **JA3/JA4 profiles presented** — which browser TLS fingerprints you wore, and
+  how often.
+- **WAF challenges & adaptive backoffs** — where a defence noticed you.
+- **Per-module OPSEC breakdown** — every module tagged `stealth-guaranteed`,
+  `proxied`, or `attributable`, so you see which parts of a run are masked and
+  which are traceable back to you.
 
-### Clickable dashboard + one-click re-scan
-Dashboard stat cards are now links into the matching view, and any completed scan can be **re-run** against the same target with its original profile, modules, and options — from the results page or any Scans-list row.
+The grade is deliberately unflattering: any attributable module, or under-50%
+proxied traffic, caps it. The point of an OPSEC-native tool is to tell you the
+truth about your footprint — not to always read green.
 
-### Honest risk gradient
-The Risk Score meter now runs a true green → amber → red ramp, so a low score reads green (safe) at a glance in every theme.
+### 🧅 Stealth layer under every module
+The shared stealth client (proxy pool + per-host adaptive pacing + sticky browser
+identity + optional JA3/JA4 impersonation) is now the spine. Target-facing
+document downloads route through it too — no more scanner User-Agent hitting the
+target directly.
+
+### 🧩 Module registry
+A `@register_module` plugin registry (mirroring the intel-API pattern) replaces
+the engine's hard-coded module table — new recon modules join the pipeline by
+registering, and declare their OPSEC posture up front.
 
 ---
 
@@ -42,10 +61,11 @@ across 45+ sources, and a web-surface crawl — then rolls every finding into a
 single Risk Score and writes a shareable HTML report.
 
 ```text
-$ phantomsignal scan example.com --profile standard --format html
+$ phantomsignal scan example.com --profile standard --opsec quiet --format html
 
 ◈  Target   : example.com  (domain)
 ◈  Profile  : standard     (~2–5 min)
+◈  OPSEC    : quiet        (proxy pool · adaptive pacing · JA3)
 ◈  Modules  : dns_recon port_scan tech_detect api_hunt web_crawl intel
 
 [1/6] DNS & WHOIS ......... 42 records · 7 subdomains
@@ -55,6 +75,7 @@ $ phantomsignal scan example.com --profile standard --format html
 [5/6] Web crawl .......... 128 URLs · 3 exposed endpoints
 [6/6] Scoring ............ Risk Score 34 / 100 (MEDIUM)
 
+◈  OPSEC ............. MASKED · 94% proxied · JA3: chrome124 · 0 direct
 ✓  Report written → ./reports/example.com.html
 ```
 

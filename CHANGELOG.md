@@ -11,6 +11,42 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.25.0] — 2026-07-15
+
+**OPSEC Core** — makes the stealth layer the visible flagship. PhantomSignal now
+reports its own **attribution surface**: after every scan, an honest answer to
+*"what did this scan leak about my infrastructure?"*
+
+### Added
+- **Attribution Surface report** — a per-scan OPSEC panel on the summary page
+  grading the run (`masked` / `partial` / `exposed` / `quiet`) from real
+  telemetry: % of requests proxied vs. sent direct from your IP, which JA3/JA4
+  browser profiles were presented, WAF challenges hit, and adaptive backoffs.
+  Emitted as an `attribution_surface` finding (excluded from the Risk Score) and
+  broadcast live over the scan socket.
+- **`AttributionLedger` + `attribution_scope()`** (`core/http.py`) — a
+  contextvar-scoped ledger that every `StealthClient` request records into,
+  wherever it runs in the module tree. No per-scraper wiring required.
+- **`OpsecLevel` taxonomy** (`intel/opsec.py`) — every module declares how
+  attributable its traffic is (`stealth_guaranteed` / `proxied` /
+  `attributable`), stamped onto each finding. Grading is deliberately honest —
+  any attributable module or under-50%-proxied traffic caps the grade.
+- **Scraper module registry** (`scrapers/registry.py`) — a `@register_module`
+  plugin registry mirroring the intel-API pattern; replaces the engine's
+  hard-coded module table so new modules join the pipeline by registering.
+- **`StealthClient.stream()`** — stealth-routed streaming downloads (proxy pool +
+  browser identity + adaptive pacing) with mid-flight size-capping.
+
+### Changed
+- **Document-metadata downloads** now route through the stealth client instead of
+  a `PhantomSignal-OSINT/1.0` scanner User-Agent hitting the target directly.
+- **Engine pipeline** is resolved from the scraper registry; each built-in is
+  tagged with its verified OPSEC level (7 route through the stealth client;
+  Tor-based dark-web egress is proxied; raw-socket and third-party-API modules
+  are honestly marked attributable).
+
+---
+
 ## [1.24.0] — 2026-07-12
 
 Simplified the web console to two themes and removed the pre-rendered demo /

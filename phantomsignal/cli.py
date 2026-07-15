@@ -805,8 +805,11 @@ def web(host, port, debug, open_browser):
               help="Zombie host for an idle scan (--stealth idle)")
 @click.option("--decoys", default=None,
               help="Decoy spec for a decoy scan, e.g. RND:10 or ip1,ME,ip2 (--stealth decoy)")
+@click.option("--opsec", type=click.Choice(["off", "quiet", "paranoid"]), default=None,
+              help="Stealth egress profile for target-facing HTTP "
+                   "(proxy pool + adaptive pacing + JA3 impersonation)")
 def scan(target, scan_type, modules, profile, output, fmt, compress, encrypt,
-         password, no_robots, stealth, zombie, decoys):
+         password, no_robots, stealth, zombie, decoys, opsec):
     """Run a scan against a target from the command line."""
     print_banner()
     console.print(DISCLAIMER, style="yellow")
@@ -835,6 +838,12 @@ def scan(target, scan_type, modules, profile, output, fmt, compress, encrypt,
 
     if no_robots:
         cfg.set("scraper", "respect_robots_txt", value=False)
+
+    # Stealth egress profile for target-facing HTTP. Drives the shared stealth
+    # client (proxy pool + adaptive pacing + JA3 impersonation) for this run.
+    if opsec:
+        cfg.set("scraper", "stealth_profile", value=opsec)
+        console.print(f"[dim]  OPSEC egress profile: {opsec}[/dim]\n")
 
     with get_db() as db:
         scan_obj = Scan(
@@ -878,6 +887,21 @@ def scan(target, scan_type, modules, profile, output, fmt, compress, encrypt,
         results_list = [r.to_dict() for r in results]
 
     _render_scan_results(console, results_list, scan_dict, target)
+
+    # OPSEC attribution surface — what this scan leaked about the operator.
+    attribution = next((r.get("data") for r in results_list
+                        if r.get("result_type") == "attribution_surface"), None)
+    if attribution:
+        grade = attribution.get("grade", "unknown")
+        colour = {"masked": "green", "partial": "yellow",
+                  "exposed": "red", "quiet": "dim"}.get(grade, "white")
+        console.print(
+            f"\n[bold {colour}]◈ OPSEC · {grade.upper()}[/bold {colour}] "
+            f"[dim]— {attribution.get('proxied_pct', 0)}% proxied · "
+            f"{attribution.get('direct', 0)} direct · "
+            f"{attribution.get('impersonated', 0)} JA3-impersonated · "
+            f"{attribution.get('waf_blocks', 0)} WAF challenge(s)[/dim]"
+        )
 
     if output:
         from phantomsignal.exporters.manager import ExportManager

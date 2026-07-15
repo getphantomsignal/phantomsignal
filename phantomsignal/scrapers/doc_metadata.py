@@ -34,6 +34,7 @@ from urllib.parse import urlparse
 
 import httpx
 
+from phantomsignal.core.http import stealth_client
 from phantomsignal.scrapers.archive_miner import parse_wayback_cdx
 
 logger = logging.getLogger("phantomsignal.scrapers.doc_metadata")
@@ -440,10 +441,10 @@ class DocMetadataExtractor:
                 parsed["url"] = url
                 return parsed
 
-        async with httpx.AsyncClient(
-            timeout=self.timeout, follow_redirects=True,
-            headers={"User-Agent": "PhantomSignal-OSINT/1.0"},
-        ) as client:
+        # Downloading the target's own documents is target-facing egress, so it
+        # routes through the stealth client (proxy pool + sticky browser
+        # identity + adaptive pacing) instead of a scanner User-Agent.
+        async with stealth_client(self.config, timeout=self.timeout) as client:
             gathered = await asyncio.gather(*(one(client, u) for u in urls),
                                             return_exceptions=True)
         return [g for g in gathered if isinstance(g, dict)]

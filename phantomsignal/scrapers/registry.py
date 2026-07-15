@@ -108,7 +108,7 @@ def _service_enum(config, target, opts):
     return ServiceEnumerator(config).run(target)
 
 
-@register_module("doc_metadata", opsec=OpsecLevel.ATTRIBUTABLE, label="Document Metadata")
+@register_module("doc_metadata", opsec=OpsecLevel.STEALTH_GUARANTEED, label="Document Metadata")
 def _doc_metadata(config, target, opts):
     from phantomsignal.scrapers.doc_metadata import DocMetadataExtractor
     return DocMetadataExtractor(config).run(target)
