@@ -9,27 +9,38 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-### v1.26 (in progress) — Best-of-breed engines + vuln loop
+---
 
+## [1.26.0] — 2026-07-15
+
+**Best-of-breed engines + the vuln loop.** PhantomSignal now closes the ASM loop
+(maps the surface *and* flags what's exploitable) and orchestrates fast Go-native
+recon tools when installed — all under stealth governance, with pure-Python
+fallback so a binary-free install keeps working.
+
+### Added
 - **Vulnerability scanning via nuclei** (`scrapers/vuln_scanner.py`, module
-  `vuln_scan`) — closes the ASM loop. Emits the `vulnerability` result type
-  (long-weighted in the shadow score, never produced until now) with normalised
-  severity; a `vuln_scan_summary` rolls up counts. Surfaces in the Findings &
-  Exposure category with severity grading, and exports as a **STIX 2.1
-  Vulnerability SDO**. Opt-in (active/loud) — never in the default sweep.
-- **External-tool adapter framework** (`scrapers/_external.py`) — orchestrates
-  best-of-breed Go tools under stealth governance: availability-gated on
-  `shutil.which`, proxy injected from the shared egress config, output tagged
-  `proxied` (or honestly `attributable` when the tool can't proxy). Native
-  Python fallback is always preserved, so a binary-free install keeps working.
-- **subfinder speed path** (`scrapers/subfinder_tool.py`, module
-  `subdomain_enum_fast`) — faster passive subdomain enum when installed,
-  normalised to the native result shape, native enumerator as fallback. Opt-in.
-- **Honest dynamic OPSEC** — a module's attribution grade now reflects its
-  *actual* egress posture (external tools proxy only when a proxy is set), not
-  just the static registry tag.
-- Module registry gains a `default` flag so opt-in modules stay out of the
-  full-spectrum sweep; new modules exposed in the CLI and web scan form.
+  `vuln_scan`) — emits the `vulnerability` result type (long-weighted in the
+  shadow score, never produced until now) with normalised severity; a
+  `vuln_scan_summary` rolls up counts. Surfaces in the Findings & Exposure
+  category with severity grading, and exports as a **STIX 2.1 Vulnerability SDO**.
+- **External-tool adapter framework** (`scrapers/_external.py`) — availability-
+  gated on `shutil.which`, proxy injected from the shared egress config, output
+  tagged `proxied` (or honestly `attributable` when the tool can't proxy);
+  `run_with_fallback()` runs the native module when a binary is absent or empty.
+- **Speed adapters** (all opt-in, native fallback where one exists):
+  - `subdomain_enum_fast` — **subfinder** (proxied) → native enumerator.
+  - `port_scan_fast` — **naabu** (attributable, raw-socket) → native scanner.
+  - `web_crawl_fast` — **katana** (proxied when a proxy is set) → native crawler.
+  - `tls_fingerprint` — **tlsx** (attributable) JARM + cert hashes; complements
+    infra_pivot (no standalone fallback).
+- **Honest dynamic OPSEC** (`effective_opsec`) — a module's attribution grade
+  reflects its *actual* egress posture, not just the static registry tag.
+
+### Changed
+- Scraper registry gains a `default` flag; loud/active or alternative modules
+  (`vuln_scan`, `*_fast`, `tls_fingerprint`) stay out of the full-spectrum sweep
+  and are opt-in. New modules exposed in the CLI `--modules` list and web form.
 
 ---
 

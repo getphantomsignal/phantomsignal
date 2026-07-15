@@ -227,6 +227,81 @@ def test_opt_in_modules_excluded_from_default_sweep():
     assert "dns_recon" in defaults
 
 
+# ── naabu / tlsx / katana speed adapters ────────────────────────────────────
+
+def test_naabu_parse_matches_native_port_shape():
+    from phantomsignal.scrapers.naabu_tool import parse_naabu
+    out = "\n".join([
+        '{"host":"example.com","ip":"93.184.216.34","port":443,"protocol":"tcp"}',
+        '{"host":"example.com","ip":"93.184.216.34","port":80,"protocol":"tcp"}',
+        "not json",
+    ])
+    res = parse_naabu(out, "example.com", "attributable")
+    open_ports = [r for r in res if r["type"] == "open_port"]
+    summary = [r for r in res if r["type"] == "port_scan_summary"][0]
+    assert len(open_ports) == 2
+    # native-compatible fields the UI/scoring rely on
+    for r in open_ports:
+        assert r["data"]["state"] == "open" and r["data"]["scan_engine"] == "naabu"
+        assert r["data"]["opsec"] == "attributable"
+    assert summary["data"]["open_ports"] == [80, 443]
+
+
+def test_naabu_command_and_ports_option():
+    from phantomsignal.scrapers.naabu_tool import NaabuTool
+    cmd = NaabuTool(_Cfg()).command("https://example.com:8443/x", {"ports": "80,443"})
+    assert cmd[:4] == ["naabu", "-host", "example.com", "-json"]
+    assert cmd[cmd.index("-p") + 1] == "80,443"
+
+
+def test_tlsx_parse_emits_jarm_and_cert_fingerprints():
+    from phantomsignal.scrapers.tlsx_tool import parse_tlsx
+    line = ('{"host":"example.com","ip":"93.184.216.34","jarm_hash":"27d40d40d",'
+            '"fingerprint_hash":{"sha256":"abc123"},"subject_an":["example.com"],'
+            '"issuer_dn":"CN=DigiCert"}')
+    res = parse_tlsx(line, "attributable")
+    types = {r["type"] for r in res}
+    assert types == {"jarm_fingerprint", "tls_cert_fingerprint"}
+    jarm = [r for r in res if r["type"] == "jarm_fingerprint"][0]
+    assert jarm["data"]["shodan_dork"] == "ssl.jarm:27d40d40d"
+    assert jarm["source"] == "tlsx"
+
+
+def test_katana_parse_dedupes_and_matches_web_page_shape():
+    from phantomsignal.scrapers.katana_tool import parse_katana
+    out = "\n".join([
+        '{"request":{"method":"GET","endpoint":"https://example.com/"},'
+        '"response":{"status_code":200,"headers":{"content_type":"text/html"}}}',
+        '{"request":{"method":"GET","endpoint":"https://example.com/"}}',   # dup
+        '{"request":{"endpoint":"https://example.com/api"}}',
+    ])
+    res = parse_katana(out, "proxied")
+    pages = [r for r in res if r["type"] == "web_page"]
+    assert len(pages) == 2                                   # deduped by endpoint
+    assert pages[0]["data"]["url"] == "https://example.com/"
+    assert pages[0]["data"]["opsec"] == "proxied"
+    assert any(r["type"] == "web_crawl_summary" for r in res)
+
+
+def test_katana_proxies_when_proxy_set():
+    from phantomsignal.scrapers.katana_tool import KatanaTool
+    tool = KatanaTool(_Cfg())
+    cmd = tool._full_command("example.com", {"depth": 3}, "http://p:8080")
+    assert cmd[-2:] == ["-proxy", "http://p:8080"]
+    assert tool._opsec_level("http://p:8080") is OpsecLevel.PROXIED
+
+
+def test_speed_adapters_registered_opt_in():
+    reg = get_registered_modules()
+    defaults = set(default_module_names())
+    for m in ("port_scan_fast", "web_crawl_fast", "tls_fingerprint"):
+        assert m in reg and m not in defaults
+    # honest posture: raw-socket/direct-TLS tools are attributable
+    assert reg["port_scan_fast"].opsec is OpsecLevel.ATTRIBUTABLE
+    assert reg["tls_fingerprint"].opsec is OpsecLevel.ATTRIBUTABLE
+    assert reg["web_crawl_fast"].opsec is OpsecLevel.PROXIED
+
+
 def test_effective_opsec_reflects_actual_egress():
     assert effective_opsec([{"data": {"opsec": "proxied"}}], "attributable") == "proxied"
     # mixed → worst (least masked) wins

@@ -202,3 +202,29 @@ def _vuln_scan(config, target, opts):
 def _subdomain_enum_fast(config, target, opts):
     from phantomsignal.scrapers.subfinder_tool import run_subfinder_or_native
     return run_subfinder_or_native(config, target, opts)
+
+
+# Fast port discovery (naabu). Raw-socket → attributable, like the native
+# scanner. Opt-in alternative to port_scan.
+@register_module("port_scan_fast", opsec=OpsecLevel.ATTRIBUTABLE,
+                 label="Port Scan (naabu)", default=False)
+def _port_scan_fast(config, target, opts):
+    from phantomsignal.scrapers.naabu_tool import run_naabu_or_native
+    return run_naabu_or_native(config, target, opts)
+
+
+# Fast crawl (katana), proxy-capable. Opt-in alternative to web_crawl.
+@register_module("web_crawl_fast", opsec=OpsecLevel.PROXIED,
+                 label="Web Crawl (katana)", default=False)
+def _web_crawl_fast(config, target, opts):
+    from phantomsignal.scrapers.katana_tool import run_katana_or_native
+    return run_katana_or_native(config, target, opts)
+
+
+# TLS fingerprinting (tlsx) — complements infra_pivot's native JARM/cert work.
+# Direct TLS → attributable. No native standalone fallback. Opt-in.
+@register_module("tls_fingerprint", opsec=OpsecLevel.ATTRIBUTABLE,
+                 label="TLS Fingerprint (tlsx)", default=False)
+def _tls_fingerprint(config, target, opts):
+    from phantomsignal.scrapers.tlsx_tool import TlsxTool
+    return TlsxTool(config).run(target, opts)

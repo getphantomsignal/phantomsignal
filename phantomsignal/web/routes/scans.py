@@ -141,8 +141,9 @@ RESULT_CATEGORIES = [
         "jarm_fingerprint", "favicon_hash",
     }),
     ("web",      "Web & Endpoints",          "⌘", "cyan", {
-        "web_resource", "api_endpoint", "graphql_schema", "http_headers",
-        "js_endpoint", "js_mine_summary", "archive_url", "archive_summary",
+        "web_resource", "web_page", "web_crawl_summary", "api_endpoint",
+        "graphql_schema", "http_headers", "js_endpoint", "js_mine_summary",
+        "archive_url", "archive_summary",
     }),
     ("tech",     "Technology Stack",         "⚙", "cyan", {
         "technology",

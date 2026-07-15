@@ -28,11 +28,28 @@ import asyncio
 import logging
 import shutil
 from typing import Dict, List, Optional
+from urllib.parse import urlparse
 
 from phantomsignal.core.http import resolve_egress
 from phantomsignal.intel.opsec import OpsecLevel
 
 logger = logging.getLogger("phantomsignal.scrapers.external")
+
+
+def host_only(target: str) -> str:
+    """Bare host from a target (strip scheme, path, port, userinfo)."""
+    t = (target or "").strip().lower()
+    if "://" in t:
+        t = urlparse(t).netloc or t
+    return t.split("/")[0].split("@")[-1].split(":")[0].lstrip(".")
+
+
+def as_url(target: str) -> str:
+    """A target coerced to a URL; bare hosts default to https."""
+    t = (target or "").strip()
+    if t.startswith(("http://", "https://")):
+        return t
+    return f"https://{t}"
 
 
 class ExternalTool:

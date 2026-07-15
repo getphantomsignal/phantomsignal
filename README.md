@@ -18,9 +18,39 @@
 
 ---
 
-## ⚡ What's New in v1.25.0 — OPSEC Core
+## ⚡ What's New in v1.26.0 — Best-of-breed engines + the vuln loop
 
-**PhantomSignal now reports its own attribution surface.** No other open-source
+**PhantomSignal now closes the ASM loop and runs fast Go-native engines — under
+stealth governance.** It maps the surface *and* flags what's exploitable, and
+orchestrates the best external tools when installed without ever breaking the
+OPSEC guarantees.
+
+### 🎯 Vulnerability scanning (nuclei)
+The new `vuln_scan` module wraps **nuclei**, emitting `vulnerability` findings
+with normalised severity into the Findings & Exposure view, and exporting them as
+**STIX 2.1 Vulnerability SDOs**. Active and loud, so it's strictly opt-in — never
+part of the default sweep.
+
+### ⚡ Speed adapters, native fallback preserved
+Optional Go-native engines join the pipeline when installed and fall back to the
+pure-Python modules when not — a binary-free `pip install` keeps working:
+
+| Module | Tool | Posture | Fallback |
+|--------|------|---------|----------|
+| `subdomain_enum_fast` | subfinder | proxied | native enumerator |
+| `port_scan_fast` | naabu | attributable (raw socket) | native scanner |
+| `web_crawl_fast` | katana | proxied (with a proxy) | native crawler |
+| `tls_fingerprint` | tlsx | attributable | complements infra_pivot |
+
+Every adapter inherits the shared proxy egress where the tool supports it, and is
+tagged honestly in the attribution report — a raw-socket scanner is never
+labelled "masked."
+
+---
+
+## ⚡ Also new — OPSEC Core (v1.25.0)
+
+**PhantomSignal reports its own attribution surface.** No other open-source
 OSINT framework tells you what a scan leaked about *you*.
 
 ### 🛰 Attribution Surface — "what did this scan leak?"
