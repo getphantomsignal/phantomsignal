@@ -56,6 +56,27 @@ def worst_level(levels: List[OpsecLevel]) -> Optional[OpsecLevel]:
     return max(levels, key=lambda lvl: _RANK.get(lvl, 0))
 
 
+def effective_opsec(results: Optional[List[Dict]], static: str) -> str:
+    """A module's actual posture for a run.
+
+    Modules whose posture is dynamic (external tools that proxy only when a proxy
+    is configured) self-declare ``data["opsec"]`` per finding; the module's
+    effective level is the least-masked one it actually produced. Falls back to
+    the ``static`` registry tag when nothing self-declared.
+    """
+    seen = []
+    for r in (results or []):
+        data = r.get("data") if isinstance(r, dict) else None
+        val = data.get("opsec") if isinstance(data, dict) else None
+        if val in _RANK_BY_VALUE:
+            seen.append(OpsecLevel(val))
+    worst = worst_level(seen)
+    return worst.value if worst else static
+
+
+_RANK_BY_VALUE = {lvl.value: r for lvl, r in _RANK.items()}
+
+
 def _grade(summary: Dict, module_opsec: Dict[str, str]) -> str:
     """A one-word operator posture grade from the run's telemetry + module mix.
 

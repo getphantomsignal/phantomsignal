@@ -80,6 +80,11 @@ class PhantomEngine:
                     try:
                         results = await asyncio.wait_for(module_coro, timeout=300)
                         await self._store_results(scan_id, module_name, results, opsec_level)
+                        # Reflect the module's ACTUAL posture (external tools
+                        # proxy only when a proxy is configured) so the grade
+                        # stays honest, not just the static registry tag.
+                        from phantomsignal.intel.opsec import effective_opsec
+                        opsec_map[module_name] = effective_opsec(results, opsec_level)
                         completed += 1
                         progress = int((completed / total_modules) * 100)
                         self._update_progress(scan_id, progress)
@@ -116,7 +121,9 @@ class PhantomEngine:
         report). Modules are resolved from the scraper registry, so new modules
         join the pipeline by registering rather than by editing the engine.
         """
-        from phantomsignal.scrapers.registry import get_registered_modules
+        from phantomsignal.scrapers.registry import (
+            get_registered_modules, default_module_names,
+        )
 
         registry = get_registered_modules()
         target = scan.target
@@ -124,9 +131,10 @@ class PhantomEngine:
         # (config, target, opts) signature.
         opts = {**(scan.options or {}), "_scan_type": scan.scan_type.value}
 
-        # Default full-spectrum if no modules specified.
+        # Default full-spectrum if no modules specified — but only the default
+        # set (excludes loud/active or alternative modules like vuln_scan).
         if not modules:
-            modules = list(registry.keys())
+            modules = default_module_names()
 
         pipeline = []
         opsec_map: Dict[str, str] = {}

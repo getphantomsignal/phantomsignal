@@ -33,21 +33,32 @@ class ModuleSpec:
     factory: ModuleFactory
     opsec: OpsecLevel
     label: str = ""
+    # Whether the module runs in the default full-spectrum set (no modules
+    # specified). Opt-in modules (loud/active scanning, or alternatives to a
+    # default module) set this False so they only run when explicitly selected.
+    default: bool = True
 
 
 _REGISTRY: Dict[str, ModuleSpec] = {}
 
 
-def register_module(name: str, *, opsec: OpsecLevel, label: str = "") -> Callable[[ModuleFactory], ModuleFactory]:
+def register_module(name: str, *, opsec: OpsecLevel, label: str = "",
+                    default: bool = True) -> Callable[[ModuleFactory], ModuleFactory]:
     """Decorator/registrar for a recon module."""
     def _wrap(factory: ModuleFactory) -> ModuleFactory:
-        _REGISTRY[name] = ModuleSpec(name=name, factory=factory, opsec=opsec, label=label or name)
+        _REGISTRY[name] = ModuleSpec(name=name, factory=factory, opsec=opsec,
+                                     label=label or name, default=default)
         return factory
     return _wrap
 
 
 def get_registered_modules() -> Dict[str, ModuleSpec]:
     return dict(_REGISTRY)
+
+
+def default_module_names() -> List[str]:
+    """Modules that run when a scan specifies no explicit module list."""
+    return [name for name, spec in _REGISTRY.items() if spec.default]
 
 
 def module_names() -> List[str]:
@@ -171,3 +182,23 @@ def _web_crawl(config, target, opts):
 def _intel(config, target, opts):
     from phantomsignal.intel.orchestrator import IntelOrchestrator
     return IntelOrchestrator(config).run(target, opts.get("_scan_type", ""), opts)
+
+
+# ── Best-of-breed external tools (v1.26) — optional, native fallback preserved ─
+# Static OPSEC tag is the intended (proxied) posture; the actual per-run level is
+# self-declared in each finding's data["opsec"] and reflected in the grade.
+
+# Active vuln scanning is loud — opt-in only, never in the default sweep.
+@register_module("vuln_scan", opsec=OpsecLevel.PROXIED,
+                 label="Vulnerability Scan (nuclei)", default=False)
+def _vuln_scan(config, target, opts):
+    from phantomsignal.scrapers.vuln_scanner import NucleiScanner
+    return NucleiScanner(config).run(target, opts)
+
+
+# A faster alternative to subdomain_enum — opt-in so both don't run together.
+@register_module("subdomain_enum_fast", opsec=OpsecLevel.PROXIED,
+                 label="Subdomain Enum (subfinder)", default=False)
+def _subdomain_enum_fast(config, target, opts):
+    from phantomsignal.scrapers.subfinder_tool import run_subfinder_or_native
+    return run_subfinder_or_native(config, target, opts)

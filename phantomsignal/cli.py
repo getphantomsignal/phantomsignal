@@ -787,7 +787,7 @@ def web(host, port, debug, open_browser):
               type=click.Choice(["web_recon", "ip_recon", "domain_recon", "people_intel", "full_spectrum"]),
               default="web_recon", help="Scan type")
 @click.option("--modules", "-m", multiple=True,
-              help="Modules to run (dns_recon, subdomain_enum, takeover, port_scan, tech_detect, api_hunt, js_mine, archive_mine, infra_pivot, service_enum, doc_metadata, username_enum, profile_pivot, darkweb, email_oracle, web_crawl, intel)")
+              help="Modules to run (dns_recon, subdomain_enum, subdomain_enum_fast, takeover, port_scan, tech_detect, api_hunt, js_mine, archive_mine, infra_pivot, origin_pivot, service_enum, doc_metadata, username_enum, profile_pivot, darkweb, email_oracle, web_crawl, vuln_scan, intel)")
 @click.option("--profile", "-p",
               type=click.Choice(["quick", "standard", "deep", "covert"]),
               default="standard")

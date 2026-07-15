@@ -156,7 +156,8 @@ RESULT_CATEGORIES = [
     }),
     ("findings", "Findings & Exposure",      "⚠", "red", {
         "signature_match", "dork", "security_posture", "js_secret",
-        "takeover_vulnerable", "takeover_candidate", "origin_confirmed",
+        "takeover_vulnerable", "takeover_candidate", "takeover_confirmed",
+        "origin_confirmed", "vulnerability", "vuln_scan_summary",
     }),
 ]
 
@@ -174,6 +175,8 @@ def _finding_severity(result: dict) -> str:
     sev = str(data.get("severity") or "").lower()
     if sev in _SEV_RANK:
         return sev
+    if rtype == "takeover_confirmed":
+        return "critical"
     if rtype == "takeover_vulnerable":
         return "high"
     if rtype == "takeover_candidate":
