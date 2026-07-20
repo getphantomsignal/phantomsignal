@@ -9,6 +9,10 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+---
+
+## [1.27.0] — 2026-07-19
+
 **Identity-intelligence expansion + egress UX.** The Profiler gains eight
 keyless public sources and finally persists its runs as scans; free proxy pools
 are one click away; and the whole stealth posture is now visible and durable.

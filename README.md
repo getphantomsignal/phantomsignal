@@ -18,7 +18,7 @@
 
 ---
 
-## ⚡ What's New (unreleased) — Identity intelligence + egress you can see
+## ⚡ What's New in v1.27.0 — Identity intelligence + egress you can see
 
 **The Profiler grew up.** Eight new **keyless** public sources feed it, every
 run is now saved as a scan you can revisit and export, and the whole stealth
@@ -40,7 +40,7 @@ posture is visible in the navbar and survives a restart.
 - **Settings persist** — stealth profile, proxy pool, rotation, and the rest now
   survive a restart.
 
-See the [CHANGELOG](CHANGELOG.md#unreleased) for the full list.
+See the [CHANGELOG](CHANGELOG.md#1270--2026-07-19) for the full list.
 
 ---
 
