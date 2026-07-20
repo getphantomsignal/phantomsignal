@@ -397,6 +397,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. Please also review our [C
 
 - **[Usage Guide](docs/USAGE.md)** — full walkthroughs, usage scenarios, CLI reference, and per-platform troubleshooting (Linux / macOS / Windows / Docker)
 - **[Locate Guide](docs/LOCATE.md)** — person geographic-footprint investigations: cases, signal capture (incl. EXIF from a photo URL), confidence model, pattern-of-life, handoff export, and chain of custody
+- **[Releasing](docs/RELEASING.md)** — how a release is cut (version bump → tag → GitHub Release) and the one-time PyPI trusted-publisher setup
 
 ---
 
