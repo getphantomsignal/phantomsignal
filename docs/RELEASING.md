@@ -105,3 +105,36 @@ A green **Publish to PyPI** job and the new version live at
   `gh release create` (see above).
 - Trusted publishing needs `permissions: id-token: write` on the publish job —
   already set in `publish.yml`.
+
+---
+
+## Troubleshooting the publish
+
+Two failures we actually hit, and what each means.
+
+### `invalid-publisher: valid token, but no corresponding publisher`
+
+The OIDC token was minted but **no trusted publisher on PyPI matched** the
+workflow's claims. The publish job hasn't been configured on PyPI yet, or one of
+the four values is wrong. The log prints the claims it presented — they must
+match the [setup table](#one-time-configure-the-pypi-trusted-publisher) exactly:
+
+- `sub: repo:getphantomsignal/phantomsignal:environment:pypi`
+- `workflow_ref: …/publish.yml@refs/tags/vX.Y.Z`
+- `environment: pypi`
+
+Double-check owner, repository, workflow **filename** (`publish.yml`, not a
+path), and environment name (`pypi`).
+
+### `403 … OIDC scoped token is not valid for project 'phantomsignal'`
+
+Auth *succeeded* (a publisher matched) but the upload was refused. This is the
+**pending-vs-project** gotcha: the publisher was added as a **pending publisher**
+on the account page (<https://pypi.org/manage/account/publishing/>), which only
+mints a token to **create a new project**. Because `phantomsignal` **already
+exists** on PyPI, that token isn't valid for it.
+
+**Fix:** add the publisher on the **existing project** instead —
+<https://pypi.org/manage/project/phantomsignal/settings/publishing/> (you must
+be a project *Owner*) — then remove the stray pending publisher. Re-run the
+publish afterwards.
