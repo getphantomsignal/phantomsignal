@@ -393,6 +393,25 @@ footer {{ margin-top: 3rem; border-top: 1px solid #1a1a2e; padding-top: 1rem; co
                     "id": f"domain-name--{uuid.uuid4()}",
                     "value": data["domain"],
                 })
+            elif rtype == "vulnerability" and data.get("template_id"):
+                # nuclei finding → STIX Vulnerability SDO (closes the "no vuln in
+                # STIX" gap). name/severity/matched host carried in the labels.
+                name = data.get("name") or data["template_id"]
+                objects.append({
+                    "type": "vulnerability",
+                    "spec_version": "2.1",
+                    "id": f"vulnerability--{uuid.uuid4()}",
+                    "name": name,
+                    "description": data.get("description") or "",
+                    "labels": [f"severity:{data.get('severity', 'info')}",
+                               f"template:{data['template_id']}"]
+                    + [f"tag:{t}" for t in (data.get("tags") or [])],
+                    "external_references": (
+                        [{"source_name": "nuclei-matched-at",
+                          "url": data["matched_at"]}]
+                        if data.get("matched_at") else []
+                    ),
+                })
 
         bundle = {
             "type": "bundle",

@@ -54,7 +54,7 @@
       <div class="form-group" style="grid-column:1 / -1;"><label class="form-label">PURPOSE (case note)</label>
         <input class="input-field" name="purpose" placeholder="e.g. missing-persons search — LE ref #…"></div>
       <div class="form-group"><label class="form-label">RETENTION</label>
-        <select name="retention_days" class="input-field">
+        <select name="retention_days" class="input-field select-field">
           <option value="">Keep until purged</option>
           {% for d in presets %}<option value="{{ d }}">{{ d }} days</option>{% endfor %}
         </select></div>

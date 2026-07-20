@@ -61,6 +61,13 @@
     <div class="nav-status">
       <span class="status-dot" id="connection-dot"></span>
       <span class="status-text" id="connection-status">CONNECTING...</span>
+      {% if stealth %}
+      <a href="{{ url_for('settings.scan_settings') }}" class="stealth-chip stealth-{{ stealth.level }}"
+         title="Egress profile: {{ stealth.profile }}{% if stealth.proxied %} · proxy pool {{ stealth.pool_size }} ({{ stealth.rotation }} rotation){% else %} · no proxy (direct){% endif %}{% if stealth.impersonate %} · JA3 impersonation on{% endif %}{% if stealth.tor %} · Tor{% endif %} — click to configure">
+        <span class="stealth-icon" aria-hidden="true">🕶</span>
+        <span class="stealth-label">{{ stealth.label }}</span>
+      </a>
+      {% endif %}
       <span class="version-tag">v{{ version }}</span>
     </div>
   </nav>

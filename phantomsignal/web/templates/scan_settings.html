@@ -47,7 +47,7 @@
         <div class="form-group">
           <label class="form-label">STEALTH PROFILE</label>
           {% set sp = config.scraper.stealth_profile or 'off' %}
-          <select name="stealth_profile" class="input-field">
+          <select name="stealth_profile" class="input-field select-field">
             <option value="off"      {% if sp == 'off' %}selected{% endif %}>Off — fast &amp; loud</option>
             <option value="quiet"    {% if sp == 'quiet' %}selected{% endif %}>Quiet — blend in, adaptive pacing</option>
             <option value="paranoid" {% if sp == 'paranoid' %}selected{% endif %}>Paranoid — low &amp; slow</option>
@@ -69,7 +69,7 @@
         <div class="form-group">
           <label class="form-label">POOL ROTATION</label>
           {% set pr = config.scraper.proxy_rotation or 'sticky' %}
-          <select name="proxy_rotation" class="input-field">
+          <select name="proxy_rotation" class="input-field select-field">
             <option value="sticky" {% if pr == 'sticky' %}selected{% endif %}>Sticky — one egress per host, rotate on burn</option>
             <option value="every"  {% if pr == 'every' %}selected{% endif %}>Every — new egress each request</option>
           </select>
@@ -94,6 +94,69 @@
 
       <button type="submit" class="btn btn-secondary" style="margin-top:1rem;">Save Settings</button>
     </form>
+  </div>
+
+  <!-- Seed proxy pool -->
+  <div class="settings-section">
+    <div class="section-header">
+      <span class="section-icon neon-cyan">⇊</span>
+      <span class="section-title">SEED PROXY POOL</span>
+    </div>
+    <p class="form-hint" style="margin:0 0 1rem;">
+      Pull proxies from a curated free feed or upload your own list — added to the
+      rotating pool above. <strong>Free public proxies are unvetted and often dead
+      or hostile</strong>; treat them as blend-in cover for low-sensitivity recon,
+      not trust — pair with HTTPS and prefer your own egress for anything sensitive.
+    </p>
+
+    <div class="settings-grid">
+      <!-- Fetch from a feed / URL -->
+      <form action="{{ url_for('settings.fetch_proxies') }}" method="POST"
+            class="form-group form-group-wide">
+        <label class="form-label">FETCH FROM FEED</label>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+          <select name="source" class="input-field select-field" style="flex:1;min-width:220px;">
+            {% for key, src in proxy_sources.items() %}
+            <option value="{{ key }}">{{ src.name }} — {{ src.description }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit" class="btn btn-secondary">Fetch &amp; Add</button>
+        </div>
+        <label class="form-label" style="margin-top:0.75rem;">…OR A CUSTOM LIST URL</label>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <input type="url" name="custom_url" placeholder="https://example.com/proxies.txt"
+                 class="input-field" style="flex:1;min-width:220px;">
+          <select name="custom_scheme" class="input-field select-field" title="Scheme for bare ip:port lines">
+            <option value="http">http</option>
+            <option value="https">https</option>
+            <option value="socks4">socks4</option>
+            <option value="socks5">socks5</option>
+          </select>
+        </div>
+        <span class="form-hint">A custom URL (if set) takes priority over the feed. Bare
+          <code>ip:port</code> lines use the chosen scheme; lines with their own scheme keep it.</span>
+      </form>
+
+      <!-- Upload a list file -->
+      <form action="{{ url_for('settings.upload_proxies') }}" method="POST"
+            enctype="multipart/form-data" class="form-group form-group-wide">
+        <label class="form-label">UPLOAD A LIST FILE</label>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+          <input type="file" name="proxy_file" accept=".txt,.csv,.list,text/plain"
+                 class="input-field" style="flex:1;min-width:220px;">
+          <select name="upload_scheme" class="input-field select-field" title="Scheme for bare ip:port lines">
+            <option value="http">http</option>
+            <option value="https">https</option>
+            <option value="socks4">socks4</option>
+            <option value="socks5">socks5</option>
+          </select>
+          <button type="submit" class="btn btn-secondary">Upload &amp; Add</button>
+        </div>
+        <span class="form-hint">One proxy per line: <code>ip:port</code>,
+          <code>scheme://ip:port</code>, <code>user:pass@ip:port</code>, or
+          <code>ip:port:user:pass</code>. Up to {{ 300 }} added per import.</span>
+      </form>
+    </div>
   </div>
 
 </div>

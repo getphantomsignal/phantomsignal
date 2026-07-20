@@ -1,6 +1,9 @@
 # PhantomSignal
 
-> **Open-source OSINT intelligence framework** — _"Map the surface. Own the signal."_
+> **The OPSEC-native OSINT framework** — _"Map the surface. Own the signal."_
+>
+> Recon that doesn't burn your infrastructure — a stealth egress layer under every
+> module, and an honest per-scan report of exactly what you leaked.
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-4d9fd6?style=flat-square&logo=python)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-7fb8dd?style=flat-square)](LICENSE)
@@ -15,22 +18,94 @@
 
 ---
 
-## ⚡ What's New in v1.24.0
+## ⚡ What's New in v1.27.0 — Identity intelligence + egress you can see
 
-### Streamlined to two themes
-The web console now ships **two** carefully tuned themes built on semantic role tokens — **Dark** (a deep-slate federal console, the default) and **Light** (clean and print-friendly). Switch from the ☀ / ☾ segmented control in the nav; your choice persists in the browser and is applied before first paint, so there's no flash on reload. Every token in both themes is validated to **WCAG AA** contrast.
+**The Profiler grew up.** Eight new **keyless** public sources feed it, every
+run is now saved as a scan you can revisit and export, and the whole stealth
+posture is visible in the navbar and survives a restart.
 
-### Plain-language interface
-The web UI was rewritten from codenames to clear, function-first labels — **Dashboard, New Scan, Scans, Profiler, Integrations** — so a first-time user can tell what everything does. Findings, Risk Score, Data Sources, and consistent severity language throughout.
+- **8 no-key identity sources** — XposedOrNot (breach exposure with no HIBP key),
+  a GitHub commit-email harvester (real name + email from public commits),
+  GitLab, Wikidata (DOB + cross-linked socials for named people), WebFinger
+  (fediverse resolution), **offline phone intel** via libphonenumber (zero
+  network egress), openFEC (US employer/occupation), and OpenCorporates.
+- **Profiler → Scans** — a Profiler search now persists as a `people_intel` scan
+  (with a linked shadow profile), so it lands in **Scans** with history,
+  summary, and export. A **View in Scans** button jumps straight there.
+- **Egress routed + graded** — the keyless sources inherit the shared proxy pool
+  and land in the attribution ledger. A **STEALTH / PARTIAL / DIRECT** chip in
+  the navbar shows your live posture at a glance.
+- **Proxy pools in one click** — seed the rotating pool from curated free feeds,
+  a custom URL, or an uploaded list, right from Scan Settings.
+- **Settings persist** — stealth profile, proxy pool, rotation, and the rest now
+  survive a restart.
 
-### Roboto type + signal mark
-Roboto for UI text (tables, terminal, and code stay monospace for alignment), a font-based `∿` signal glyph replacing the old ASCII logo, and a PS-monogram favicon.
+See the [CHANGELOG](CHANGELOG.md#1270--2026-07-19) for the full list.
 
-### Clickable dashboard + one-click re-scan
-Dashboard stat cards are now links into the matching view, and any completed scan can be **re-run** against the same target with its original profile, modules, and options — from the results page or any Scans-list row.
+---
 
-### Honest risk gradient
-The Risk Score meter now runs a true green → amber → red ramp, so a low score reads green (safe) at a glance in every theme.
+## ⚡ What's New in v1.26.0 — Best-of-breed engines + the vuln loop
+
+**PhantomSignal now closes the ASM loop and runs fast Go-native engines — under
+stealth governance.** It maps the surface *and* flags what's exploitable, and
+orchestrates the best external tools when installed without ever breaking the
+OPSEC guarantees.
+
+### 🎯 Vulnerability scanning (nuclei)
+The new `vuln_scan` module wraps **nuclei**, emitting `vulnerability` findings
+with normalised severity into the Findings & Exposure view, and exporting them as
+**STIX 2.1 Vulnerability SDOs**. Active and loud, so it's strictly opt-in — never
+part of the default sweep.
+
+### ⚡ Speed adapters, native fallback preserved
+Optional Go-native engines join the pipeline when installed and fall back to the
+pure-Python modules when not — a binary-free `pip install` keeps working:
+
+| Module | Tool | Posture | Fallback |
+|--------|------|---------|----------|
+| `subdomain_enum_fast` | subfinder | proxied | native enumerator |
+| `port_scan_fast` | naabu | attributable (raw socket) | native scanner |
+| `web_crawl_fast` | katana | proxied (with a proxy) | native crawler |
+| `tls_fingerprint` | tlsx | attributable | complements infra_pivot |
+
+Every adapter inherits the shared proxy egress where the tool supports it, and is
+tagged honestly in the attribution report — a raw-socket scanner is never
+labelled "masked."
+
+---
+
+## ⚡ Also new — OPSEC Core (v1.25.0)
+
+**PhantomSignal reports its own attribution surface.** No other open-source
+OSINT framework tells you what a scan leaked about *you*.
+
+### 🛰 Attribution Surface — "what did this scan leak?"
+Every scan ends with an honest OPSEC grade — **masked**, **partial**, **exposed**,
+or **quiet** — computed from real egress telemetry, not marketing:
+
+- **% proxied vs. direct** — how many requests left through the proxy pool vs.
+  straight from your IP.
+- **JA3/JA4 profiles presented** — which browser TLS fingerprints you wore, and
+  how often.
+- **WAF challenges & adaptive backoffs** — where a defence noticed you.
+- **Per-module OPSEC breakdown** — every module tagged `stealth-guaranteed`,
+  `proxied`, or `attributable`, so you see which parts of a run are masked and
+  which are traceable back to you.
+
+The grade is deliberately unflattering: any attributable module, or under-50%
+proxied traffic, caps it. The point of an OPSEC-native tool is to tell you the
+truth about your footprint — not to always read green.
+
+### 🧅 Stealth layer under every module
+The shared stealth client (proxy pool + per-host adaptive pacing + sticky browser
+identity + optional JA3/JA4 impersonation) is now the spine. Target-facing
+document downloads route through it too — no more scanner User-Agent hitting the
+target directly.
+
+### 🧩 Module registry
+A `@register_module` plugin registry (mirroring the intel-API pattern) replaces
+the engine's hard-coded module table — new recon modules join the pipeline by
+registering, and declare their OPSEC posture up front.
 
 ---
 
@@ -42,10 +117,11 @@ across 45+ sources, and a web-surface crawl — then rolls every finding into a
 single Risk Score and writes a shareable HTML report.
 
 ```text
-$ phantomsignal scan example.com --profile standard --format html
+$ phantomsignal scan example.com --profile standard --opsec quiet --format html
 
 ◈  Target   : example.com  (domain)
 ◈  Profile  : standard     (~2–5 min)
+◈  OPSEC    : quiet        (proxy pool · adaptive pacing · JA3)
 ◈  Modules  : dns_recon port_scan tech_detect api_hunt web_crawl intel
 
 [1/6] DNS & WHOIS ......... 42 records · 7 subdomains
@@ -55,6 +131,7 @@ $ phantomsignal scan example.com --profile standard --format html
 [5/6] Web crawl .......... 128 URLs · 3 exposed endpoints
 [6/6] Scoring ............ Risk Score 34 / 100 (MEDIUM)
 
+◈  OPSEC ............. MASKED · 94% proxied · JA3: chrome124 · 0 direct
 ✓  Report written → ./reports/example.com.html
 ```
 
@@ -100,28 +177,37 @@ PhantomSignal is a **community-powered, open-source OSINT intelligence framework
 - **SPF/DMARC analysis** — identify email spoofing vulnerabilities
 - **Reverse DNS** and co-hosted domain discovery
 
-### 🔬 Intelligence APIs (46+ Integrations)
+### 🔬 Intelligence APIs (54+ Integrations)
 
 | Category | APIs |
 |----------|------|
 | **Network Scanning** | Shodan, Censys, ZoomEye, BinaryEdge |
 | **Threat Intelligence** | VirusTotal, AbuseIPDB, GreyNoise, AlienVault OTX, Intelligence X |
-| **Email & Breach** | Hunter.io, HaveIBeenPwned, EmailRep |
+| **Email & Breach** | Hunter.io, HaveIBeenPwned, EmailRep, **XposedOrNot** (no key) |
 | **Domain/Web** | SecurityTrails, URLScan.io, WhoisXML, Local WHOIS |
 | **Geolocation** | IPInfo.io |
-| **Phone** | Abstract API phone validation |
-| **People Search** | Pipl, FullContact, WhitePages, Spokeo, Clearbit |
-| **Social** | GitHub, Twitter/X, Reddit, Mastodon, Keybase, Gravatar, HackerNews, Twitch, YouTube, Instagram, TikTok, LinkedIn, Tumblr, Flickr, Spotify, Steam, VK, Telegram, Discord, Facebook |
+| **Phone** | Abstract API, **offline libphonenumber metadata** (no key, zero egress) |
+| **People Search** | Pipl, FullContact, WhitePages, Spokeo, Clearbit, **Wikidata** · **openFEC** · **OpenCorporates** (all no key) |
+| **Social** | GitHub, GitHub commit-email harvester, **GitLab**, **WebFinger**, Twitter/X, Reddit, Mastodon, Keybase, Gravatar, HackerNews, Twitch, YouTube, Instagram, TikTok, LinkedIn, Tumblr, Flickr, Spotify, Steam, VK, Telegram, Discord, Facebook |
 | **Custom** | Bring your own API via plugin architecture |
+
+> **No-key head start** — a whole tier of the Profiler works with **zero API
+> keys**: XposedOrNot (breaches), the GitHub commit-email harvester, GitLab,
+> Wikidata, WebFinger, offline phone metadata, openFEC, and OpenCorporates —
+> plus the existing GitHub/Reddit/Mastodon/Keybase/Gravatar/HackerNews sources.
+> Every network source routes through the stealth egress layer.
 
 ### 👤 Profiler (People Intelligence)
 LexisNexis-style identity aggregation from public records:
-- Cross-correlates data from multiple people-search APIs
+- Cross-correlates data from multiple people-search APIs — **many keyless**
 - Discovers emails, phones, addresses, relatives, employers
-- Breach data correlation via HIBP and other sources
-- Social media profile linking
+- Breach correlation via **XposedOrNot (no key)**, HIBP, and Intelligence X
+- Real name + email harvested from public GitHub/GitLab commits
+- Social media profile linking; fediverse resolution via WebFinger
 - **Risk Score** — digital exposure quantification (0-100)
-- Social graph building and timeline reconstruction
+- **Every run is saved as a scan** — persisted as a `people_intel` scan with a
+  linked shadow profile, so it shows up under **Scans** with history, summary,
+  and export (with a **View in Scans** shortcut from the results page)
 
 ### 📦 Export Formats
 | Format | Description |
@@ -139,9 +225,15 @@ All formats support **ZIP compression** and **AES-256-GCM encryption**.
 
 ### 🌑 Covert Recon
 - Low-and-slow **Covert** scan profile to minimize noise
-- Identity rotation via user-agent spoofing
+- **Stealth profiles** (`off` / `quiet` / `paranoid`) — per-host adaptive pacing,
+  sticky browser identity, JA3/JA4 impersonation, and WAF-aware backoff
+- **Rotating proxy pool** with sticky/per-request rotation and auto-benching of
+  burned egresses — **seed it in one click** from curated free feeds, a custom
+  list URL, or an uploaded file (Settings → Scan Settings)
+- **Live egress posture chip** in the navbar — STEALTH / PARTIAL / DIRECT at a glance
 - Tor proxy integration (Docker compose profile: `covert`)
 - Configurable request jitter and delays, toggled via **Evasive** mode
+- **Egress settings persist** across restarts
 
 ### 🔔 Additional Features
 - **Real-time live feed** — WebSocket-powered terminal during scans
@@ -209,6 +301,14 @@ export SECURITYTRAILS_API_KEY="your-st-key"
 ### Config File
 Copy `config/phantomsignal.yaml` to `~/.phantomsignal/config.yaml` and customize.
 
+### Egress / stealth (Settings → Scan Settings)
+Set your stealth profile, single proxy, and rotating proxy pool from the web UI.
+Seed the pool from curated free proxy feeds, a custom list URL, or an uploaded
+file. These egress settings are **saved to `~/.phantomsignal/config.yaml` and
+persist across restarts** (env-provided API keys are never copied there). Free
+public proxies are unvetted — treat them as blend-in cover for low-sensitivity
+recon, pair with HTTPS, and prefer your own egress for anything sensitive.
+
 ---
 
 ## 🔌 Adding Custom APIs
@@ -248,8 +348,8 @@ phantomsignal/
 ├── core/               — Engine, config, database, models
 ├── scrapers/           — Scrapy crawler, tech detector, port scanner, API hunter, DNS recon
 ├── intel/
-│   ├── apis/           — 46+ API integrations (plugin architecture)
-│   └── people/         — People intelligence aggregation
+│   ├── apis/           — 54+ API integrations (plugin architecture; incl. keyless identity sources)
+│   └── people/         — People intelligence aggregation + Profiler→scan persistence
 ├── exporters/          — JSON/CSV/PDF/HTML/XML/XLSX/STIX + crypto wrapper
 └── web/
     ├── routes/         — Flask blueprints (dashboard, scans, intel, settings, export, REST API)

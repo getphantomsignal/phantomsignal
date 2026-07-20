@@ -141,8 +141,9 @@ RESULT_CATEGORIES = [
         "jarm_fingerprint", "favicon_hash",
     }),
     ("web",      "Web & Endpoints",          "⌘", "cyan", {
-        "web_resource", "api_endpoint", "graphql_schema", "http_headers",
-        "js_endpoint", "js_mine_summary", "archive_url", "archive_summary",
+        "web_resource", "web_page", "web_crawl_summary", "api_endpoint",
+        "graphql_schema", "http_headers", "js_endpoint", "js_mine_summary",
+        "archive_url", "archive_summary",
     }),
     ("tech",     "Technology Stack",         "⚙", "cyan", {
         "technology",
@@ -154,9 +155,15 @@ RESULT_CATEGORIES = [
         "otx_indicator", "urlscan_result", "whois_record",
         "securitytrails_whois",
     }),
+    ("people",   "People & Identity",        "◉", "purple", {
+        "identity_name", "email", "phone", "address", "social_profile",
+        "username", "employer", "stated_location", "profile_image",
+        "breach_data", "people_profile_summary",
+    }),
     ("findings", "Findings & Exposure",      "⚠", "red", {
         "signature_match", "dork", "security_posture", "js_secret",
-        "takeover_vulnerable", "takeover_candidate", "origin_confirmed",
+        "takeover_vulnerable", "takeover_candidate", "takeover_confirmed",
+        "origin_confirmed", "vulnerability", "vuln_scan_summary",
     }),
 ]
 
@@ -174,6 +181,8 @@ def _finding_severity(result: dict) -> str:
     sev = str(data.get("severity") or "").lower()
     if sev in _SEV_RANK:
         return sev
+    if rtype == "takeover_confirmed":
+        return "critical"
     if rtype == "takeover_vulnerable":
         return "high"
     if rtype == "takeover_candidate":
@@ -210,6 +219,15 @@ def scan_summary(scan_id):
             ScanResult.scan_id == scan_id
         ).order_by(ScanResult.relevance_score.desc()).all()
         results_list = [r.to_dict() for r in results]
+
+    # The OPSEC attribution surface is operator telemetry, not a target finding —
+    # pull it out so it renders as its own panel instead of a category bucket.
+    attribution = next(
+        (r.get("data") for r in results_list
+         if r.get("result_type") == "attribution_surface"), None
+    )
+    results_list = [r for r in results_list
+                    if r.get("result_type") != "attribution_surface"]
 
     # Bucket results into categories, preserving the relevance ordering above.
     categories = []
@@ -250,6 +268,7 @@ def scan_summary(scan_id):
         scan=scan_dict,
         results=results_list,
         categories=categories,
+        attribution=attribution,
         anomaly_count=sum(1 for r in results_list if r.get("is_anomaly")),
         is_live=scan_dict["status"] == "running",
     )

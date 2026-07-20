@@ -240,6 +240,40 @@ a:hover { color: var(--neon-green); }
   border-radius: 2px;
 }
 
+/* Egress/stealth posture chip — sits beside the connection status so an
+   operator can see at a glance whether this session's traffic is masked. */
+.stealth-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.1rem 0.45rem;
+  border-radius: 2px;
+  border: 1px solid var(--border);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+.stealth-chip .stealth-icon { font-size: 0.72rem; line-height: 1; filter: grayscale(0.15); }
+.stealth-chip.stealth-stealth {
+  color: var(--success);
+  border-color: color-mix(in srgb, var(--success) 45%, transparent);
+  background: color-mix(in srgb, var(--success) 12%, transparent);
+}
+.stealth-chip.stealth-partial {
+  color: var(--warning);
+  border-color: color-mix(in srgb, var(--warning) 45%, transparent);
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+}
+.stealth-chip.stealth-off {
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+.stealth-chip:hover { border-color: var(--accent); }
+@media (max-width: 900px) { .stealth-chip .stealth-label { display: none; } }
+
 /* ── Main Content ───────────────────────────────────────────── */
 .main-content {
   position: relative;
@@ -696,6 +730,10 @@ a.stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0
 .input-field::placeholder { color: var(--text-muted); }
 
 .select-field { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%2393a1ba'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.75rem center; padding-right: 2rem; }
+/* Theme the native dropdown menu for every select, not just .select-field —
+   without this the open <option> list falls back to the OS default (light on
+   Chromium/Linux) and clashes with the dark console. */
+select.input-field option,
 .select-field option { background: var(--card-bg); color: var(--text); }
 
 .form-label {

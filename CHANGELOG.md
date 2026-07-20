@@ -11,6 +11,134 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.27.0] — 2026-07-19
+
+**Identity-intelligence expansion + egress UX.** The Profiler gains eight
+keyless public sources and finally persists its runs as scans; free proxy pools
+are one click away; and the whole stealth posture is now visible and durable.
+
+### Added
+- **Eight keyless identity sources** (`intel/apis/identity_sources.py`) — no API
+  key required, feeding the Profiler aggregator's existing fields:
+  - **XposedOrNot** — breach exposure by email, filling the keyless-breach gap
+    (HIBP/IntelX need keys).
+  - **GitHub commit-email harvester** — real name + email mined from a user's
+    public commits and events.
+  - **GitLab** — public profile, links, and public email.
+  - **Wikidata** — structured biographical identity for named people (DOB,
+    official site, cross-linked socials); human-only (rejects same-name
+    companies/films).
+  - **WebFinger** — resolves a fediverse handle to its profile and aliases.
+  - **Offline phone intel** (libphonenumber) — region, carrier, line-type, and
+    validity with **zero network egress**.
+  - **openFEC** — US political-donation records → employer / occupation / city.
+  - **OpenCorporates** — company-officer roles for a name.
+- **Profiler runs are now scans.** A Profiler search persists as a `people_intel`
+  scan — `Scan` + `ScanResult` rows + a linked `ShadowProfile` — so it appears
+  under **Scans** with history, summary, and export. Added a **"View in Scans"**
+  button, a `people_intel` path in the CLI `profile` command, and a new
+  **People & Identity** category in the scan summary view.
+- **Keyless sources routed through the stealth client** — a `STEALTH_ROUTED`
+  opt-in on `BaseIntelAPI` routes those sources through the shared proxy pool +
+  adaptive rate limiter, and records them in the attribution ledger (proxied when
+  a proxy is configured, instead of leaking direct and uncounted). Keyed
+  providers are untouched. The offline phone source makes no request.
+- **Egress-posture chip in the navbar** — a **STEALTH / PARTIAL / DIRECT** badge
+  beside the connection status, theme-aware, tooltip'd with profile · pool size ·
+  rotation · JA3 · Tor, linking to Scan Settings. Backed by
+  `core.http.stealth_status()`.
+- **Proxy-pool seeding** (`core/proxy_sources.py`, Settings → Scan Settings) —
+  fetch from curated free feeds (ProxyScrape, TheSpeedX, monosans, Proxifly), a
+  custom list URL, or **upload a list file**. Tolerant parser handles
+  `ip:port`, `scheme://ip:port`, `user:pass@ip:port`, and `ip:port:user:pass`,
+  with de-dupe and per-import (300) / total (1000) caps.
+- **Settings persistence** — scraper/egress settings (stealth profile, single
+  proxy, pool, rotation, TLS impersonation, Tor, robots.txt, delay, concurrency)
+  now survive a restart via `~/.phantomsignal/config.yaml`, merged non-
+  destructively. `config.persist()` deliberately does **not** copy env-provided
+  API keys into the file.
+
+### Fixed
+- **Profiler results page crashed** (KeyError) whenever a social profile was
+  found — the template iterated the `social_profiles` dict as if it were a list.
+- **Dark-mode dropdowns** — native `<option>` menus fell back to the OS light
+  theme; now themed for every select, and the stealth/pool/retention/kind/mode
+  selects gained the styled dropdown arrow.
+
+### Dependencies
+- Added `phonenumbers` (offline phone metadata; degrades gracefully if absent).
+
+---
+
+## [1.26.0] — 2026-07-15
+
+**Best-of-breed engines + the vuln loop.** PhantomSignal now closes the ASM loop
+(maps the surface *and* flags what's exploitable) and orchestrates fast Go-native
+recon tools when installed — all under stealth governance, with pure-Python
+fallback so a binary-free install keeps working.
+
+### Added
+- **Vulnerability scanning via nuclei** (`scrapers/vuln_scanner.py`, module
+  `vuln_scan`) — emits the `vulnerability` result type (long-weighted in the
+  shadow score, never produced until now) with normalised severity; a
+  `vuln_scan_summary` rolls up counts. Surfaces in the Findings & Exposure
+  category with severity grading, and exports as a **STIX 2.1 Vulnerability SDO**.
+- **External-tool adapter framework** (`scrapers/_external.py`) — availability-
+  gated on `shutil.which`, proxy injected from the shared egress config, output
+  tagged `proxied` (or honestly `attributable` when the tool can't proxy);
+  `run_with_fallback()` runs the native module when a binary is absent or empty.
+- **Speed adapters** (all opt-in, native fallback where one exists):
+  - `subdomain_enum_fast` — **subfinder** (proxied) → native enumerator.
+  - `port_scan_fast` — **naabu** (attributable, raw-socket) → native scanner.
+  - `web_crawl_fast` — **katana** (proxied when a proxy is set) → native crawler.
+  - `tls_fingerprint` — **tlsx** (attributable) JARM + cert hashes; complements
+    infra_pivot (no standalone fallback).
+- **Honest dynamic OPSEC** (`effective_opsec`) — a module's attribution grade
+  reflects its *actual* egress posture, not just the static registry tag.
+
+### Changed
+- Scraper registry gains a `default` flag; loud/active or alternative modules
+  (`vuln_scan`, `*_fast`, `tls_fingerprint`) stay out of the full-spectrum sweep
+  and are opt-in. New modules exposed in the CLI `--modules` list and web form.
+
+---
+
+## [1.25.0] — 2026-07-15
+
+**OPSEC Core** — makes the stealth layer the visible flagship. PhantomSignal now
+reports its own **attribution surface**: after every scan, an honest answer to
+*"what did this scan leak about my infrastructure?"*
+
+### Added
+- **Attribution Surface report** — a per-scan OPSEC panel on the summary page
+  grading the run (`masked` / `partial` / `exposed` / `quiet`) from real
+  telemetry: % of requests proxied vs. sent direct from your IP, which JA3/JA4
+  browser profiles were presented, WAF challenges hit, and adaptive backoffs.
+  Emitted as an `attribution_surface` finding (excluded from the Risk Score) and
+  broadcast live over the scan socket.
+- **`AttributionLedger` + `attribution_scope()`** (`core/http.py`) — a
+  contextvar-scoped ledger that every `StealthClient` request records into,
+  wherever it runs in the module tree. No per-scraper wiring required.
+- **`OpsecLevel` taxonomy** (`intel/opsec.py`) — every module declares how
+  attributable its traffic is (`stealth_guaranteed` / `proxied` /
+  `attributable`), stamped onto each finding. Grading is deliberately honest —
+  any attributable module or under-50%-proxied traffic caps the grade.
+- **Scraper module registry** (`scrapers/registry.py`) — a `@register_module`
+  plugin registry mirroring the intel-API pattern; replaces the engine's
+  hard-coded module table so new modules join the pipeline by registering.
+- **`StealthClient.stream()`** — stealth-routed streaming downloads (proxy pool +
+  browser identity + adaptive pacing) with mid-flight size-capping.
+
+### Changed
+- **Document-metadata downloads** now route through the stealth client instead of
+  a `PhantomSignal-OSINT/1.0` scanner User-Agent hitting the target directly.
+- **Engine pipeline** is resolved from the scraper registry; each built-in is
+  tagged with its verified OPSEC level (7 route through the stealth client;
+  Tor-based dark-web egress is proxied; raw-socket and third-party-API modules
+  are honestly marked attributable).
+
+---
+
 ## [1.24.0] — 2026-07-12
 
 Simplified the web console to two themes and removed the pre-rendered demo /

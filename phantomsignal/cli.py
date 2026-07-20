@@ -787,7 +787,7 @@ def web(host, port, debug, open_browser):
               type=click.Choice(["web_recon", "ip_recon", "domain_recon", "people_intel", "full_spectrum"]),
               default="web_recon", help="Scan type")
 @click.option("--modules", "-m", multiple=True,
-              help="Modules to run (dns_recon, subdomain_enum, takeover, port_scan, tech_detect, api_hunt, js_mine, archive_mine, infra_pivot, service_enum, doc_metadata, username_enum, profile_pivot, darkweb, email_oracle, web_crawl, intel)")
+              help="Modules to run (dns_recon, subdomain_enum, subdomain_enum_fast, takeover, port_scan, port_scan_fast, tech_detect, api_hunt, js_mine, archive_mine, infra_pivot, origin_pivot, tls_fingerprint, service_enum, doc_metadata, username_enum, profile_pivot, darkweb, email_oracle, web_crawl, web_crawl_fast, vuln_scan, intel)")
 @click.option("--profile", "-p",
               type=click.Choice(["quick", "standard", "deep", "covert"]),
               default="standard")
@@ -805,8 +805,11 @@ def web(host, port, debug, open_browser):
               help="Zombie host for an idle scan (--stealth idle)")
 @click.option("--decoys", default=None,
               help="Decoy spec for a decoy scan, e.g. RND:10 or ip1,ME,ip2 (--stealth decoy)")
+@click.option("--opsec", type=click.Choice(["off", "quiet", "paranoid"]), default=None,
+              help="Stealth egress profile for target-facing HTTP "
+                   "(proxy pool + adaptive pacing + JA3 impersonation)")
 def scan(target, scan_type, modules, profile, output, fmt, compress, encrypt,
-         password, no_robots, stealth, zombie, decoys):
+         password, no_robots, stealth, zombie, decoys, opsec):
     """Run a scan against a target from the command line."""
     print_banner()
     console.print(DISCLAIMER, style="yellow")
@@ -835,6 +838,12 @@ def scan(target, scan_type, modules, profile, output, fmt, compress, encrypt,
 
     if no_robots:
         cfg.set("scraper", "respect_robots_txt", value=False)
+
+    # Stealth egress profile for target-facing HTTP. Drives the shared stealth
+    # client (proxy pool + adaptive pacing + JA3 impersonation) for this run.
+    if opsec:
+        cfg.set("scraper", "stealth_profile", value=opsec)
+        console.print(f"[dim]  OPSEC egress profile: {opsec}[/dim]\n")
 
     with get_db() as db:
         scan_obj = Scan(
@@ -879,6 +888,21 @@ def scan(target, scan_type, modules, profile, output, fmt, compress, encrypt,
 
     _render_scan_results(console, results_list, scan_dict, target)
 
+    # OPSEC attribution surface — what this scan leaked about the operator.
+    attribution = next((r.get("data") for r in results_list
+                        if r.get("result_type") == "attribution_surface"), None)
+    if attribution:
+        grade = attribution.get("grade", "unknown")
+        colour = {"masked": "green", "partial": "yellow",
+                  "exposed": "red", "quiet": "dim"}.get(grade, "white")
+        console.print(
+            f"\n[bold {colour}]◈ OPSEC · {grade.upper()}[/bold {colour}] "
+            f"[dim]— {attribution.get('proxied_pct', 0)}% proxied · "
+            f"{attribution.get('direct', 0)} direct · "
+            f"{attribution.get('impersonated', 0)} JA3-impersonated · "
+            f"{attribution.get('waf_blocks', 0)} WAF challenge(s)[/dim]"
+        )
+
     if output:
         from phantomsignal.exporters.manager import ExportManager
         manager = ExportManager(output_dir=output)
@@ -909,7 +933,9 @@ def profile(first_name, last_name, email, phone, username, output):
         sys.exit(1)
 
     from phantomsignal.intel.people.aggregator import ShadowProfileBuilder
+    from phantomsignal.intel.people.persist import persist_profile_scan
     from phantomsignal.core.config import config as cfg
+    from phantomsignal.core.database import init_db
 
     console.print("\n[bold cyan]◉ INITIATING SHADOW PROFILER...[/bold cyan]")
 
@@ -922,6 +948,13 @@ def profile(first_name, last_name, email, phone, username, output):
             phone=phone,
             username=username,
         ))
+
+    # Persist as a people_intel scan so it lands in the Scans store / GUI.
+    init_db()
+    scan_id = persist_profile_scan(result, {
+        "first_name": first_name, "last_name": last_name, "email": email,
+        "phone": phone, "username": username,
+    })
 
     console.print("\n[bold green]SHADOW PROFILE COMPILED[/bold green]")
     console.print(f"Confidence: [cyan]{result.get('confidence', 0):.0%}[/cyan]")
@@ -947,6 +980,9 @@ def profile(first_name, last_name, email, phone, username, output):
         console.print(f"\n[bold red]⚠ BREACHES DETECTED: {len(result['breach_data'])}[/bold red]")
         for b in result["breach_data"][:5]:
             console.print(f"  ✗ {b.get('name', '?')} ({b.get('breach_date', '?')})")
+
+    if scan_id:
+        console.print(f"\n[green]✓ Saved to Scans:[/green] [cyan]{scan_id}[/cyan]")
 
     if output:
         with open(output, "w") as f:

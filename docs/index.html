@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#070d1a">
-  <meta name="description" content="PhantomSignal — Open-source OSINT intelligence framework for security researchers, penetration testers, and digital investigators.">
-  <meta property="og:title" content="PhantomSignal — Open-Source OSINT Intelligence Framework">
-  <meta property="og:description" content="Open-source OSINT intelligence framework. Map the surface. Own the signal.">
-  <title>PhantomSignal — Open-Source OSINT Intelligence Framework</title>
+  <meta name="description" content="PhantomSignal — the OPSEC-native OSINT framework. A stealth egress layer under every module and an honest per-scan report of exactly what you leaked. For security researchers, penetration testers, and digital investigators.">
+  <meta property="og:title" content="PhantomSignal — The OPSEC-Native OSINT Framework">
+  <meta property="og:description" content="Recon that doesn't burn your infrastructure. Stealth egress under every module + an honest attribution-surface report. Map the surface. Own the signal.">
+  <title>PhantomSignal — The OPSEC-Native OSINT Framework</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
@@ -37,13 +37,13 @@
   <section class="hero">
     <div class="hero-inner">
       <div class="hero-text">
-        <div class="hero-eyebrow">// PHANTOM SIGNAL v1.24.0</div>
+        <div class="hero-eyebrow">// PHANTOM SIGNAL v1.27.0 · OPSEC-NATIVE</div>
         <div class="hero-title-row">
           <span class="hero-glyph" aria-hidden="true">∿</span>
           <h1 class="hero-title">PHANTOM<span class="accent">SIGNAL</span></h1>
         </div>
         <p class="hero-tagline">"Map the surface. Own the signal."</p>
-        <p class="hero-sub">Open-source OSINT intelligence framework for security researchers,<br>penetration testers, and digital investigators.</p>
+        <p class="hero-sub">The <strong>OPSEC-native</strong> OSINT framework — a stealth egress layer under<br>every module, and an honest per-scan report of exactly what you leaked.</p>
         <div class="hero-actions">
           <div class="install-block">
             <span class="install-prompt">$</span>
@@ -96,6 +96,7 @@
 <span class="c-dim">[5/6]</span> Web crawl .......... <span class="c-green">128 URLs · 3 exposed endpoints</span>
 <span class="c-dim">[6/6]</span> Scoring ............ <span class="c-green">Risk Score 34 / 100 (MEDIUM)</span>
 
+<span class="c-cyan">◈  Attribution</span> : <span class="c-green">MASKED</span>  <span class="c-dim">— 100% proxied · 0 direct · JA3: chrome124</span>
 <span class="c-green">✓</span>  Report written → <span class="c-cyan">./reports/example.com.html</span></pre>
       </div>
 
@@ -103,9 +104,10 @@
         <div class="demo-stage"><span class="demo-stage-k">DNS &amp; WHOIS</span><span class="demo-stage-v">A/AAAA/MX/NS/TXT records, registrar and nameserver data, and passive subdomain discovery to map the full domain footprint.</span></div>
         <div class="demo-stage"><span class="demo-stage-k">Port &amp; Service Scan</span><span class="demo-stage-v">nmap-driven open-port enumeration with service version and OS detection, plus optional stealth decoy and idle-scan modes.</span></div>
         <div class="demo-stage"><span class="demo-stage-k">Tech Fingerprint</span><span class="demo-stage-v">Server, CDN, framework, CMS and JavaScript-library detection from headers, response bodies, and favicon / JARM hashes.</span></div>
-        <div class="demo-stage"><span class="demo-stage-k">Threat Intelligence</span><span class="demo-stage-v">Concurrent correlation across 45+ sources — Shodan, VirusTotal, AbuseIPDB, AlienVault OTX, and breach / reputation feeds.</span></div>
+        <div class="demo-stage"><span class="demo-stage-k">Threat Intelligence</span><span class="demo-stage-v">Concurrent correlation across 50+ sources — Shodan, VirusTotal, AbuseIPDB, AlienVault OTX, and breach / reputation feeds.</span></div>
         <div class="demo-stage"><span class="demo-stage-k">Web Crawl</span><span class="demo-stage-v">Surface mapping of links, forms and exposed endpoints, with secret and API-key mining across every discovered asset.</span></div>
         <div class="demo-stage"><span class="demo-stage-k">Risk Scoring &amp; Report</span><span class="demo-stage-v">Findings roll into a 0–100 Risk Score on a true green → amber → red gradient, exported as a shareable HTML report.</span></div>
+        <div class="demo-stage"><span class="demo-stage-k">Attribution Surface</span><span class="demo-stage-v">Every scan ends with an honest OPSEC grade — % proxied vs. direct, JA3/JA4 profiles worn, and WAF challenges — so you know exactly what the run leaked about <em>you</em>.</span></div>
       </div>
     </div>
   </section>
@@ -114,38 +116,38 @@
   <section class="section section-whatsnew" id="whatsnew">
     <div class="section-inner">
       <div class="section-label">🆕 WHAT'S NEW</div>
-      <h2 class="section-title">v1.24.0 — PHANTOM SIGNAL</h2>
-      <p class="section-sub">A streamlined web console: two carefully tuned themes, clearer plain-language UI, clickable dashboards, and one-click re-scans.</p>
+      <h2 class="section-title">The OPSEC-Native Era</h2>
+      <p class="section-sub">PhantomSignal now reports its own attribution surface, closes the vuln loop, orchestrates best-of-breed engines, and runs a deep identity Profiler — all under one stealth egress layer. No other open-source OSINT framework tells you what a scan leaked about <em>you</em>.</p>
       <div class="whatsnew-grid">
         <div class="whatsnew-card">
-          <div class="whatsnew-icon">🎨</div>
-          <h3 class="whatsnew-title">Two Tuned Themes</h3>
-          <p class="whatsnew-desc">A theming system built on semantic role tokens: <strong>Dark</strong> (a deep-slate federal console, default) and <strong>Light</strong> (clean and print-friendly). Flip between them from the ☀ / ☾ segmented switch in the nav — the choice persists and applies before first paint, so there's no flash on reload. Every token in both themes is validated to WCAG AA contrast.</p>
+          <div class="whatsnew-icon">🛰️</div>
+          <h3 class="whatsnew-title">Attribution Surface</h3>
+          <p class="whatsnew-desc">Every scan ends with an honest OPSEC grade — <strong>masked</strong>, <strong>partial</strong>, or <strong>exposed</strong> — computed from real egress telemetry: % proxied vs. direct, JA3/JA4 fingerprints presented, WAF challenges, and a per-module breakdown of what's masked vs. traceable to you. The grade is deliberately unflattering.</p>
         </div>
         <div class="whatsnew-card">
-          <div class="whatsnew-icon">📝</div>
-          <h3 class="whatsnew-title">Plain-Language Interface</h3>
-          <p class="whatsnew-desc">The UI was rewritten from codenames to clear, function-first labels — Dashboard, New Scan, Scans, Profiler, Integrations — so a first-time user can tell what everything does. Findings, Risk Score, Data Sources, and consistent severity language throughout.</p>
+          <div class="whatsnew-icon">🧅</div>
+          <h3 class="whatsnew-title">Stealth Egress Layer</h3>
+          <p class="whatsnew-desc">A shared client under every module: rotating proxy pool, per-host adaptive pacing, sticky browser identity, and optional JA3/JA4 impersonation. <strong>Seed the pool in one click</strong> from curated free feeds or an uploaded list, watch your posture in the navbar chip, and it all <strong>persists across restarts</strong>.</p>
         </div>
         <div class="whatsnew-card">
-          <div class="whatsnew-icon">🔤</div>
-          <h3 class="whatsnew-title">Roboto Type + Signal Mark</h3>
-          <p class="whatsnew-desc">Roboto for UI text (tables, terminal, and code stay monospace for alignment), a font-based <code>∿</code> signal glyph replacing the old ASCII logo, and a PS-monogram favicon.</p>
+          <div class="whatsnew-icon">🎯</div>
+          <h3 class="whatsnew-title">Vulnerability Scanning</h3>
+          <p class="whatsnew-desc">The <code>vuln_scan</code> module wraps <strong>nuclei</strong>, emitting normalised-severity <code>vulnerability</code> findings into the Findings &amp; Exposure view and exporting them as <strong>STIX 2.1 Vulnerability SDOs</strong>. Active and loud, so it's strictly opt-in — never part of the default sweep.</p>
         </div>
         <div class="whatsnew-card">
-          <div class="whatsnew-icon">🖱️</div>
-          <h3 class="whatsnew-title">Clickable Dashboard</h3>
-          <p class="whatsnew-desc">The dashboard stat cards — Total Scans, Findings, Connected Sources — are now links that drop you straight into the matching view. Small quality-of-life, big time saver.</p>
+          <div class="whatsnew-icon">⚡</div>
+          <h3 class="whatsnew-title">Best-of-Breed Engines</h3>
+          <p class="whatsnew-desc">Optional Go-native tools join the pipeline when installed — <strong>subfinder, naabu, katana, tlsx</strong> — each inheriting the shared proxy egress and tagged honestly in the attribution report. A binary-free install keeps working: every adapter falls back to its pure-Python module.</p>
         </div>
         <div class="whatsnew-card">
-          <div class="whatsnew-icon">🔄</div>
-          <h3 class="whatsnew-title">One-Click Re-scan</h3>
-          <p class="whatsnew-desc">Re-run any completed scan against the same target with its original profile, modules, and options — straight from the results page or any row of the Scans list.</p>
+          <div class="whatsnew-icon">👤</div>
+          <h3 class="whatsnew-title">Identity Intelligence</h3>
+          <p class="whatsnew-desc">Eight new <strong>keyless</strong> Profiler sources — XposedOrNot breaches (no HIBP key), a GitHub commit-email harvester, GitLab, Wikidata, WebFinger, offline phone metadata, openFEC, and OpenCorporates. Every Profiler run is now <strong>saved as a scan</strong> with history, summary, and export.</p>
         </div>
         <div class="whatsnew-card">
-          <div class="whatsnew-icon">📊</div>
-          <h3 class="whatsnew-title">Honest Risk Gradient</h3>
-          <p class="whatsnew-desc">The Risk Score meter now runs a true green → amber → red ramp, so a low score reads green (safe) at a glance in every theme.</p>
+          <div class="whatsnew-icon">🧩</div>
+          <h3 class="whatsnew-title">Plugin Registry</h3>
+          <p class="whatsnew-desc">A <code>@register_module</code> / <code>@register_api</code> registry — new recon modules and intel sources join the pipeline by registering, each declaring its OPSEC posture up front so the attribution report always grades a run honestly.</p>
         </div>
       </div>
       <div style="text-align:center;margin-top:2rem;">
@@ -192,18 +194,18 @@
         <div class="feature-card">
           <div class="feature-icon" style="color:var(--pink)">📡</div>
           <h3 class="feature-title">Intelligence APIs</h3>
-          <p class="feature-desc">46+ integrations: Shodan, VirusTotal, AbuseIPDB, GreyNoise, AlienVault OTX, Intelligence X, EmailRep, social APIs (Twitch, Mastodon, Steam, Discord, Telegram), and more. Plugin architecture for custom sources.</p>
+          <p class="feature-desc">54+ integrations: Shodan, VirusTotal, AbuseIPDB, GreyNoise, AlienVault OTX, Intelligence X, and dozens of social/people sources — many <strong>keyless</strong>. Plugin architecture for custom sources; every network source routes through the stealth layer.</p>
           <div class="feature-tags">
-            <span class="tag">Shodan</span><span class="tag">VirusTotal</span><span class="tag">+44 more</span>
+            <span class="tag">Shodan</span><span class="tag">VirusTotal</span><span class="tag">+52 more</span>
           </div>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon" style="color:var(--green)">👤</div>
           <h3 class="feature-title">Profiler</h3>
-          <p class="feature-desc">People intelligence aggregation from public records. Cross-correlates emails, phones, social accounts, breach data, and aliases. Outputs a Risk Score — digital exposure quantified.</p>
+          <p class="feature-desc">People intelligence from public records — <strong>eight keyless sources</strong> (breaches, commit-email harvesting, Wikidata, WebFinger, offline phone, and more) cross-correlating emails, phones, socials, and aliases. Every run is saved as a scan; outputs a Risk Score.</p>
           <div class="feature-tags">
-            <span class="tag">HIBP</span><span class="tag">Pipl</span><span class="tag">Risk Score</span>
+            <span class="tag">XposedOrNot</span><span class="tag">No-key</span><span class="tag">Saved as scans</span>
           </div>
         </div>
 
@@ -223,27 +225,31 @@
   <section class="section section-ghost">
     <div class="section-inner ghost-inner">
       <div class="ghost-text">
-        <div class="section-label">◈ COVERT RECON</div>
-        <h2 class="section-title">Low-and-Slow. Minimum Footprint.</h2>
-        <p class="section-sub">Identity rotation, request jitter, user-agent spoofing, and optional Tor routing keep your recon beneath the noise floor. Purpose-built for engagements where staying under the radar matters.</p>
+        <div class="section-label">◈ OPSEC &amp; COVERT RECON</div>
+        <h2 class="section-title">Low-and-Slow. Provably Masked.</h2>
+        <p class="section-sub">Three stealth profiles (<code>off</code> / <code>quiet</code> / <code>paranoid</code>) drive per-host adaptive pacing, sticky browser identity, and JA3/JA4 impersonation over a rotating proxy pool — seed it in one click from curated free feeds or an uploaded list. Optional Tor routing. And every run reports exactly what it leaked.</p>
         <a href="#quickstart" class="btn btn-primary" style="margin-top:1.5rem;">RUN A COVERT SCAN</a>
       </div>
       <div class="ghost-code">
         <div class="demo-bar">
           <span class="demo-dot red"></span><span class="demo-dot yellow"></span><span class="demo-dot green"></span>
-          <span class="demo-title">covert scan + tor</span>
+          <span class="demo-title">stealth egress + attribution</span>
         </div>
-        <pre class="code-block"><span class="c-dim"># Docker — covert scan with Tor routing</span>
-<span class="c-green">docker-compose</span> --profile covert up -d
-
-<span class="c-dim"># CLI — covert scan</span>
+        <pre class="code-block"><span class="c-dim"># CLI — set the OPSEC posture per scan</span>
 <span class="c-green">phantomsignal</span> scan target.com \
-  --profile covert \
-  --modules dns,tech \
+  --opsec paranoid \
   --format json
 
-<span class="c-dim"># Web UI — enable Evasive mode</span>
-<span class="c-cyan">Advanced Config</span> → Evasive (low &amp; slow) ✓</pre>
+<span class="c-dim"># Web UI — Settings → Scan Settings</span>
+<span class="c-cyan">Stealth profile</span> : paranoid
+<span class="c-cyan">Proxy pool</span>     : Fetch &amp; Add ✓  (curated free feeds)
+<span class="c-cyan">Rotation</span>       : sticky · burned egresses auto-benched
+
+<span class="c-dim"># Docker — route everything through Tor</span>
+<span class="c-green">docker-compose</span> --profile covert up -d
+
+<span class="c-dim"># Navbar chip shows live posture:</span>
+<span class="c-green">🕶 PARANOID</span> <span class="c-dim">· pool 42 · JA3 on</span></pre>
       </div>
     </div>
   </section>
@@ -346,9 +352,9 @@
         <pre class="code-block"><span class="c-dim"># IP recon — nmap version + OS detection, GeoIP, panels</span>
 <span class="c-green">phantomsignal</span> scan 192.168.1.1 --type ip_recon
 
-<span class="c-dim"># Domain recon with HTML report</span>
+<span class="c-dim"># Domain recon, quiet OPSEC posture, HTML report</span>
 <span class="c-green">phantomsignal</span> scan example.com \
-  --profile standard \
+  --profile standard --opsec quiet \
   --format html --output ./reports
 
 <span class="c-dim"># People intelligence</span>
@@ -368,8 +374,8 @@
   <section class="section section-apis">
     <div class="section-inner">
       <div class="section-label">🔌 INTELLIGENCE GRID</div>
-      <h2 class="section-title">46+ API Integrations</h2>
-      <p class="section-sub">Configure your own keys in Integrations — every API has a free tier to get started.</p>
+      <h2 class="section-title">54+ Intelligence Sources</h2>
+      <p class="section-sub">A whole tier works with <strong>zero API keys</strong> — add your own in Integrations to go deeper. Every network source routes through the stealth egress layer.</p>
       <div class="api-chips">
         <span class="api-chip green">Shodan</span>
         <span class="api-chip cyan">VirusTotal</span>
@@ -406,6 +412,12 @@
         <span class="api-chip purple">EmailRep</span>
         <span class="api-chip green">Intelligence X</span>
         <span class="api-chip cyan">Abstract Phone</span>
+        <span class="api-chip green">XposedOrNot</span>
+        <span class="api-chip cyan">GitLab</span>
+        <span class="api-chip purple">Wikidata</span>
+        <span class="api-chip green">WebFinger</span>
+        <span class="api-chip cyan">openFEC</span>
+        <span class="api-chip purple">OpenCorporates</span>
         <span class="api-chip dim">+ plugin API</span>
       </div>
     </div>

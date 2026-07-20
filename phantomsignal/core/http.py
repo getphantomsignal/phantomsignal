@@ -30,17 +30,102 @@ target must not mangle the auth/UA those providers expect.
 from __future__ import annotations
 
 import asyncio
+import contextlib
+import contextvars
 import email.utils
 import logging
 import random
 import time
-from dataclasses import dataclass
-from typing import Dict, Optional, Tuple
+from dataclasses import dataclass, field
+from typing import Dict, Iterator, Optional, Set, Tuple
 from urllib.parse import urlparse
 
 import httpx
 
 logger = logging.getLogger("phantomsignal.http")
+
+
+# ── Attribution telemetry ─────────────────────────────────────────────────────
+# The OPSEC flagship promises operators an honest answer to "what did this scan
+# leak?". To answer it we tally, per scan, every request that actually left the
+# box: whether it went out through a proxy or direct, whether the TLS/HTTP2
+# fingerprint was impersonated (and as which browser), and how often a defence
+# challenged us. A scan opens an ``attribution_scope`` (a contextvar), and every
+# StealthClient underneath — however deep in the module tree — records into it.
+
+
+@dataclass
+class AttributionLedger:
+    """Per-scan tally of egress that left the operator's box."""
+    total: int = 0                                   # requests that egressed
+    proxied: int = 0                                 # via a proxy (masked)
+    direct: int = 0                                  # direct from our IP
+    impersonated: int = 0                            # with a spoofed JA3/JA4
+    waf_blocks: int = 0                              # defence-challenge responses
+    backoffs: int = 0                                # adaptive backoff sleeps
+    hosts: Set[str] = field(default_factory=set)
+    proxies_used: Set[str] = field(default_factory=set)
+    ja3_profiles: Dict[str, int] = field(default_factory=dict)   # imp target → n
+    block_names: Dict[str, int] = field(default_factory=dict)    # waf name → n
+
+    def record_request(self, host: str, proxy: Optional[str],
+                       impersonate_target: Optional[str]) -> None:
+        self.total += 1
+        if host:
+            self.hosts.add(host)
+        if proxy:
+            self.proxied += 1
+            self.proxies_used.add(proxy)
+        else:
+            self.direct += 1
+        if impersonate_target:
+            self.impersonated += 1
+            self.ja3_profiles[impersonate_target] = (
+                self.ja3_profiles.get(impersonate_target, 0) + 1
+            )
+
+    def record_block(self, name: Optional[str]) -> None:
+        self.waf_blocks += 1
+        if name:
+            self.block_names[name] = self.block_names.get(name, 0) + 1
+
+    def record_backoff(self) -> None:
+        self.backoffs += 1
+
+    def summary(self) -> Dict:
+        """A JSON-serialisable snapshot for storage/rendering."""
+        proxied_pct = round(100.0 * self.proxied / self.total, 1) if self.total else 0.0
+        return {
+            "total_requests": self.total,
+            "proxied": self.proxied,
+            "direct": self.direct,
+            "proxied_pct": proxied_pct,
+            "impersonated": self.impersonated,
+            "waf_blocks": self.waf_blocks,
+            "backoffs": self.backoffs,
+            "hosts_touched": len(self.hosts),
+            "proxies_used": len(self.proxies_used),
+            "ja3_profiles": dict(self.ja3_profiles),
+            "block_names": dict(self.block_names),
+        }
+
+
+_current_ledger: contextvars.ContextVar[Optional[AttributionLedger]] = (
+    contextvars.ContextVar("ps_attribution_ledger", default=None)
+)
+
+
+@contextlib.contextmanager
+def attribution_scope(ledger: Optional[AttributionLedger] = None) -> Iterator[AttributionLedger]:
+    """Activate a ledger for the duration of a scan. Every StealthClient request
+    made within (including in child tasks) records into it."""
+    led = ledger if ledger is not None else AttributionLedger()
+    token = _current_ledger.set(led)
+    try:
+        yield led
+    finally:
+        _current_ledger.reset(token)
+
 
 # curl_cffi (curl-impersonate) is an optional dependency that lets us present a
 # real browser's TLS (JA3/JA4) + HTTP/2 fingerprint instead of Python's static,
@@ -525,11 +610,13 @@ class StealthClient:
         retries = self._profile.max_retries
         last_exc: Optional[Exception] = None
         resp = None
+        led = _current_ledger.get()   # active scan's attribution ledger, if any
 
         for attempt in range(retries + 1):
             # Identity + egress are resolved per attempt so a burn-and-rotate
             # on the previous try takes effect here.
             proxy = self._pool.for_host(host)
+            imp_target = self._limiter.impersonate(host) if self._impersonate else None
 
             sem = await self._limiter.acquire(host)
             try:
@@ -537,7 +624,7 @@ class StealthClient:
                     resp = await self._session().request(
                         method, url,
                         headers=self._caller_headers(headers),
-                        impersonate=self._limiter.impersonate(host),
+                        impersonate=imp_target,
                         proxy=proxy,
                         allow_redirects=self._follow,
                         verify=self._verify,
@@ -549,18 +636,27 @@ class StealthClient:
                     resp = await self._client_for(proxy).request(method, url, headers=merged, **kw)
             except _TRANSPORT_ERRORS as exc:
                 last_exc = exc
+                if led is not None:
+                    led.record_request(host, proxy, imp_target)   # it still egressed
                 self._pool.penalize(proxy)      # egress fault → bench + rotate
                 self._pool.rotate_host(host)
                 if attempt < retries:
+                    if led is not None:
+                        led.record_backoff()
                     await asyncio.sleep(self._backoff_delay(attempt))
                     continue
                 raise
             finally:
                 sem.release()
 
+            if led is not None:
+                led.record_request(host, proxy, imp_target)
+
             waf = looks_like_waf(resp)
             if resp.status_code in (429, 503) or waf:
                 self.last_block = waf or f"http-{resp.status_code}"
+                if led is not None:
+                    led.record_block(self.last_block)
                 cooldown = _retry_after_seconds(resp, self._profile.interval_cap)
                 self._limiter.penalize(host, cooldown)
                 # This egress got blocked on this host: burn it, swap to a fresh
@@ -569,6 +665,8 @@ class StealthClient:
                 self._pool.rotate_host(host)
                 self._limiter.reroll_identity(host)
                 if attempt < retries:
+                    if led is not None:
+                        led.record_backoff()
                     await asyncio.sleep(cooldown or self._backoff_delay(attempt))
                     continue
                 return resp
@@ -581,6 +679,44 @@ class StealthClient:
             return resp
         assert last_exc is not None
         raise last_exc
+
+    @contextlib.asynccontextmanager
+    async def stream(self, method: str, url: str, *, headers: Optional[Dict] = None, **kw):
+        """Stealth-routed streaming request, so callers can size-cap or abort a
+        body mid-flight (e.g. document downloads with a zip-bomb guard).
+
+        Single attempt — no retry/rotate loop, since the caller owns the body.
+        The request is proxied and carries the host's sticky browser identity +
+        adaptive pacing; TLS/JA3 impersonation is *not* applied to streamed
+        bodies (curl_cffi streaming differs), and the ledger records the request
+        honestly as non-impersonated.
+        """
+        host = urlparse(url).netloc
+        proxy = self._pool.for_host(host)
+        led = _current_ledger.get()
+        sem = await self._limiter.acquire(host)
+        try:
+            merged = self._headers_for(host, headers)
+            async with self._client_for(proxy).stream(method, url, headers=merged, **kw) as resp:
+                if led is not None:
+                    led.record_request(host, proxy, None)
+                # Body isn't read yet, so judge a block by status/headers only —
+                # don't sniff resp.text (it would consume the stream).
+                blocked = resp.status_code in (429, 503) or bool(resp.headers.get("cf-mitigated"))
+                if blocked:
+                    self.last_block = f"http-{resp.status_code}"
+                    if led is not None:
+                        led.record_block(self.last_block)
+                    self._limiter.penalize(host, _retry_after_seconds(resp, self._profile.interval_cap))
+                    self._pool.penalize(proxy)
+                    self._pool.rotate_host(host)
+                    self._limiter.reroll_identity(host)
+                else:
+                    self._limiter.reward(host)
+                    self._pool.reward(proxy)
+                yield resp
+        finally:
+            sem.release()
 
     def _backoff_delay(self, attempt: int) -> float:
         """Exponential backoff with full jitter."""
@@ -649,6 +785,44 @@ def resolve_egress(config, proxy=..., pool=...) -> Tuple[list, str]:
     else:
         egress = [None]
     return egress, rotation
+
+
+def stealth_status(config) -> Dict:
+    """Summarise the operator's current egress posture for at-a-glance UI (the
+    navbar chip). Three levels:
+
+    * ``stealth`` — a non-off profile *and* at least one proxy egress: traffic is
+      both paced/identity-managed and masked.
+    * ``partial`` — some protection but not the full picture (profile on but no
+      proxy, or a proxy with the 'off' profile, or TLS impersonation only).
+    * ``off`` — direct egress from our own IP, no pacing profile.
+    """
+    prof = resolve_profile(config)
+    egress, rotation = resolve_egress(config)
+    proxies = [e for e in egress if e]
+    proxied = bool(proxies)
+    profile_on = prof.name != "off"
+    impersonate = (bool(config.get("scraper", "tls_impersonate", default=False))
+                   and _CURL_AVAILABLE)
+    tor = bool(config.get("scraper", "tor_enabled", default=False))
+
+    if proxied and profile_on:
+        level, label = "stealth", prof.name.upper()
+    elif proxied or profile_on or impersonate:
+        level, label = "partial", "PARTIAL"
+    else:
+        level, label = "off", "DIRECT"
+
+    return {
+        "level": level,
+        "label": label,
+        "profile": prof.name,
+        "proxied": proxied,
+        "pool_size": len(proxies),
+        "rotation": rotation,
+        "impersonate": impersonate,
+        "tor": tor,
+    }
 
 
 def stealth_client(

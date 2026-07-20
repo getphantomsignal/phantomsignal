@@ -2719,3 +2719,10 @@ class CustomAPI(BaseIntelAPI):
             {"query": query, "source_url": base_url, "data": data},
             confidence=0.8, relevance_score=0.7, tags=["custom", "user_defined"],
         )]
+
+
+# Keyless identity sources (XposedOrNot, GitHub commit harvest, GitLab,
+# Wikidata, WebFinger, offline phone intel, openFEC, OpenCorporates) register
+# themselves on import — pulled in here so every existing `import all_apis`
+# registration trigger picks them up without touching the orchestrator.
+from phantomsignal.intel.apis import identity_sources  # noqa: E402,F401

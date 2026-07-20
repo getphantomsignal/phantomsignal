@@ -1,9 +1,19 @@
 """PhantomSignal Settings Routes — API key and scan-settings management."""
+import asyncio
+
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from phantomsignal.core.config import config
+from phantomsignal.core.proxy_sources import (
+    PROXY_SOURCES, fetch_proxy_source, parse_proxy_lines, merge_pool,
+)
 from phantomsignal.intel.orchestrator import IntelOrchestrator
 
 settings_bp = Blueprint("settings", __name__)
+
+# Bound how big the pool can grow and how much one fetch/upload can add, so a
+# multi-thousand-entry feed can't swamp the pool or the settings textarea.
+_POOL_CAP = 1000
+_ADD_LIMIT = 300
 
 
 @settings_bp.route("/")
@@ -18,7 +28,78 @@ def settings_page():
 @settings_bp.route("/scan")
 def scan_settings():
     """Settings — scan behaviour, stealth posture, and egress."""
-    return render_template("scan_settings.html", config=config.as_dict())
+    return render_template("scan_settings.html", config=config.as_dict(),
+                           proxy_sources=PROXY_SOURCES)
+
+
+def _current_pool():
+    return list(config.get("scraper", "proxy_pool", default=[]) or [])
+
+
+def _apply_pool(additions, origin):
+    """Merge new proxies into the in-memory pool and flash the outcome."""
+    if not additions:
+        flash(f"No valid proxies found in {origin}.", "warning")
+        return
+    before = _current_pool()
+    merged = merge_pool(before, additions, cap=_POOL_CAP)
+    config.set("scraper", "proxy_pool", value=merged)
+    config.persist()
+    added = len(merged) - len(before)
+    flash(f"Added {added} new prox{'y' if added == 1 else 'ies'} from {origin} "
+          f"— pool now {len(merged)}.", "success")
+
+
+@settings_bp.route("/proxy/fetch", methods=["POST"])
+def fetch_proxies():
+    """Seed the pool from a baked-in feed or a custom http(s) list URL."""
+    source_key = request.form.get("source", "")
+    custom_url = (request.form.get("custom_url") or "").strip()
+
+    if custom_url:
+        url = custom_url
+        scheme = request.form.get("custom_scheme", "http")
+        label = custom_url
+    else:
+        src = PROXY_SOURCES.get(source_key)
+        if not src:
+            flash("Unknown proxy source.", "error")
+            return redirect(url_for("settings.scan_settings"))
+        url, scheme, label = src["url"], src["scheme"], src["name"]
+
+    try:
+        loop = asyncio.new_event_loop()
+        proxies = loop.run_until_complete(
+            fetch_proxy_source(url, default_scheme=scheme, limit=_ADD_LIMIT))
+        loop.close()
+    except ValueError as e:
+        flash(str(e), "error")
+        return redirect(url_for("settings.scan_settings"))
+    except Exception as e:
+        flash(f"Could not fetch proxy list: {e}", "error")
+        return redirect(url_for("settings.scan_settings"))
+
+    _apply_pool(proxies, label)
+    return redirect(url_for("settings.scan_settings"))
+
+
+@settings_bp.route("/proxy/upload", methods=["POST"])
+def upload_proxies():
+    """Seed the pool from an uploaded proxy-list file (one proxy per line)."""
+    f = request.files.get("proxy_file")
+    if not f or not f.filename:
+        flash("No file selected.", "warning")
+        return redirect(url_for("settings.scan_settings"))
+    scheme = request.form.get("upload_scheme", "http")
+    try:
+        text = f.read().decode("utf-8", errors="ignore")
+    except Exception as e:
+        flash(f"Could not read file: {e}", "error")
+        return redirect(url_for("settings.scan_settings"))
+
+    proxies = parse_proxy_lines(text, default_scheme=scheme, limit=_ADD_LIMIT)
+    _apply_pool(proxies, f.filename)
+    return redirect(url_for("settings.scan_settings"))
 
 
 @settings_bp.route("/api-keys", methods=["POST"])
@@ -58,6 +139,7 @@ def save_scraper_settings():
     config.set("scraper", "proxy_rotation", value=rotation)
     config.set("scraper", "tls_impersonate", value=request.form.get("tls_impersonate") == "on")
 
+    config.persist()
     flash("Settings saved.", "success")
     return redirect(url_for("settings.scan_settings"))
 

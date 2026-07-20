@@ -232,7 +232,7 @@
       <h3>Add a known signal</h3>
       <form class="mini-form" action="{{ url_for('locate.add_signal', case_id=case.id) }}" method="POST">
         <div class="form-group"><label class="form-label">KIND</label>
-          <select name="kind" class="input-field">
+          <select name="kind" class="input-field select-field">
             <option value="checkin">check-in (hard)</option>
             <option value="stated_location">stated location</option>
             <option value="address_record">address record</option>

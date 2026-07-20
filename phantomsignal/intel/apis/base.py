@@ -105,12 +105,19 @@ class BaseIntelAPI(abc.ABC):
     DOCS_URL: ClassVar[str] = ""
     SIGN_UP_URL: ClassVar[str] = ""
     IS_COMMERCIAL: ClassVar[bool] = False
+    # Route this source's HTTP through the shared StealthClient so it inherits
+    # the proxy pool + adaptive rate limiter and records into the attribution
+    # ledger. Off by default: keyed providers expect their own auth/UA and must
+    # NOT be re-fingerprinted. Keyless public sources opt in (they need no auth),
+    # so their lookups get proxied instead of leaking direct from our IP.
+    STEALTH_ROUTED: ClassVar[bool] = False
 
     def __init__(self, config):
         self.config = config
         self._api_key = config.get_api_key(self.NAME)
         self._call_times: List[float] = []
         self._client: Optional[httpx.AsyncClient] = None
+        self._stealth = None   # lazily-built StealthClient when STEALTH_ROUTED
         self.logger = logging.getLogger(f"phantomsignal.intel.{self.NAME}")
 
     @property
@@ -128,6 +135,19 @@ class BaseIntelAPI(abc.ABC):
                 headers=self._default_headers(),
             )
         return self._client
+
+    def _stealth_client(self):
+        """Lazily build (and reuse) a StealthClient for this source, using the
+        operator's configured egress/profile. Only used when STEALTH_ROUTED."""
+        if self._stealth is None:
+            from phantomsignal.core.http import stealth_client
+            self._stealth = stealth_client(self.config, timeout=30.0)
+        return self._stealth
+
+    def _http(self):
+        """The active HTTP client — stealth-routed (proxy pool + ledger) when the
+        source opts in, else the plain provider-facing httpx client."""
+        return self._stealth_client() if self.STEALTH_ROUTED else self._get_client()
 
     def _default_headers(self) -> Dict[str, str]:
         return {
@@ -147,7 +167,7 @@ class BaseIntelAPI(abc.ABC):
 
     async def _get(self, url: str, params: Dict = None, headers: Dict = None) -> Dict:
         await self._rate_limit()
-        client = self._get_client()
+        client = self._http()
         try:
             response = await client.get(url, params=params, headers=headers)
             response.raise_for_status()
@@ -164,7 +184,7 @@ class BaseIntelAPI(abc.ABC):
 
     async def _post(self, url: str, data: Dict = None, json: Dict = None, headers: Dict = None) -> Dict:
         await self._rate_limit()
-        client = self._get_client()
+        client = self._http()
         try:
             response = await client.post(url, data=data, json=json, headers=headers)
             response.raise_for_status()
@@ -210,6 +230,9 @@ class BaseIntelAPI(abc.ABC):
     async def close(self) -> None:
         if self._client and not self._client.is_closed:
             await self._client.aclose()
+        if self._stealth is not None:
+            await self._stealth.aclose()
+            self._stealth = None
 
     def info(self) -> Dict:
         return {
