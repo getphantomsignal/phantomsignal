@@ -11,8 +11,14 @@ Releases are driven by a git tag. Pushing a tag matching `v*.*.*` triggers
 1. **Build** — builds the sdist + wheel and **verifies the tag matches the
    package version** (`phantomsignal.__version__` must equal the tag minus its
    `v`). A mismatch fails the run.
-2. **Publish** — uploads the artifacts to PyPI using **trusted publishing**
-   (OIDC — no stored API token), running in the GitHub Environment named `pypi`.
+2. **Publish** — uploads the artifacts to PyPI using an **API token** stored in
+   the `PYPI_API_TOKEN` repo secret. (Trusted publishing via OIDC is a supported
+   alternative — see below — but token auth is what's wired up today.)
+
+> **Note:** the workflow at the *tag's* commit is what runs, so a change to
+> `publish.yml` only affects **future** tags. To ship a release whose tag
+> predates a publish-workflow fix, build + upload locally instead:
+> `python -m build && TWINE_USERNAME=__token__ TWINE_PASSWORD=<token> twine upload dist/*`.
 
 ### Cutting a release
 
@@ -30,7 +36,25 @@ gh release create vX.Y.Z --title "vX.Y.Z — <headline>" --notes-file notes.md -
 
 ---
 
-## One-time: configure the PyPI trusted publisher
+## PyPI auth: API token (current setup)
+
+The publish job authenticates with a project-scoped PyPI API token stored as the
+`PYPI_API_TOKEN` **repo secret**:
+
+1. On PyPI (as a project Owner), create a token scoped to `phantomsignal`:
+   **Account settings → API tokens → Add API token**.
+2. Store it as a GitHub Actions secret:
+   ```bash
+   printf '%s' 'pypi-…' | gh secret set PYPI_API_TOKEN --repo getphantomsignal/phantomsignal
+   ```
+3. `publish.yml` passes it as `password: ${{ secrets.PYPI_API_TOKEN }}` (with
+   `attestations: false`, since attestations need OIDC).
+
+Rotate the token from the PyPI token page and re-run step 2 to update the secret.
+
+---
+
+## Alternative: PyPI trusted publisher (OIDC)
 
 Until this is done the **Publish to PyPI** step fails on every tag (the Build
 step still succeeds). Trusted publishing lets GitHub Actions authenticate to
@@ -117,7 +141,7 @@ Two failures we actually hit, and what each means.
 The OIDC token was minted but **no trusted publisher on PyPI matched** the
 workflow's claims. The publish job hasn't been configured on PyPI yet, or one of
 the four values is wrong. The log prints the claims it presented — they must
-match the [setup table](#one-time-configure-the-pypi-trusted-publisher) exactly:
+match the [setup table](#alternative-pypi-trusted-publisher-oidc) exactly:
 
 - `sub: repo:getphantomsignal/phantomsignal:environment:pypi`
 - `workflow_ref: …/publish.yml@refs/tags/vX.Y.Z`

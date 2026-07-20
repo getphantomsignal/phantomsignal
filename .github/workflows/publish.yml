@@ -48,9 +48,6 @@ jobs:
     name: Publish to PyPI
     needs: build
     runs-on: ubuntu-latest
-    environment: pypi
-    permissions:
-      id-token: write   # required for trusted publishing (OIDC)
 
     steps:
       - name: Download build artifacts
@@ -61,3 +58,8 @@ jobs:
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          # API-token auth (PYPI_API_TOKEN repo secret). Attestations require
+          # OIDC trusted publishing, so they're off under token auth.
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          attestations: false
