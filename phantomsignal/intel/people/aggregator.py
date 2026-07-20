@@ -70,7 +70,8 @@ class ShadowProfileBuilder:
             # No keyed people APIs configured or none returned results —
             # run all free no-key sources for a baseline profile.
             logger.info("Running free-source people scan (no API keys required).")
-            return await self._public_fallback(first_name, last_name, email, username)
+            return await self._public_fallback(first_name, last_name, email,
+                                               username, phone)
 
         return self._merge_profiles(all_raw_results, {
             "first_name": first_name,
@@ -369,6 +370,7 @@ class ShadowProfileBuilder:
         last_name: Optional[str],
         email: Optional[str],
         username: Optional[str],
+        phone: Optional[str] = None,
     ) -> Dict:
         """
         Free-tier people scan — runs all no-key-required APIs against every available
@@ -391,6 +393,8 @@ class ShadowProfileBuilder:
         queries = []
         if email:
             queries.append(email)
+        if phone:
+            queries.append(re.sub(r"[^\d+]", "", phone))
         if username:
             queries.append(username)
         if first_name and last_name:

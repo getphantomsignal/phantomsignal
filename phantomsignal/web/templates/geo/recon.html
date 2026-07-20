@@ -41,7 +41,7 @@
 <div class="gr-form">
   <form method="POST">
     <div class="form-group" style="margin-bottom:0.75rem;"><label class="form-label">SOURCE</label>
-      <select name="mode" class="input-field" onchange="grMode(this.value)">
+      <select name="mode" class="input-field select-field" onchange="grMode(this.value)">
         <option value="free" {% if form.mode != 'shodan' %}selected{% endif %}>Free / passive — no key (domain or ASN scope)</option>
         <option value="shodan" {% if form.mode == 'shodan' %}selected{% endif %}>Shodan — paid index (city / lat,lon)</option>
       </select></div>

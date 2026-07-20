@@ -65,10 +65,17 @@ def create_app(config_path: Optional[str] = None) -> Flask:
 
     @app.context_processor
     def inject_globals():
+        from phantomsignal.core.http import stealth_status
+        from phantomsignal.core.config import config
+        try:
+            stealth = stealth_status(config)
+        except Exception:
+            stealth = {"level": "off", "label": "DIRECT"}
         return {
             "now": datetime.utcnow(),
             "version": __version__,
             "codename": __codename__,
+            "stealth": stealth,
         }
 
     @app.errorhandler(404)

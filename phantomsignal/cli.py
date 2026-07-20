@@ -933,7 +933,9 @@ def profile(first_name, last_name, email, phone, username, output):
         sys.exit(1)
 
     from phantomsignal.intel.people.aggregator import ShadowProfileBuilder
+    from phantomsignal.intel.people.persist import persist_profile_scan
     from phantomsignal.core.config import config as cfg
+    from phantomsignal.core.database import init_db
 
     console.print("\n[bold cyan]◉ INITIATING SHADOW PROFILER...[/bold cyan]")
 
@@ -946,6 +948,13 @@ def profile(first_name, last_name, email, phone, username, output):
             phone=phone,
             username=username,
         ))
+
+    # Persist as a people_intel scan so it lands in the Scans store / GUI.
+    init_db()
+    scan_id = persist_profile_scan(result, {
+        "first_name": first_name, "last_name": last_name, "email": email,
+        "phone": phone, "username": username,
+    })
 
     console.print("\n[bold green]SHADOW PROFILE COMPILED[/bold green]")
     console.print(f"Confidence: [cyan]{result.get('confidence', 0):.0%}[/cyan]")
@@ -971,6 +980,9 @@ def profile(first_name, last_name, email, phone, username, output):
         console.print(f"\n[bold red]⚠ BREACHES DETECTED: {len(result['breach_data'])}[/bold red]")
         for b in result["breach_data"][:5]:
             console.print(f"  ✗ {b.get('name', '?')} ({b.get('breach_date', '?')})")
+
+    if scan_id:
+        console.print(f"\n[green]✓ Saved to Scans:[/green] [cyan]{scan_id}[/cyan]")
 
     if output:
         with open(output, "w") as f:

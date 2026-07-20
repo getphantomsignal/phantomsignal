@@ -1,6 +1,7 @@
 """PhantomSignal Intel Routes — people search and profiler."""
 from flask import Blueprint, render_template, request, jsonify
 from phantomsignal.intel.people.aggregator import ShadowProfileBuilder
+from phantomsignal.intel.people.persist import persist_profile_scan
 from phantomsignal.core.config import config
 import asyncio
 
@@ -41,10 +42,16 @@ def person_search():
     finally:
         loop.close()
 
-    return render_template("intel/results.html", profile=profile, query={
+    query = {
         "first_name": first_name, "last_name": last_name, "email": email,
         "phone": phone, "username": username,
-    })
+    }
+    # Persist the run as a first-class people_intel scan so it shows up under
+    # Scans with history/export/diff, not just this one-shot page.
+    scan_id = persist_profile_scan(profile, query)
+
+    return render_template("intel/results.html", profile=profile,
+                           query=query, scan_id=scan_id)
 
 
 @intel_bp.route("/api/person", methods=["POST"])
@@ -56,4 +63,5 @@ def api_person_search():
         profile = loop.run_until_complete(builder.build_profile(**data))
     finally:
         loop.close()
-    return jsonify(profile)
+    scan_id = persist_profile_scan(profile, data)
+    return jsonify({**profile, "scan_id": scan_id})

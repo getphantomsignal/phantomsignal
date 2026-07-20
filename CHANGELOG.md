@@ -9,6 +9,61 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+**Identity-intelligence expansion + egress UX.** The Profiler gains eight
+keyless public sources and finally persists its runs as scans; free proxy pools
+are one click away; and the whole stealth posture is now visible and durable.
+
+### Added
+- **Eight keyless identity sources** (`intel/apis/identity_sources.py`) — no API
+  key required, feeding the Profiler aggregator's existing fields:
+  - **XposedOrNot** — breach exposure by email, filling the keyless-breach gap
+    (HIBP/IntelX need keys).
+  - **GitHub commit-email harvester** — real name + email mined from a user's
+    public commits and events.
+  - **GitLab** — public profile, links, and public email.
+  - **Wikidata** — structured biographical identity for named people (DOB,
+    official site, cross-linked socials); human-only (rejects same-name
+    companies/films).
+  - **WebFinger** — resolves a fediverse handle to its profile and aliases.
+  - **Offline phone intel** (libphonenumber) — region, carrier, line-type, and
+    validity with **zero network egress**.
+  - **openFEC** — US political-donation records → employer / occupation / city.
+  - **OpenCorporates** — company-officer roles for a name.
+- **Profiler runs are now scans.** A Profiler search persists as a `people_intel`
+  scan — `Scan` + `ScanResult` rows + a linked `ShadowProfile` — so it appears
+  under **Scans** with history, summary, and export. Added a **"View in Scans"**
+  button, a `people_intel` path in the CLI `profile` command, and a new
+  **People & Identity** category in the scan summary view.
+- **Keyless sources routed through the stealth client** — a `STEALTH_ROUTED`
+  opt-in on `BaseIntelAPI` routes those sources through the shared proxy pool +
+  adaptive rate limiter, and records them in the attribution ledger (proxied when
+  a proxy is configured, instead of leaking direct and uncounted). Keyed
+  providers are untouched. The offline phone source makes no request.
+- **Egress-posture chip in the navbar** — a **STEALTH / PARTIAL / DIRECT** badge
+  beside the connection status, theme-aware, tooltip'd with profile · pool size ·
+  rotation · JA3 · Tor, linking to Scan Settings. Backed by
+  `core.http.stealth_status()`.
+- **Proxy-pool seeding** (`core/proxy_sources.py`, Settings → Scan Settings) —
+  fetch from curated free feeds (ProxyScrape, TheSpeedX, monosans, Proxifly), a
+  custom list URL, or **upload a list file**. Tolerant parser handles
+  `ip:port`, `scheme://ip:port`, `user:pass@ip:port`, and `ip:port:user:pass`,
+  with de-dupe and per-import (300) / total (1000) caps.
+- **Settings persistence** — scraper/egress settings (stealth profile, single
+  proxy, pool, rotation, TLS impersonation, Tor, robots.txt, delay, concurrency)
+  now survive a restart via `~/.phantomsignal/config.yaml`, merged non-
+  destructively. `config.persist()` deliberately does **not** copy env-provided
+  API keys into the file.
+
+### Fixed
+- **Profiler results page crashed** (KeyError) whenever a social profile was
+  found — the template iterated the `social_profiles` dict as if it were a list.
+- **Dark-mode dropdowns** — native `<option>` menus fell back to the OS light
+  theme; now themed for every select, and the stealth/pool/retention/kind/mode
+  selects gained the styled dropdown arrow.
+
+### Dependencies
+- Added `phonenumbers` (offline phone metadata; degrades gracefully if absent).
+
 ---
 
 ## [1.26.0] — 2026-07-15

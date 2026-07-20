@@ -18,6 +18,32 @@
 
 ---
 
+## ⚡ What's New (unreleased) — Identity intelligence + egress you can see
+
+**The Profiler grew up.** Eight new **keyless** public sources feed it, every
+run is now saved as a scan you can revisit and export, and the whole stealth
+posture is visible in the navbar and survives a restart.
+
+- **8 no-key identity sources** — XposedOrNot (breach exposure with no HIBP key),
+  a GitHub commit-email harvester (real name + email from public commits),
+  GitLab, Wikidata (DOB + cross-linked socials for named people), WebFinger
+  (fediverse resolution), **offline phone intel** via libphonenumber (zero
+  network egress), openFEC (US employer/occupation), and OpenCorporates.
+- **Profiler → Scans** — a Profiler search now persists as a `people_intel` scan
+  (with a linked shadow profile), so it lands in **Scans** with history,
+  summary, and export. A **View in Scans** button jumps straight there.
+- **Egress routed + graded** — the keyless sources inherit the shared proxy pool
+  and land in the attribution ledger. A **STEALTH / PARTIAL / DIRECT** chip in
+  the navbar shows your live posture at a glance.
+- **Proxy pools in one click** — seed the rotating pool from curated free feeds,
+  a custom URL, or an uploaded list, right from Scan Settings.
+- **Settings persist** — stealth profile, proxy pool, rotation, and the rest now
+  survive a restart.
+
+See the [CHANGELOG](CHANGELOG.md#unreleased) for the full list.
+
+---
+
 ## ⚡ What's New in v1.26.0 — Best-of-breed engines + the vuln loop
 
 **PhantomSignal now closes the ASM loop and runs fast Go-native engines — under
@@ -151,28 +177,37 @@ PhantomSignal is a **community-powered, open-source OSINT intelligence framework
 - **SPF/DMARC analysis** — identify email spoofing vulnerabilities
 - **Reverse DNS** and co-hosted domain discovery
 
-### 🔬 Intelligence APIs (46+ Integrations)
+### 🔬 Intelligence APIs (54+ Integrations)
 
 | Category | APIs |
 |----------|------|
 | **Network Scanning** | Shodan, Censys, ZoomEye, BinaryEdge |
 | **Threat Intelligence** | VirusTotal, AbuseIPDB, GreyNoise, AlienVault OTX, Intelligence X |
-| **Email & Breach** | Hunter.io, HaveIBeenPwned, EmailRep |
+| **Email & Breach** | Hunter.io, HaveIBeenPwned, EmailRep, **XposedOrNot** (no key) |
 | **Domain/Web** | SecurityTrails, URLScan.io, WhoisXML, Local WHOIS |
 | **Geolocation** | IPInfo.io |
-| **Phone** | Abstract API phone validation |
-| **People Search** | Pipl, FullContact, WhitePages, Spokeo, Clearbit |
-| **Social** | GitHub, Twitter/X, Reddit, Mastodon, Keybase, Gravatar, HackerNews, Twitch, YouTube, Instagram, TikTok, LinkedIn, Tumblr, Flickr, Spotify, Steam, VK, Telegram, Discord, Facebook |
+| **Phone** | Abstract API, **offline libphonenumber metadata** (no key, zero egress) |
+| **People Search** | Pipl, FullContact, WhitePages, Spokeo, Clearbit, **Wikidata** · **openFEC** · **OpenCorporates** (all no key) |
+| **Social** | GitHub, GitHub commit-email harvester, **GitLab**, **WebFinger**, Twitter/X, Reddit, Mastodon, Keybase, Gravatar, HackerNews, Twitch, YouTube, Instagram, TikTok, LinkedIn, Tumblr, Flickr, Spotify, Steam, VK, Telegram, Discord, Facebook |
 | **Custom** | Bring your own API via plugin architecture |
+
+> **No-key head start** — a whole tier of the Profiler works with **zero API
+> keys**: XposedOrNot (breaches), the GitHub commit-email harvester, GitLab,
+> Wikidata, WebFinger, offline phone metadata, openFEC, and OpenCorporates —
+> plus the existing GitHub/Reddit/Mastodon/Keybase/Gravatar/HackerNews sources.
+> Every network source routes through the stealth egress layer.
 
 ### 👤 Profiler (People Intelligence)
 LexisNexis-style identity aggregation from public records:
-- Cross-correlates data from multiple people-search APIs
+- Cross-correlates data from multiple people-search APIs — **many keyless**
 - Discovers emails, phones, addresses, relatives, employers
-- Breach data correlation via HIBP and other sources
-- Social media profile linking
+- Breach correlation via **XposedOrNot (no key)**, HIBP, and Intelligence X
+- Real name + email harvested from public GitHub/GitLab commits
+- Social media profile linking; fediverse resolution via WebFinger
 - **Risk Score** — digital exposure quantification (0-100)
-- Social graph building and timeline reconstruction
+- **Every run is saved as a scan** — persisted as a `people_intel` scan with a
+  linked shadow profile, so it shows up under **Scans** with history, summary,
+  and export (with a **View in Scans** shortcut from the results page)
 
 ### 📦 Export Formats
 | Format | Description |
@@ -190,9 +225,15 @@ All formats support **ZIP compression** and **AES-256-GCM encryption**.
 
 ### 🌑 Covert Recon
 - Low-and-slow **Covert** scan profile to minimize noise
-- Identity rotation via user-agent spoofing
+- **Stealth profiles** (`off` / `quiet` / `paranoid`) — per-host adaptive pacing,
+  sticky browser identity, JA3/JA4 impersonation, and WAF-aware backoff
+- **Rotating proxy pool** with sticky/per-request rotation and auto-benching of
+  burned egresses — **seed it in one click** from curated free feeds, a custom
+  list URL, or an uploaded file (Settings → Scan Settings)
+- **Live egress posture chip** in the navbar — STEALTH / PARTIAL / DIRECT at a glance
 - Tor proxy integration (Docker compose profile: `covert`)
 - Configurable request jitter and delays, toggled via **Evasive** mode
+- **Egress settings persist** across restarts
 
 ### 🔔 Additional Features
 - **Real-time live feed** — WebSocket-powered terminal during scans
@@ -260,6 +301,14 @@ export SECURITYTRAILS_API_KEY="your-st-key"
 ### Config File
 Copy `config/phantomsignal.yaml` to `~/.phantomsignal/config.yaml` and customize.
 
+### Egress / stealth (Settings → Scan Settings)
+Set your stealth profile, single proxy, and rotating proxy pool from the web UI.
+Seed the pool from curated free proxy feeds, a custom list URL, or an uploaded
+file. These egress settings are **saved to `~/.phantomsignal/config.yaml` and
+persist across restarts** (env-provided API keys are never copied there). Free
+public proxies are unvetted — treat them as blend-in cover for low-sensitivity
+recon, pair with HTTPS, and prefer your own egress for anything sensitive.
+
 ---
 
 ## 🔌 Adding Custom APIs
@@ -299,8 +348,8 @@ phantomsignal/
 ├── core/               — Engine, config, database, models
 ├── scrapers/           — Scrapy crawler, tech detector, port scanner, API hunter, DNS recon
 ├── intel/
-│   ├── apis/           — 46+ API integrations (plugin architecture)
-│   └── people/         — People intelligence aggregation
+│   ├── apis/           — 54+ API integrations (plugin architecture; incl. keyless identity sources)
+│   └── people/         — People intelligence aggregation + Profiler→scan persistence
 ├── exporters/          — JSON/CSV/PDF/HTML/XML/XLSX/STIX + crypto wrapper
 └── web/
     ├── routes/         — Flask blueprints (dashboard, scans, intel, settings, export, REST API)

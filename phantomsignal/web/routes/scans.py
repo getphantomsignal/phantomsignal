@@ -155,6 +155,11 @@ RESULT_CATEGORIES = [
         "otx_indicator", "urlscan_result", "whois_record",
         "securitytrails_whois",
     }),
+    ("people",   "People & Identity",        "◉", "purple", {
+        "identity_name", "email", "phone", "address", "social_profile",
+        "username", "employer", "stated_location", "profile_image",
+        "breach_data", "people_profile_summary",
+    }),
     ("findings", "Findings & Exposure",      "⚠", "red", {
         "signature_match", "dork", "security_posture", "js_secret",
         "takeover_vulnerable", "takeover_candidate", "takeover_confirmed",

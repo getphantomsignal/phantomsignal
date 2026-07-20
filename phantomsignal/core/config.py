@@ -245,12 +245,50 @@ class PhantomSignalConfig:
 
     def set_api_key(self, service: str, key: str) -> None:
         self._config["api_keys"][service] = key
-        self._persist_user_config()
+        self._persist_user_config(include_api_keys=True)
 
-    def _persist_user_config(self) -> None:
+    # Scraper/egress fields that survive a restart — the ones the Scan Settings
+    # UI edits. Kept explicit (not the whole scraper block) so volatile or
+    # env-driven defaults aren't frozen into the user config file.
+    _PERSIST_SCRAPER_KEYS = (
+        "stealth_profile", "proxy", "proxy_pool", "proxy_rotation",
+        "tls_impersonate", "tor_enabled", "respect_robots_txt",
+        "download_delay", "concurrent_requests",
+    )
+
+    def persist(self) -> None:
+        """Persist the scraper/egress settings to the user config file so they
+        survive a restart. API keys already on disk are preserved untouched —
+        we don't push env-provided keys into the file as a side effect."""
+        self._persist_user_config(include_api_keys=False)
+
+    def _persist_user_config(self, include_api_keys: bool = True) -> None:
         _USER_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        # Merge into whatever is already on disk so manual additions, and any
+        # keys we don't manage, are preserved rather than clobbered.
+        existing: Dict[str, Any] = {}
+        if _USER_CONFIG_PATH.exists():
+            try:
+                with open(_USER_CONFIG_PATH) as f:
+                    existing = yaml.safe_load(f) or {}
+            except Exception:
+                existing = {}
+
+        # Only rewrite api_keys when explicitly saving one (set_api_key). The
+        # scraper-settings path leaves on-disk keys as-is so env-loaded secrets
+        # aren't silently copied into the config file.
+        if include_api_keys:
+            existing["api_keys"] = self._config.get("api_keys", {})
+
+        scraper = self._config.get("scraper", {})
+        saved_scraper = existing.get("scraper") or {}
+        for k in self._PERSIST_SCRAPER_KEYS:
+            if k in scraper:
+                saved_scraper[k] = scraper[k]
+        existing["scraper"] = saved_scraper
+
         with open(_USER_CONFIG_PATH, "w") as f:
-            yaml.dump({"api_keys": self._config["api_keys"]}, f)
+            yaml.dump(existing, f, default_flow_style=False, sort_keys=False)
 
     def as_dict(self) -> Dict[str, Any]:
         import copy

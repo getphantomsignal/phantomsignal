@@ -210,11 +210,20 @@ You are redirected to the live results page where findings stream in as they're 
 - Phone number
 
 **What PhantomSignal aggregates:**
-- Public social media profiles (GitHub, Twitter/X, LinkedIn via Clearbit)
-- Breach exposure via HaveIBeenPwned (requires HIBP API key)
+- Public social media profiles (GitHub, GitLab, Reddit, Mastodon, Keybase, and — with keys — Twitter/X, LinkedIn via Clearbit)
+- Breach exposure via **XposedOrNot (no key required)**, HaveIBeenPwned (HIBP key), and Intelligence X
+- Real name + email harvested from public **GitHub / GitLab commits**
+- Structured biography for named people via **Wikidata** (DOB, official site, linked socials)
+- Fediverse resolution via **WebFinger**; US employer/occupation via **openFEC**; company roles via **OpenCorporates**
+- Phone metadata — carrier, region, line-type — **offline** via libphonenumber (no key, no network)
 - People-search aggregator data (Pipl, FullContact, Spokeo, WhitePages — keys required)
-- Email validity and domain reputation
-- Associated accounts and aliases
+- Email validity and domain reputation; associated accounts and aliases
+
+**Works with zero API keys:** a full tier of the sources above is keyless, so the Profiler returns a useful baseline on a fresh install. Add keys to deepen it.
+
+**Every run is saved as a scan.** A Profiler search is persisted as a `people_intel` scan (with a linked shadow profile), so it appears under **Scans** with history, a categorised **People & Identity** summary, and export. Use the **View in Scans** button on the results page to jump there. From the CLI, `phantomsignal profile …` saves the same way and prints the scan id.
+
+**OPSEC:** every network source routes through the shared stealth egress layer, so with a proxy pool configured these lookups are proxied and counted in the scan's attribution surface. The offline phone source adds nothing to your footprint.
 
 **Privacy note:** The Profiler only queries publicly available data sources and licensed APIs. Configure only the APIs you have a legitimate subscription to. GDPR and CCPA restrictions apply — see [Legal & Ethics](../README.md#️-legal--ethics).
 
@@ -267,6 +276,16 @@ You are redirected to the live results page where findings stream in as they're 
 docker-compose --profile covert up -d
 ```
 This spins up a Tor sidecar and routes all PhantomSignal traffic through it automatically.
+
+**Stealth profile + proxy pool (Settings → Scan Settings):**
+- **Stealth profile** — `off` / `quiet` / `paranoid` controls per-host adaptive pacing, sticky browser identity, JA3/JA4 impersonation, and WAF-aware backoff.
+- **Rotating proxy pool** — one egress per host (`sticky`) or a fresh egress per request (`every`); burned proxies are benched and rotated automatically.
+- **Seed the pool in one click** — pull from a curated free feed (ProxyScrape, TheSpeedX, monosans, Proxifly), paste a custom list URL, or **upload a list file** (`ip:port`, `scheme://ip:port`, `user:pass@ip:port`, or `ip:port:user:pass`, one per line).
+- **These settings persist** across restarts (`~/.phantomsignal/config.yaml`).
+
+> ⚠️ Free public proxies are unvetted and often dead or hostile (a proxy operator can read/modify unencrypted traffic). Treat them as blend-in cover for low-sensitivity recon — pair with HTTPS and prefer your own egress for anything sensitive.
+
+**Posture at a glance:** the navbar shows a **STEALTH / PARTIAL / DIRECT** chip reflecting your current profile + proxy configuration, and every scan ends with an attribution-surface grade of what actually leaked.
 
 **Tip:** Covert scanning significantly increases scan duration. Plan for 30–90 minutes on a moderately sized target.
 

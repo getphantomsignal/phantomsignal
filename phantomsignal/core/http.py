@@ -787,6 +787,44 @@ def resolve_egress(config, proxy=..., pool=...) -> Tuple[list, str]:
     return egress, rotation
 
 
+def stealth_status(config) -> Dict:
+    """Summarise the operator's current egress posture for at-a-glance UI (the
+    navbar chip). Three levels:
+
+    * ``stealth`` — a non-off profile *and* at least one proxy egress: traffic is
+      both paced/identity-managed and masked.
+    * ``partial`` — some protection but not the full picture (profile on but no
+      proxy, or a proxy with the 'off' profile, or TLS impersonation only).
+    * ``off`` — direct egress from our own IP, no pacing profile.
+    """
+    prof = resolve_profile(config)
+    egress, rotation = resolve_egress(config)
+    proxies = [e for e in egress if e]
+    proxied = bool(proxies)
+    profile_on = prof.name != "off"
+    impersonate = (bool(config.get("scraper", "tls_impersonate", default=False))
+                   and _CURL_AVAILABLE)
+    tor = bool(config.get("scraper", "tor_enabled", default=False))
+
+    if proxied and profile_on:
+        level, label = "stealth", prof.name.upper()
+    elif proxied or profile_on or impersonate:
+        level, label = "partial", "PARTIAL"
+    else:
+        level, label = "off", "DIRECT"
+
+    return {
+        "level": level,
+        "label": label,
+        "profile": prof.name,
+        "proxied": proxied,
+        "pool_size": len(proxies),
+        "rotation": rotation,
+        "impersonate": impersonate,
+        "tor": tor,
+    }
+
+
 def stealth_client(
     config,
     *,
